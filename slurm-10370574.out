@@ -1,0 +1,80 @@
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/detect.py", line 1, in <module>
+    from watermark.old_watermark import OldWatermarkDetector
+  File "/n/home12/dtsur/watermarking/WaterBench/watermark/old_watermark.py", line 13, in <module>
+    from tokenizers import Tokenizer
+ModuleNotFoundError: No module named 'tokenizers'
+Traceback (most recent call last):
+  File "/n/home12/dtsur/watermarking/WaterBench/eval.py", line 5, in <module>
+    import openai
+ModuleNotFoundError: No module named 'openai'

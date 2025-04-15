@@ -1,0 +1,2265 @@
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/huggingface_hub/file_download.py:797: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+importing llama
+FINISHED importing model
+finance_qa.jsonl has began.........
+  0%|          | 0/200 [00:00<?, ?it/s]Asking to truncate to max_length but no maximum length is provided and the model has no predefined maximum length. Default to no truncation.
+  0%|          | 1/200 [00:00<02:16,  1.46it/s]  2%|▏         | 3/200 [00:00<00:47,  4.15it/s]  2%|▎         | 5/200 [00:01<00:31,  6.20it/s]  4%|▎         | 7/200 [00:01<00:24,  7.77it/s]  4%|▍         | 9/200 [00:01<00:21,  8.93it/s]  6%|▌         | 11/200 [00:01<00:19,  9.78it/s]  6%|▋         | 13/200 [00:01<00:18, 10.38it/s]  8%|▊         | 15/200 [00:01<00:17, 10.82it/s]  8%|▊         | 17/200 [00:02<00:16, 11.14it/s] 10%|▉         | 19/200 [00:02<00:15, 11.36it/s] 10%|█         | 21/200 [00:02<00:15, 11.52it/s] 12%|█▏        | 23/200 [00:02<00:15, 11.63it/s] 12%|█▎        | 25/200 [00:02<00:15, 11.66it/s] 14%|█▎        | 27/200 [00:02<00:14, 11.72it/s] 14%|█▍        | 29/200 [00:03<00:14, 11.76it/s] 16%|█▌        | 31/200 [00:03<00:14, 11.80it/s] 16%|█▋        | 33/200 [00:03<00:14, 11.82it/s] 18%|█▊        | 35/200 [00:03<00:13, 11.84it/s] 18%|█▊        | 37/200 [00:03<00:13, 12.36it/s] 20%|█▉        | 39/200 [00:03<00:13, 12.21it/s] 20%|██        | 41/200 [00:04<00:13, 12.12it/s] 22%|██▏       | 43/200 [00:04<00:13, 12.05it/s] 22%|██▎       | 45/200 [00:04<00:12, 12.00it/s] 24%|██▎       | 47/200 [00:04<00:12, 11.96it/s] 24%|██▍       | 49/200 [00:04<00:12, 11.92it/s] 26%|██▌       | 51/200 [00:04<00:12, 11.91it/s] 26%|██▋       | 53/200 [00:05<00:12, 11.90it/s] 28%|██▊       | 55/200 [00:05<00:12, 11.90it/s] 28%|██▊       | 57/200 [00:05<00:12, 11.90it/s] 30%|██▉       | 59/200 [00:05<00:11, 11.90it/s] 30%|███       | 61/200 [00:05<00:11, 11.90it/s] 32%|███▏      | 63/200 [00:05<00:11, 11.88it/s] 32%|███▎      | 65/200 [00:06<00:11, 11.88it/s] 34%|███▎      | 67/200 [00:06<00:11, 11.88it/s] 34%|███▍      | 69/200 [00:06<00:11, 11.89it/s] 36%|███▌      | 71/200 [00:06<00:10, 11.89it/s] 36%|███▋      | 73/200 [00:06<00:10, 11.89it/s] 38%|███▊      | 75/200 [00:06<00:10, 11.88it/s] 38%|███▊      | 77/200 [00:07<00:10, 11.88it/s] 40%|███▉      | 79/200 [00:07<00:09, 13.02it/s] 40%|████      | 81/200 [00:07<00:09, 12.67it/s] 42%|████▏     | 83/200 [00:07<00:09, 12.42it/s] 42%|████▎     | 85/200 [00:07<00:09, 12.26it/s] 44%|████▎     | 87/200 [00:07<00:09, 12.15it/s] 44%|████▍     | 89/200 [00:08<00:09, 12.07it/s] 46%|████▌     | 91/200 [00:08<00:09, 11.99it/s] 46%|████▋     | 93/200 [00:08<00:08, 12.02it/s] 48%|████▊     | 95/200 [00:08<00:08, 11.98it/s] 48%|████▊     | 97/200 [00:08<00:08, 11.95it/s] 50%|████▉     | 99/200 [00:08<00:08, 12.40it/s] 50%|█████     | 101/200 [00:09<00:08, 12.24it/s] 52%|█████▏    | 103/200 [00:09<00:07, 12.14it/s] 52%|█████▎    | 105/200 [00:09<00:07, 12.06it/s] 54%|█████▎    | 107/200 [00:09<00:07, 11.99it/s] 55%|█████▍    | 109/200 [00:09<00:07, 11.96it/s] 56%|█████▌    | 111/200 [00:09<00:07, 11.93it/s] 56%|█████▋    | 113/200 [00:10<00:07, 11.92it/s] 57%|█████▊    | 115/200 [00:10<00:07, 11.91it/s] 58%|█████▊    | 117/200 [00:10<00:06, 11.91it/s] 60%|█████▉    | 119/200 [00:10<00:06, 11.90it/s] 60%|██████    | 121/200 [00:10<00:06, 12.10it/s] 62%|██████▏   | 123/200 [00:10<00:06, 12.03it/s] 62%|██████▎   | 125/200 [00:11<00:06, 11.97it/s] 64%|██████▎   | 127/200 [00:11<00:06, 11.95it/s] 64%|██████▍   | 129/200 [00:11<00:05, 11.93it/s] 66%|██████▌   | 131/200 [00:11<00:05, 11.92it/s] 66%|██████▋   | 133/200 [00:11<00:05, 12.24it/s] 68%|██████▊   | 135/200 [00:11<00:05, 11.68it/s] 68%|██████▊   | 137/200 [00:12<00:05, 11.73it/s] 70%|██████▉   | 139/200 [00:12<00:05, 11.78it/s] 70%|███████   | 141/200 [00:12<00:04, 12.78it/s] 72%|███████▏  | 143/200 [00:12<00:04, 12.49it/s] 72%|███████▎  | 145/200 [00:12<00:04, 12.30it/s] 74%|███████▎  | 147/200 [00:12<00:04, 12.45it/s] 74%|███████▍  | 149/200 [00:12<00:04, 12.28it/s] 76%|███████▌  | 151/200 [00:13<00:04, 12.16it/s] 76%|███████▋  | 153/200 [00:13<00:03, 12.08it/s] 78%|███████▊  | 155/200 [00:13<00:03, 12.24it/s] 78%|███████▊  | 157/200 [00:13<00:03, 12.14it/s] 80%|███████▉  | 159/200 [00:13<00:03, 12.06it/s] 80%|████████  | 161/200 [00:13<00:03, 12.01it/s] 82%|████████▏ | 163/200 [00:14<00:03, 11.98it/s] 82%|████████▎ | 165/200 [00:14<00:02, 11.95it/s] 84%|████████▎ | 167/200 [00:14<00:02, 11.94it/s] 84%|████████▍ | 169/200 [00:14<00:02, 11.93it/s] 86%|████████▌ | 171/200 [00:14<00:02, 11.92it/s] 86%|████████▋ | 173/200 [00:15<00:02, 11.89it/s] 88%|████████▊ | 175/200 [00:15<00:02, 11.88it/s] 88%|████████▊ | 177/200 [00:15<00:01, 11.88it/s] 90%|████████▉ | 179/200 [00:15<00:01, 11.88it/s] 90%|█████████ | 181/200 [00:15<00:01, 11.88it/s] 92%|█████████▏| 183/200 [00:15<00:01, 11.89it/s] 92%|█████████▎| 185/200 [00:16<00:01, 11.90it/s] 94%|█████████▎| 187/200 [00:16<00:01, 11.90it/s] 94%|█████████▍| 189/200 [00:16<00:00, 11.91it/s] 96%|█████████▌| 191/200 [00:16<00:00, 11.91it/s] 96%|█████████▋| 193/200 [00:16<00:00, 11.91it/s] 98%|█████████▊| 195/200 [00:16<00:00, 11.90it/s] 98%|█████████▊| 197/200 [00:17<00:00, 11.90it/s]100%|█████████▉| 199/200 [00:17<00:00, 11.90it/s]100%|██████████| 200/200 [00:17<00:00, 11.58it/s]
+observed_count 227
+T 300
+observed_count 223
+T 300
+observed_count 215
+T 300
+observed_count 216
+T 300
+observed_count 233
+T 300
+observed_count 215
+T 300
+observed_count 235
+T 300
+observed_count 273
+T 300
+observed_count 196
+T 300
+observed_count 245
+T 300
+observed_count 276
+T 300
+observed_count 268
+T 300
+observed_count 218
+T 300
+observed_count 218
+T 300
+observed_count 216
+T 300
+observed_count 217
+T 300
+observed_count 207
+T 300
+observed_count 223
+T 300
+observed_count 217
+T 300
+observed_count 211
+T 300
+observed_count 266
+T 300
+observed_count 211
+T 300
+observed_count 224
+T 300
+observed_count 216
+T 300
+observed_count 220
+T 300
+observed_count 222
+T 301
+observed_count 241
+T 300
+observed_count 261
+T 300
+observed_count 243
+T 300
+observed_count 238
+T 300
+observed_count 204
+T 300
+observed_count 233
+T 300
+observed_count 215
+T 300
+observed_count 227
+T 300
+observed_count 226
+T 300
+observed_count 166
+T 214
+observed_count 233
+T 300
+observed_count 241
+T 300
+observed_count 211
+T 300
+observed_count 213
+T 300
+observed_count 237
+T 300
+observed_count 277
+T 300
+observed_count 227
+T 300
+observed_count 227
+T 300
+observed_count 284
+T 300
+observed_count 225
+T 300
+observed_count 279
+T 300
+observed_count 229
+T 300
+observed_count 231
+T 300
+observed_count 258
+T 300
+observed_count 220
+T 300
+observed_count 219
+T 300
+observed_count 241
+T 300
+observed_count 229
+T 300
+observed_count 217
+T 300
+observed_count 232
+T 300
+observed_count 264
+T 300
+observed_count 255
+T 300
+observed_count 222
+T 300
+observed_count 232
+T 300
+observed_count 210
+T 300
+observed_count 250
+T 300
+observed_count 227
+T 300
+observed_count 237
+T 300
+observed_count 222
+T 300
+observed_count 269
+T 300
+observed_count 215
+T 300
+observed_count 203
+T 300
+observed_count 230
+T 300
+observed_count 229
+T 300
+observed_count 228
+T 300
+observed_count 258
+T 300
+observed_count 264
+T 300
+observed_count 212
+T 300
+observed_count 235
+T 300
+observed_count 229
+T 300
+observed_count 230
+T 300
+observed_count 96
+T 125
+observed_count 200
+T 300
+observed_count 205
+T 300
+observed_count 230
+T 300
+observed_count 245
+T 300
+observed_count 221
+T 300
+observed_count 217
+T 300
+observed_count 211
+T 300
+observed_count 210
+T 300
+observed_count 206
+T 300
+observed_count 217
+T 300
+observed_count 208
+T 300
+observed_count 250
+T 300
+observed_count 222
+T 300
+observed_count 216
+T 289
+observed_count 222
+T 300
+observed_count 223
+T 300
+observed_count 217
+T 300
+observed_count 219
+T 300
+observed_count 201
+T 300
+observed_count 281
+T 300
+observed_count 179
+T 224
+observed_count 219
+T 300
+observed_count 248
+T 300
+observed_count 214
+T 300
+observed_count 261
+T 300
+observed_count 218
+T 300
+observed_count 211
+T 300
+observed_count 216
+T 300
+observed_count 219
+T 300
+observed_count 214
+T 300
+observed_count 254
+T 300
+observed_count 214
+T 301
+observed_count 246
+T 300
+observed_count 234
+T 300
+observed_count 237
+T 300
+observed_count 276
+T 300
+observed_count 216
+T 300
+observed_count 224
+T 300
+observed_count 203
+T 300
+observed_count 230
+T 300
+observed_count 215
+T 300
+observed_count 253
+T 267
+observed_count 218
+T 300
+observed_count 263
+T 300
+observed_count 260
+T 300
+observed_count 204
+T 300
+observed_count 227
+T 300
+observed_count 216
+T 300
+observed_count 223
+T 300
+observed_count 228
+T 300
+observed_count 231
+T 300
+observed_count 247
+T 300
+observed_count 205
+T 300
+observed_count 226
+T 300
+observed_count 196
+T 246
+observed_count 243
+T 300
+observed_count 223
+T 300
+observed_count 220
+T 300
+observed_count 218
+T 300
+observed_count 213
+T 300
+observed_count 244
+T 300
+observed_count 244
+T 300
+observed_count 137
+T 146
+observed_count 220
+T 300
+observed_count 252
+T 300
+observed_count 211
+T 300
+observed_count 226
+T 300
+observed_count 193
+T 261
+observed_count 225
+T 296
+observed_count 218
+T 300
+observed_count 255
+T 300
+observed_count 206
+T 300
+observed_count 195
+T 300
+observed_count 230
+T 300
+observed_count 223
+T 299
+observed_count 236
+T 265
+observed_count 263
+T 300
+observed_count 226
+T 300
+observed_count 225
+T 300
+observed_count 282
+T 300
+observed_count 207
+T 300
+observed_count 211
+T 300
+observed_count 222
+T 300
+observed_count 215
+T 300
+observed_count 262
+T 300
+observed_count 220
+T 300
+observed_count 209
+T 300
+observed_count 229
+T 300
+observed_count 235
+T 300
+observed_count 207
+T 300
+observed_count 233
+T 300
+observed_count 208
+T 300
+observed_count 233
+T 300
+observed_count 214
+T 300
+observed_count 231
+T 300
+observed_count 227
+T 300
+observed_count 232
+T 300
+observed_count 214
+T 300
+observed_count 231
+T 300
+observed_count 199
+T 300
+observed_count 237
+T 300
+observed_count 214
+T 300
+observed_count 218
+T 300
+observed_count 236
+T 300
+observed_count 250
+T 300
+observed_count 238
+T 300
+observed_count 202
+T 300
+observed_count 236
+T 300
+observed_count 213
+T 300
+observed_count 222
+T 300
+observed_count 238
+T 300
+observed_count 234
+T 300
+observed_count 209
+T 300
+observed_count 243
+T 300
+observed_count 238
+T 300
+observed_count 213
+T 300
+observed_count 219
+T 300
+observed_count 249
+T 300
+observed_count 214
+T 300
+observed_count 269
+T 300
+observed_count 233
+T 300
+observed_count 247
+T 300
+{'z_score_list': [8.891194145520236, 8.429313930168535, 7.505553499465134, 7.6210235533030595, 9.584014468547787, 7.505553499465134, 9.814954576223638, 14.202816622064793, 5.3116224765445565, 10.969655114602888, 14.549226783578568, 13.625466352875167, 7.851963660978909, 7.851963660978909, 7.6210235533030595, 7.736493607140985, 6.581793068761733, 8.429313930168535, 7.736493607140985, 7.043673284113433, 13.394526245199316, 7.043673284113433, 8.544783984006461, 7.6210235533030595, 8.08290376865476, 8.24238297317056, 10.507774899251189, 12.817175976009691, 10.738715006927038, 10.161364737737413, 6.235382907247958, 9.584014468547787, 7.505553499465134, 8.891194145520236, 8.77572409168231, 8.066313938891026, 9.584014468547787, 10.507774899251189, 7.043673284113433, 7.274613391789284, 10.045894683899487, 14.664696837416493, 8.891194145520236, 8.891194145520236, 15.47298721428197, 8.660254037844386, 14.895636945092344, 9.122134253196085, 9.353074360871936, 12.470765814495916, 8.08290376865476, 7.967433714816835, 10.507774899251189, 9.122134253196085, 7.736493607140985, 9.46854441470986, 13.163586137523467, 12.124355652982139, 8.31384387633061, 9.46854441470986, 6.928203230275509, 11.547005383792515, 8.891194145520236, 10.045894683899487, 8.31384387633061, 13.740936406713091, 7.505553499465134, 6.119912853410033, 9.237604307034012, 9.122134253196085, 9.00666419935816, 12.470765814495916, 13.163586137523467, 7.159143337951359, 9.814954576223638, 9.122134253196085, 9.237604307034012, 5.992662179699436, 5.773502691896257, 6.350852961085883, 9.237604307034012, 10.969655114602888, 8.198373822492686, 7.736493607140985, 7.043673284113433, 6.928203230275509, 6.466323014923808, 7.736493607140985, 6.697263122599658, 11.547005383792515, 8.31384387633061, 8.411764705882353, 8.31384387633061, 8.429313930168535, 7.736493607140985, 7.967433714816835, 5.888972745734182, 15.126577052768194, 8.953251604066217, 7.967433714816835, 11.316065276116664, 7.390083445627209, 12.817175976009691, 7.851963660978909, 7.043673284113433, 7.6210235533030595, 7.967433714816835, 7.390083445627209, 12.008885599144214, 7.320158304843784, 11.085125168440813, 9.699484522385712, 10.045894683899487, 14.549226783578568, 7.6210235533030595, 8.544783984006461, 6.119912853410033, 9.237604307034012, 7.505553499465134, 14.626562466554299, 7.851963660978909, 13.04811608368554, 12.701705922171765, 6.235382907247958, 8.891194145520236, 7.6210235533030595, 8.429313930168535, 9.00666419935816, 9.353074360871936, 11.20059522227874, 6.350852961085883, 8.77572409168231, 9.308620010724738, 10.738715006927038, 8.429313930168535, 8.08290376865476, 7.851963660978909, 7.274613391789284, 10.854185060764964, 10.854185060764964, 10.59335537411031, 8.08290376865476, 11.777945491468364, 7.043673284113433, 8.77572409168231, 7.737305757377162, 8.951068183274085, 7.851963660978909, 12.124355652982139, 6.466323014923808, 5.196152422706631, 9.237604307034012, 8.501229499903731, 12.71590891846279, 13.04811608368554, 8.77572409168231, 8.660254037844386, 15.242047106606119, 6.581793068761733, 7.043673284113433, 8.31384387633061, 7.505553499465134, 12.932646029847616, 8.08290376865476, 6.812733176437583, 9.122134253196085, 9.814954576223638, 6.581793068761733, 9.584014468547787, 6.697263122599658, 9.584014468547787, 7.390083445627209, 9.353074360871936, 8.891194145520236, 9.46854441470986, 7.390083445627209, 9.353074360871936, 5.658032638058332, 10.045894683899487, 7.390083445627209, 7.851963660978909, 9.930424630061562, 11.547005383792515, 10.161364737737413, 6.004442799572107, 9.930424630061562, 7.274613391789284, 8.31384387633061, 10.161364737737413, 9.699484522385712, 6.812733176437583, 10.738715006927038, 10.161364737737413, 7.274613391789284, 7.967433714816835, 11.431535329954588, 7.390083445627209, 13.740936406713091, 9.584014468547787, 11.20059522227874], 'avarage_z': 9.146506309509277, 'wm_pred': [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 'wm_pred_average': 0.9700000286102295}
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+files dir ['eval', 'finance_qa.jsonl', 'z_score']
+Evaluating on: ['eval', 'finance_qa.jsonl', 'z_score']
+finance_qa.jsonl has began.........
+predictions[0] is:  As unfortunate as it may sound, a poor credit history may indeed make it difficult to obtain a home loan after a divorce, but it's not entirely impossible. The good news is there are alternatives and strategies that could improve your chances of getting approved. Here are some factors to consider and tips for securing a home loan despite a poor credit history:
+
+1. Collateral: If you have significant assets, such as a retirement account, stocks, or mutual funds, you may be able to use them as collateral to secure a loan. This could be a better option than using only your income, especially if you have significant assets that could be sold to pay back the loan if you defaults.
+2. Co-Signer: If you have a family member or a friend with a good credit history, they may be able to co-sign a loan for you. This could improve your chances of getting approved and securing better loan terms, such as a lower interest rate. Keep in mind that co-signing is a significant risk for the co-signer, and it's essential to discuss the potential risks and benefits with them before pursuing this option.
+3. Reputation: If you've had credit problems in the past, you may want to consider disputing any errors or negative information that could be dragging down your score. This could involve contesting incorrect debt
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/huggingface_hub/file_download.py:797: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+importing llama
+FINISHED importing model
+finance_qa.jsonl has began.........
+performing detection fo cc
+Extracted k value: 2
+  0%|          | 0/200 [00:00<?, ?it/s]Asking to truncate to max_length but no maximum length is provided and the model has no predefined maximum length. Default to no truncation.
+  0%|          | 1/200 [00:00<02:20,  1.42it/s]  1%|          | 2/200 [00:00<01:10,  2.80it/s]  2%|▏         | 3/200 [00:00<00:48,  4.08it/s]  2%|▏         | 4/200 [00:01<00:37,  5.21it/s]  2%|▎         | 5/200 [00:01<00:31,  6.14it/s]  3%|▎         | 6/200 [00:01<00:28,  6.88it/s]  4%|▎         | 7/200 [00:01<00:25,  7.45it/s]  4%|▍         | 8/200 [00:01<00:24,  7.89it/s]  4%|▍         | 9/200 [00:01<00:23,  8.20it/s]  5%|▌         | 10/200 [00:01<00:22,  8.43it/s]  6%|▌         | 11/200 [00:01<00:21,  8.60it/s]  6%|▌         | 12/200 [00:01<00:21,  8.72it/s]  6%|▋         | 13/200 [00:02<00:21,  8.80it/s]  7%|▋         | 14/200 [00:02<00:20,  8.86it/s]  8%|▊         | 15/200 [00:02<00:20,  8.90it/s]  8%|▊         | 16/200 [00:02<00:20,  8.94it/s]  8%|▊         | 17/200 [00:02<00:20,  8.96it/s]  9%|▉         | 18/200 [00:02<00:20,  8.97it/s] 10%|▉         | 19/200 [00:02<00:20,  8.94it/s] 10%|█         | 20/200 [00:02<00:20,  8.94it/s] 10%|█         | 21/200 [00:02<00:19,  8.96it/s] 11%|█         | 22/200 [00:03<00:19,  8.97it/s] 12%|█▏        | 23/200 [00:03<00:19,  8.98it/s] 12%|█▏        | 24/200 [00:03<00:19,  8.99it/s] 12%|█▎        | 25/200 [00:03<00:19,  9.00it/s] 13%|█▎        | 26/200 [00:03<00:19,  9.00it/s] 14%|█▎        | 27/200 [00:03<00:19,  9.01it/s] 14%|█▍        | 28/200 [00:03<00:19,  9.01it/s] 14%|█▍        | 29/200 [00:03<00:19,  8.98it/s] 15%|█▌        | 30/200 [00:03<00:18,  8.98it/s] 16%|█▌        | 31/200 [00:04<00:18,  8.99it/s] 16%|█▌        | 32/200 [00:04<00:18,  8.99it/s] 16%|█▋        | 33/200 [00:04<00:18,  8.99it/s] 17%|█▋        | 34/200 [00:04<00:18,  9.00it/s] 18%|█▊        | 35/200 [00:04<00:18,  9.00it/s] 18%|█▊        | 36/200 [00:04<00:18,  8.99it/s] 18%|█▊        | 37/200 [00:04<00:18,  8.99it/s] 19%|█▉        | 38/200 [00:04<00:18,  8.96it/s] 20%|█▉        | 39/200 [00:04<00:17,  8.96it/s] 20%|██        | 40/200 [00:05<00:17,  8.98it/s] 20%|██        | 41/200 [00:05<00:17,  8.98it/s] 21%|██        | 42/200 [00:05<00:17,  8.99it/s] 22%|██▏       | 43/200 [00:05<00:17,  8.99it/s] 22%|██▏       | 44/200 [00:05<00:17,  9.00it/s] 22%|██▎       | 45/200 [00:05<00:17,  9.00it/s] 23%|██▎       | 46/200 [00:05<00:17,  9.00it/s] 24%|██▎       | 47/200 [00:05<00:17,  8.97it/s] 24%|██▍       | 48/200 [00:05<00:16,  8.98it/s] 24%|██▍       | 49/200 [00:06<00:16,  8.99it/s] 25%|██▌       | 50/200 [00:06<00:16,  9.00it/s] 26%|██▌       | 51/200 [00:06<00:16,  9.00it/s] 26%|██▌       | 52/200 [00:06<00:16,  9.00it/s] 26%|██▋       | 53/200 [00:06<00:16,  9.01it/s] 27%|██▋       | 54/200 [00:06<00:16,  9.00it/s] 28%|██▊       | 55/200 [00:06<00:16,  9.00it/s] 28%|██▊       | 56/200 [00:06<00:15,  9.00it/s] 28%|██▊       | 57/200 [00:06<00:15,  8.99it/s] 29%|██▉       | 58/200 [00:07<00:15,  9.00it/s] 30%|██▉       | 59/200 [00:07<00:15,  8.99it/s] 30%|███       | 60/200 [00:07<00:15,  9.01it/s] 30%|███       | 61/200 [00:07<00:15,  8.99it/s] 31%|███       | 62/200 [00:07<00:15,  9.00it/s] 32%|███▏      | 63/200 [00:07<00:15,  9.00it/s] 32%|███▏      | 64/200 [00:07<00:15,  9.00it/s] 32%|███▎      | 65/200 [00:07<00:14,  9.01it/s] 33%|███▎      | 66/200 [00:07<00:14,  9.01it/s] 34%|███▎      | 67/200 [00:08<00:14,  8.99it/s] 34%|███▍      | 68/200 [00:08<00:14,  8.99it/s] 34%|███▍      | 69/200 [00:08<00:14,  9.00it/s] 35%|███▌      | 70/200 [00:08<00:14,  9.00it/s] 36%|███▌      | 71/200 [00:08<00:14,  9.00it/s] 36%|███▌      | 72/200 [00:08<00:14,  8.99it/s] 36%|███▋      | 73/200 [00:08<00:14,  8.99it/s] 37%|███▋      | 74/200 [00:08<00:14,  9.00it/s] 38%|███▊      | 75/200 [00:08<00:13,  9.00it/s] 38%|███▊      | 76/200 [00:09<00:13,  9.00it/s] 38%|███▊      | 77/200 [00:09<00:13,  9.00it/s] 39%|███▉      | 78/200 [00:09<00:13,  8.99it/s] 40%|███▉      | 79/200 [00:09<00:13,  8.97it/s] 40%|████      | 81/200 [00:09<00:12,  9.24it/s] 41%|████      | 82/200 [00:09<00:12,  9.18it/s] 42%|████▏     | 83/200 [00:09<00:12,  9.12it/s] 42%|████▏     | 84/200 [00:09<00:12,  9.09it/s] 42%|████▎     | 85/200 [00:10<00:12,  9.05it/s] 43%|████▎     | 86/200 [00:10<00:12,  9.04it/s] 44%|████▎     | 87/200 [00:10<00:12,  9.02it/s] 44%|████▍     | 88/200 [00:10<00:12,  9.01it/s] 44%|████▍     | 89/200 [00:10<00:12,  9.00it/s] 45%|████▌     | 90/200 [00:10<00:12,  9.00it/s] 46%|████▌     | 91/200 [00:10<00:12,  9.00it/s] 46%|████▌     | 92/200 [00:10<00:12,  8.99it/s] 46%|████▋     | 93/200 [00:10<00:11,  8.99it/s] 47%|████▋     | 94/200 [00:11<00:11,  9.00it/s] 48%|████▊     | 95/200 [00:11<00:11,  9.00it/s] 48%|████▊     | 96/200 [00:11<00:11,  9.00it/s] 48%|████▊     | 97/200 [00:11<00:11,  9.00it/s] 49%|████▉     | 98/200 [00:11<00:11,  8.99it/s] 50%|████▉     | 99/200 [00:11<00:11,  9.00it/s] 50%|█████     | 100/200 [00:11<00:11,  9.00it/s] 50%|█████     | 101/200 [00:11<00:11,  9.00it/s] 51%|█████     | 102/200 [00:11<00:10,  9.00it/s] 52%|█████▏    | 103/200 [00:12<00:10,  8.99it/s] 52%|█████▏    | 104/200 [00:12<00:10,  9.00it/s] 52%|█████▎    | 105/200 [00:12<00:10,  9.00it/s] 53%|█████▎    | 106/200 [00:12<00:10,  9.00it/s] 54%|█████▎    | 107/200 [00:12<00:10,  9.00it/s] 54%|█████▍    | 108/200 [00:12<00:10,  9.00it/s] 55%|█████▍    | 109/200 [00:12<00:10,  9.00it/s] 55%|█████▌    | 110/200 [00:12<00:10,  9.00it/s] 56%|█████▌    | 111/200 [00:12<00:09,  8.99it/s] 56%|█████▌    | 112/200 [00:13<00:09,  8.99it/s] 56%|█████▋    | 113/200 [00:13<00:09,  8.99it/s] 57%|█████▋    | 114/200 [00:13<00:09,  8.99it/s] 57%|█████▊    | 115/200 [00:13<00:09,  8.99it/s] 58%|█████▊    | 116/200 [00:13<00:09,  8.99it/s] 58%|█████▊    | 117/200 [00:13<00:09,  9.06it/s] 59%|█████▉    | 118/200 [00:13<00:09,  9.04it/s] 60%|█████▉    | 119/200 [00:13<00:08,  9.03it/s] 60%|██████    | 120/200 [00:13<00:08,  9.01it/s] 60%|██████    | 121/200 [00:14<00:08,  9.01it/s] 61%|██████    | 122/200 [00:14<00:08,  9.01it/s] 62%|██████▏   | 123/200 [00:14<00:08,  9.01it/s] 62%|██████▏   | 124/200 [00:14<00:08,  9.00it/s] 62%|██████▎   | 125/200 [00:14<00:08,  8.98it/s] 63%|██████▎   | 126/200 [00:14<00:08,  8.96it/s] 64%|██████▎   | 127/200 [00:14<00:08,  8.97it/s] 64%|██████▍   | 128/200 [00:14<00:08,  8.98it/s] 64%|██████▍   | 129/200 [00:14<00:07,  8.98it/s] 65%|██████▌   | 130/200 [00:15<00:07,  8.98it/s] 66%|██████▌   | 131/200 [00:15<00:07,  8.99it/s] 66%|██████▌   | 132/200 [00:15<00:07,  8.99it/s] 66%|██████▋   | 133/200 [00:15<00:07,  8.99it/s] 67%|██████▋   | 134/200 [00:15<00:07,  8.99it/s] 68%|██████▊   | 135/200 [00:15<00:07,  8.99it/s] 68%|██████▊   | 136/200 [00:15<00:07,  8.99it/s] 68%|██████▊   | 137/200 [00:15<00:07,  9.00it/s] 69%|██████▉   | 138/200 [00:15<00:06,  9.00it/s] 70%|██████▉   | 139/200 [00:16<00:06,  9.00it/s] 70%|███████   | 140/200 [00:16<00:06,  9.00it/s] 70%|███████   | 141/200 [00:16<00:06,  9.01it/s] 71%|███████   | 142/200 [00:16<00:06,  9.01it/s] 72%|███████▏  | 143/200 [00:16<00:06,  9.01it/s] 72%|███████▏  | 144/200 [00:16<00:06,  9.01it/s] 72%|███████▎  | 145/200 [00:16<00:06,  9.01it/s] 73%|███████▎  | 146/200 [00:16<00:05,  9.01it/s] 74%|███████▎  | 147/200 [00:16<00:05,  9.01it/s] 74%|███████▍  | 148/200 [00:17<00:05,  9.02it/s] 74%|███████▍  | 149/200 [00:17<00:05,  9.02it/s] 75%|███████▌  | 150/200 [00:17<00:05,  9.02it/s] 76%|███████▌  | 151/200 [00:17<00:05,  9.02it/s] 76%|███████▌  | 152/200 [00:17<00:05,  9.02it/s] 76%|███████▋  | 153/200 [00:17<00:05,  9.02it/s] 77%|███████▋  | 154/200 [00:17<00:05,  9.02it/s] 78%|███████▊  | 155/200 [00:17<00:04,  9.02it/s] 78%|███████▊  | 156/200 [00:17<00:04,  9.01it/s] 78%|███████▊  | 157/200 [00:18<00:04,  9.01it/s] 79%|███████▉  | 158/200 [00:18<00:04,  9.01it/s] 80%|███████▉  | 159/200 [00:18<00:04,  9.01it/s] 80%|████████  | 160/200 [00:18<00:04,  9.01it/s] 80%|████████  | 161/200 [00:18<00:04,  9.02it/s] 81%|████████  | 162/200 [00:18<00:04,  9.02it/s] 82%|████████▏ | 163/200 [00:18<00:04,  9.02it/s] 82%|████████▏ | 164/200 [00:18<00:03,  9.02it/s] 82%|████████▎ | 165/200 [00:18<00:03,  9.02it/s] 83%|████████▎ | 166/200 [00:19<00:03,  9.02it/s] 84%|████████▎ | 167/200 [00:19<00:03,  9.02it/s] 84%|████████▍ | 168/200 [00:19<00:03,  9.02it/s] 84%|████████▍ | 169/200 [00:19<00:03,  9.02it/s] 85%|████████▌ | 170/200 [00:19<00:03,  9.02it/s] 86%|████████▌ | 171/200 [00:19<00:03,  9.04it/s] 86%|████████▌ | 172/200 [00:19<00:03,  9.03it/s] 86%|████████▋ | 173/200 [00:19<00:02,  9.03it/s] 87%|████████▋ | 174/200 [00:19<00:02,  9.02it/s] 88%|████████▊ | 175/200 [00:20<00:02,  9.01it/s] 88%|████████▊ | 176/200 [00:20<00:02,  9.10it/s] 88%|████████▊ | 177/200 [00:20<00:02,  9.08it/s] 89%|████████▉ | 178/200 [00:20<00:02,  9.05it/s] 90%|████████▉ | 179/200 [00:20<00:02,  9.05it/s] 90%|█████████ | 180/200 [00:20<00:02,  9.04it/s] 90%|█████████ | 181/200 [00:20<00:02,  9.02it/s] 91%|█████████ | 182/200 [00:20<00:01,  9.02it/s] 92%|█████████▏| 183/200 [00:20<00:01,  9.02it/s] 92%|█████████▏| 184/200 [00:21<00:01,  9.02it/s] 92%|█████████▎| 185/200 [00:21<00:01,  9.02it/s] 93%|█████████▎| 186/200 [00:21<00:01,  9.02it/s] 94%|█████████▎| 187/200 [00:21<00:01,  9.01it/s] 94%|█████████▍| 188/200 [00:21<00:01,  9.01it/s] 94%|█████████▍| 189/200 [00:21<00:01,  9.01it/s] 95%|█████████▌| 190/200 [00:21<00:01,  9.01it/s] 96%|█████████▌| 191/200 [00:21<00:00,  9.01it/s] 96%|█████████▌| 192/200 [00:21<00:00,  9.01it/s] 96%|█████████▋| 193/200 [00:22<00:00,  9.01it/s] 97%|█████████▋| 194/200 [00:22<00:00,  9.01it/s] 98%|█████████▊| 195/200 [00:22<00:00,  9.01it/s] 98%|█████████▊| 196/200 [00:22<00:00,  9.01it/s] 98%|█████████▊| 197/200 [00:22<00:00,  9.01it/s] 99%|█████████▉| 198/200 [00:22<00:00,  9.01it/s]100%|█████████▉| 199/200 [00:22<00:00,  9.01it/s]100%|██████████| 200/200 [00:22<00:00,  8.99it/s]100%|██████████| 200/200 [00:22<00:00,  8.77it/s]
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 159.0 out of 300
+z_s_score is: 1.0392304845413263
+CC Z:
+green tokens 188.0 out of 300
+z_s_score is: 4.387862045841155
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 155.0 out of 300
+z_s_score is: 0.5773502691896257
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 153.0 out of 300
+z_s_score is: 0.3464101615137754
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 185.0 out of 300
+z_s_score is: 4.04145188432738
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 176.0 out of 300
+z_s_score is: 3.0022213997860536
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 152.0 out of 300
+z_s_score is: 0.23094010767585027
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 187.0 out of 300
+z_s_score is: 4.2723919920032305
+CC Z:
+green tokens 148.0 out of 300
+z_s_score is: -0.23094010767585027
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 182.0 out of 300
+z_s_score is: 3.6950417228136043
+CC Z:
+green tokens 181.0 out of 300
+z_s_score is: 3.5795716689756794
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 184.0 out of 300
+z_s_score is: 3.9259818304894547
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 173.0 out of 300
+z_s_score is: 2.6558112382722783
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 157.0 out of 300
+z_s_score is: 0.808290376865476
+CC Z:
+green tokens 164.0 out of 300
+z_s_score is: 1.616580753730952
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 152.0 out of 300
+z_s_score is: 0.23094010767585027
+CC Z:
+green tokens 153.0 out of 300
+z_s_score is: 0.3464101615137754
+CC Z:
+green tokens 164.0 out of 300
+z_s_score is: 1.616580753730952
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 153.0 out of 300
+z_s_score is: 0.3464101615137754
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 161.0 out of 300
+z_s_score is: 1.2701705922171767
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 161.0 out of 300
+z_s_score is: 1.2701705922171767
+CC Z:
+green tokens 156.0 out of 300
+z_s_score is: 0.6928203230275508
+CC Z:
+green tokens 177.0 out of 300
+z_s_score is: 3.117691453623979
+CC Z:
+green tokens 196.0 out of 300
+z_s_score is: 5.3116224765445565
+CC Z:
+green tokens 181.0 out of 299
+z_s_score is: 3.6433840713873136
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 174.0 out of 300
+z_s_score is: 2.7712812921102032
+CC Z:
+green tokens 167.0 out of 300
+z_s_score is: 1.9629909152447274
+CC Z:
+green tokens 145.0 out of 300
+z_s_score is: -0.5773502691896257
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 156.0 out of 300
+z_s_score is: 0.6928203230275508
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 174.0 out of 300
+z_s_score is: 2.7712812921102032
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 154.0 out of 300
+z_s_score is: 0.46188021535170054
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 161.0 out of 300
+z_s_score is: 1.2701705922171767
+CC Z:
+green tokens 159.0 out of 300
+z_s_score is: 1.0392304845413263
+CC Z:
+green tokens 160.0 out of 300
+z_s_score is: 1.1547005383792515
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 138.0 out of 264
+z_s_score is: 0.7385489458759964
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 165.0 out of 300
+z_s_score is: 1.7320508075688772
+CC Z:
+green tokens 148.0 out of 300
+z_s_score is: -0.23094010767585027
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 164.0 out of 300
+z_s_score is: 1.616580753730952
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 152.0 out of 300
+z_s_score is: 0.23094010767585027
+CC Z:
+green tokens 181.0 out of 300
+z_s_score is: 3.5795716689756794
+CC Z:
+green tokens 203.0 out of 300
+z_s_score is: 6.119912853410033
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 181.0 out of 300
+z_s_score is: 3.5795716689756794
+CC Z:
+green tokens 158.0 out of 300
+z_s_score is: 0.9237604307034011
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 187.0 out of 300
+z_s_score is: 4.2723919920032305
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 182.0 out of 300
+z_s_score is: 3.6950417228136043
+CC Z:
+green tokens 176.0 out of 300
+z_s_score is: 3.0022213997860536
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 160.0 out of 300
+z_s_score is: 1.1547005383792515
+CC Z:
+green tokens 181.0 out of 300
+z_s_score is: 3.5795716689756794
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 176.0 out of 300
+z_s_score is: 3.0022213997860536
+CC Z:
+green tokens 190.0 out of 300
+z_s_score is: 4.618802153517006
+CC Z:
+green tokens 158.0 out of 300
+z_s_score is: 0.9237604307034011
+CC Z:
+green tokens 164.0 out of 300
+z_s_score is: 1.616580753730952
+CC Z:
+green tokens 190.0 out of 300
+z_s_score is: 4.618802153517006
+CC Z:
+green tokens 175.0 out of 300
+z_s_score is: 2.8867513459481287
+CC Z:
+green tokens 178.0 out of 300
+z_s_score is: 3.233161507461904
+CC Z:
+green tokens 182.0 out of 300
+z_s_score is: 3.6950417228136043
+CC Z:
+green tokens 181.0 out of 300
+z_s_score is: 3.5795716689756794
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 173.0 out of 300
+z_s_score is: 2.6558112382722783
+CC Z:
+green tokens 146.0 out of 292
+z_s_score is: 0.0
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 177.0 out of 300
+z_s_score is: 3.117691453623979
+CC Z:
+green tokens 164.0 out of 300
+z_s_score is: 1.616580753730952
+CC Z:
+green tokens 193.0 out of 300
+z_s_score is: 4.965212315030781
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 173.0 out of 300
+z_s_score is: 2.6558112382722783
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 184.0 out of 300
+z_s_score is: 3.9259818304894547
+CC Z:
+green tokens 185.0 out of 300
+z_s_score is: 4.04145188432738
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 184.0 out of 300
+z_s_score is: 3.9259818304894547
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 177.0 out of 300
+z_s_score is: 3.117691453623979
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 166.0 out of 300
+z_s_score is: 1.8475208614068022
+CC Z:
+green tokens 165.0 out of 300
+z_s_score is: 1.7320508075688772
+CC Z:
+green tokens 161.0 out of 300
+z_s_score is: 1.2701705922171767
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 156.0 out of 300
+z_s_score is: 0.6928203230275508
+CC Z:
+green tokens 161.0 out of 300
+z_s_score is: 1.2701705922171767
+CC Z:
+green tokens 157.0 out of 300
+z_s_score is: 0.808290376865476
+CC Z:
+green tokens 148.0 out of 300
+z_s_score is: -0.23094010767585027
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 158.0 out of 300
+z_s_score is: 0.9237604307034011
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 174.0 out of 300
+z_s_score is: 2.7712812921102032
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 187.0 out of 300
+z_s_score is: 4.2723919920032305
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 191.0 out of 300
+z_s_score is: 4.73427220735493
+CC Z:
+green tokens 170.0 out of 300
+z_s_score is: 2.309401076758503
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 162.0 out of 300
+z_s_score is: 1.3856406460551016
+CC Z:
+green tokens 179.0 out of 300
+z_s_score is: 3.348631561299829
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 182.0 out of 300
+z_s_score is: 3.6950417228136043
+CC Z:
+green tokens 174.0 out of 300
+z_s_score is: 2.7712812921102032
+CC Z:
+green tokens 177.0 out of 300
+z_s_score is: 3.117691453623979
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 156.0 out of 300
+z_s_score is: 0.6928203230275508
+CC Z:
+green tokens 146.0 out of 300
+z_s_score is: -0.46188021535170054
+CC Z:
+green tokens 166.0 out of 300
+z_s_score is: 1.8475208614068022
+CC Z:
+green tokens 186.0 out of 300
+z_s_score is: 4.156921938165305
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 162.0 out of 299
+z_s_score is: 1.4457873299156005
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 176.0 out of 300
+z_s_score is: 3.0022213997860536
+CC Z:
+green tokens 157.0 out of 290
+z_s_score is: 1.4093285268352882
+CC Z:
+green tokens 174.0 out of 300
+z_s_score is: 2.7712812921102032
+CC Z:
+green tokens 159.0 out of 300
+z_s_score is: 1.0392304845413263
+CC Z:
+green tokens 184.0 out of 300
+z_s_score is: 3.9259818304894547
+CC Z:
+green tokens 183.0 out of 300
+z_s_score is: 3.8105117766515297
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 159.0 out of 300
+z_s_score is: 1.0392304845413263
+CC Z:
+green tokens 182.0 out of 300
+z_s_score is: 3.6950417228136043
+CC Z:
+green tokens 169.0 out of 300
+z_s_score is: 2.1939310229205775
+CC Z:
+green tokens 172.0 out of 300
+z_s_score is: 2.5403411844343533
+CC Z:
+green tokens 151.0 out of 300
+z_s_score is: 0.11547005383792514
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 167.0 out of 300
+z_s_score is: 1.9629909152447274
+CC Z:
+green tokens 168.0 out of 300
+z_s_score is: 2.0784609690826525
+CC Z:
+green tokens 154.0 out of 300
+z_s_score is: 0.46188021535170054
+CC Z:
+green tokens 173.0 out of 300
+z_s_score is: 2.6558112382722783
+CC Z:
+green tokens 167.0 out of 300
+z_s_score is: 1.9629909152447274
+CC Z:
+green tokens 180.0 out of 300
+z_s_score is: 3.4641016151377544
+CC Z:
+green tokens 167.0 out of 300
+z_s_score is: 1.9629909152447274
+CC Z:
+green tokens 163.0 out of 300
+z_s_score is: 1.5011106998930268
+CC Z:
+green tokens 171.0 out of 300
+z_s_score is: 2.424871130596428
+CC Z:
+green tokens 187.0 out of 300
+z_s_score is: 4.2723919920032305
+{'z_score_list': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'avarage_z': 0.0, 'wm_pred': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'wm_pred_average': 0.0}
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+files dir ['eval', 'finance_qa.jsonl', 'z_score', 'z_s_score']
+Evaluating on: ['eval', 'finance_qa.jsonl', 'z_score', 'z_s_score']
+finance_qa.jsonl has began.........
+predictions[0] is:  As a helpful assistant, I must inform you that having a poor credit history after a divorce does not necessarily mean that you will be unable to obtain a home loan. However, it may be more challenging to qualify for a loan due to the negative marks on your credit report.
+
+Mortgage lenders typically evaluate a borrower's creditworthiness based on their credit score, which is a numerical representation of your credit history. A poor credit history, such as missed payments, high credit utilization, or collections, can significantly lower your credit score.
+
+After a divorce, it is common for individuals to experience financial setbacks, such as a decrease in income or an increase in debt. This can negatively impact your credit score, making it more difficult to qualify for a home loan. However, it is not impossible.
+
+There are several options available to individuals with poor credit history after a divorce:
+
+1. Wait and improve your credit score: If you have recently gone through a divorce, it may be wise to wait a few months to a year before applying for a home loan. During this time, you can focus on improving your credit score by making timely payments, reducing debt, and keeping credit utilization low.
+2. Consider a co-signer: If you have a co-signer with a good credit history, they may be able to help you
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/huggingface_hub/file_download.py:797: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+importing llama
+FINISHED importing model
+finance_qa.jsonl has began.........
+performing detection fo cc
+  0%|          | 0/200 [00:00<?, ?it/s]Asking to truncate to max_length but no maximum length is provided and the model has no predefined maximum length. Default to no truncation.
+  0%|          | 1/200 [00:00<02:20,  1.42it/s]  1%|          | 2/200 [00:00<01:10,  2.82it/s]  2%|▏         | 3/200 [00:00<00:47,  4.11it/s]  2%|▏         | 4/200 [00:01<00:37,  5.25it/s]  2%|▎         | 5/200 [00:01<00:31,  6.18it/s]  3%|▎         | 6/200 [00:01<00:27,  6.94it/s]  4%|▎         | 7/200 [00:01<00:25,  7.53it/s]  4%|▍         | 8/200 [00:01<00:24,  7.97it/s]  4%|▍         | 9/200 [00:01<00:23,  8.30it/s]  5%|▌         | 10/200 [00:01<00:22,  8.31it/s]  6%|▌         | 11/200 [00:01<00:22,  8.28it/s]  6%|▌         | 12/200 [00:01<00:22,  8.52it/s]  6%|▋         | 13/200 [00:02<00:21,  8.69it/s]  7%|▋         | 14/200 [00:02<00:21,  8.81it/s]  8%|▊         | 15/200 [00:02<00:20,  8.87it/s]  8%|▊         | 16/200 [00:02<00:20,  8.95it/s]  8%|▊         | 17/200 [00:02<00:20,  9.00it/s]  9%|▉         | 18/200 [00:02<00:20,  9.04it/s] 10%|▉         | 19/200 [00:02<00:19,  9.06it/s] 10%|█         | 20/200 [00:02<00:19,  9.08it/s] 10%|█         | 21/200 [00:02<00:19,  9.10it/s] 11%|█         | 22/200 [00:03<00:19,  9.11it/s] 12%|█▏        | 23/200 [00:03<00:19,  9.12it/s] 12%|█▏        | 24/200 [00:03<00:19,  9.12it/s] 12%|█▎        | 25/200 [00:03<00:19,  9.09it/s] 13%|█▎        | 26/200 [00:03<00:19,  9.09it/s] 14%|█▎        | 27/200 [00:03<00:19,  9.10it/s] 14%|█▍        | 28/200 [00:03<00:18,  9.11it/s] 14%|█▍        | 29/200 [00:03<00:18,  9.11it/s] 15%|█▌        | 30/200 [00:03<00:18,  9.12it/s] 16%|█▌        | 31/200 [00:04<00:18,  9.10it/s] 16%|█▌        | 32/200 [00:04<00:18,  9.09it/s] 16%|█▋        | 33/200 [00:04<00:18,  9.09it/s] 17%|█▋        | 34/200 [00:04<00:18,  9.10it/s] 18%|█▊        | 35/200 [00:04<00:18,  9.11it/s] 18%|█▊        | 36/200 [00:04<00:18,  9.11it/s] 18%|█▊        | 37/200 [00:04<00:17,  9.11it/s] 19%|█▉        | 38/200 [00:04<00:17,  9.12it/s] 20%|█▉        | 39/200 [00:04<00:17,  9.11it/s] 20%|██        | 40/200 [00:05<00:17,  9.12it/s] 20%|██        | 41/200 [00:05<00:17,  9.12it/s] 21%|██        | 42/200 [00:05<00:17,  9.12it/s] 22%|██▏       | 43/200 [00:05<00:17,  9.12it/s] 22%|██▏       | 44/200 [00:05<00:17,  9.12it/s] 22%|██▎       | 45/200 [00:05<00:16,  9.13it/s] 23%|██▎       | 46/200 [00:05<00:16,  9.12it/s] 24%|██▎       | 47/200 [00:05<00:16,  9.12it/s] 24%|██▍       | 48/200 [00:05<00:16,  9.12it/s] 24%|██▍       | 49/200 [00:05<00:16,  9.13it/s] 25%|██▌       | 50/200 [00:06<00:16,  9.13it/s] 26%|██▌       | 51/200 [00:06<00:16,  9.13it/s] 26%|██▌       | 52/200 [00:06<00:16,  9.13it/s] 26%|██▋       | 53/200 [00:06<00:16,  9.13it/s] 27%|██▋       | 54/200 [00:06<00:15,  9.13it/s] 28%|██▊       | 55/200 [00:06<00:15,  9.13it/s] 28%|██▊       | 56/200 [00:06<00:15,  9.13it/s] 28%|██▊       | 57/200 [00:06<00:15,  9.12it/s] 29%|██▉       | 58/200 [00:06<00:15,  9.13it/s] 30%|██▉       | 59/200 [00:07<00:15,  9.12it/s] 30%|███       | 60/200 [00:07<00:15,  9.09it/s] 30%|███       | 61/200 [00:07<00:15,  9.07it/s] 31%|███       | 62/200 [00:07<00:15,  9.08it/s] 32%|███▏      | 63/200 [00:07<00:15,  9.10it/s] 32%|███▏      | 64/200 [00:07<00:14,  9.10it/s] 32%|███▎      | 65/200 [00:07<00:14,  9.10it/s] 33%|███▎      | 66/200 [00:07<00:14,  9.11it/s] 34%|███▎      | 67/200 [00:07<00:14,  9.11it/s] 34%|███▍      | 68/200 [00:08<00:14,  9.12it/s] 34%|███▍      | 69/200 [00:08<00:14,  9.13it/s] 35%|███▌      | 70/200 [00:08<00:14,  9.13it/s] 36%|███▌      | 71/200 [00:08<00:14,  9.14it/s] 36%|███▌      | 72/200 [00:08<00:14,  9.14it/s] 36%|███▋      | 73/200 [00:08<00:13,  9.14it/s] 37%|███▋      | 74/200 [00:08<00:13,  9.13it/s] 38%|███▊      | 75/200 [00:08<00:13,  9.14it/s] 38%|███▊      | 76/200 [00:08<00:13,  9.14it/s] 38%|███▊      | 77/200 [00:09<00:13,  9.14it/s] 40%|███▉      | 79/200 [00:09<00:12,  9.42it/s] 40%|████      | 80/200 [00:09<00:12,  9.36it/s] 40%|████      | 81/200 [00:09<00:12,  9.30it/s] 41%|████      | 82/200 [00:09<00:12,  9.25it/s] 42%|████▏     | 83/200 [00:09<00:12,  9.22it/s] 42%|████▏     | 84/200 [00:09<00:12,  9.20it/s] 42%|████▎     | 85/200 [00:09<00:12,  9.19it/s] 43%|████▎     | 86/200 [00:10<00:12,  9.17it/s] 44%|████▎     | 87/200 [00:10<00:12,  9.16it/s] 44%|████▍     | 88/200 [00:10<00:12,  9.15it/s] 44%|████▍     | 89/200 [00:10<00:12,  9.15it/s] 45%|████▌     | 90/200 [00:10<00:12,  9.15it/s] 46%|████▌     | 91/200 [00:10<00:11,  9.15it/s] 46%|████▌     | 92/200 [00:10<00:11,  9.14it/s] 46%|████▋     | 93/200 [00:10<00:11,  9.14it/s] 47%|████▋     | 94/200 [00:10<00:11,  9.14it/s] 48%|████▊     | 95/200 [00:11<00:11,  9.14it/s] 48%|████▊     | 96/200 [00:11<00:11,  9.13it/s] 48%|████▊     | 97/200 [00:11<00:11,  9.13it/s] 49%|████▉     | 98/200 [00:11<00:11,  9.13it/s] 50%|████▉     | 99/200 [00:11<00:11,  9.13it/s] 50%|█████     | 100/200 [00:11<00:10,  9.13it/s] 50%|█████     | 101/200 [00:11<00:10,  9.14it/s] 51%|█████     | 102/200 [00:11<00:10,  9.14it/s] 52%|█████▏    | 103/200 [00:11<00:10,  9.15it/s] 52%|█████▏    | 104/200 [00:12<00:10,  9.15it/s] 52%|█████▎    | 105/200 [00:12<00:10,  9.15it/s] 53%|█████▎    | 106/200 [00:12<00:10,  9.15it/s] 54%|█████▎    | 107/200 [00:12<00:10,  9.15it/s] 54%|█████▍    | 108/200 [00:12<00:10,  9.15it/s] 55%|█████▍    | 109/200 [00:12<00:09,  9.15it/s] 55%|█████▌    | 110/200 [00:12<00:09,  9.14it/s] 56%|█████▌    | 111/200 [00:12<00:09,  9.14it/s] 56%|█████▌    | 112/200 [00:12<00:09,  9.13it/s] 56%|█████▋    | 113/200 [00:12<00:09,  9.14it/s] 57%|█████▋    | 114/200 [00:13<00:09,  9.14it/s] 57%|█████▊    | 115/200 [00:13<00:09,  9.13it/s] 58%|█████▊    | 116/200 [00:13<00:09,  9.14it/s] 58%|█████▊    | 117/200 [00:13<00:09,  9.14it/s] 59%|█████▉    | 118/200 [00:13<00:08,  9.14it/s] 60%|█████▉    | 119/200 [00:13<00:08,  9.14it/s] 60%|██████    | 120/200 [00:13<00:08,  9.11it/s] 60%|██████    | 121/200 [00:13<00:08,  9.09it/s] 61%|██████    | 122/200 [00:13<00:08,  9.10it/s] 62%|██████▏   | 123/200 [00:14<00:08,  9.11it/s] 62%|██████▏   | 124/200 [00:14<00:08,  9.11it/s] 62%|██████▎   | 125/200 [00:14<00:08,  9.12it/s] 63%|██████▎   | 126/200 [00:14<00:08,  9.12it/s] 64%|██████▎   | 127/200 [00:14<00:08,  9.12it/s] 64%|██████▍   | 128/200 [00:14<00:07,  9.12it/s] 64%|██████▍   | 129/200 [00:14<00:07,  9.11it/s] 65%|██████▌   | 130/200 [00:14<00:07,  9.11it/s] 66%|██████▌   | 131/200 [00:14<00:07,  9.11it/s] 66%|██████▌   | 132/200 [00:15<00:07,  9.11it/s] 66%|██████▋   | 133/200 [00:15<00:07,  9.11it/s] 67%|██████▋   | 134/200 [00:15<00:07,  9.11it/s] 68%|██████▊   | 135/200 [00:15<00:07,  9.11it/s] 68%|██████▊   | 136/200 [00:15<00:07,  9.12it/s] 68%|██████▊   | 137/200 [00:15<00:06,  9.12it/s] 69%|██████▉   | 138/200 [00:15<00:06,  9.12it/s] 70%|██████▉   | 139/200 [00:15<00:06,  9.13it/s] 70%|███████   | 140/200 [00:15<00:06,  9.13it/s] 70%|███████   | 141/200 [00:16<00:06,  9.14it/s] 71%|███████   | 142/200 [00:16<00:06,  9.14it/s] 72%|███████▏  | 143/200 [00:16<00:06,  9.15it/s] 72%|███████▏  | 144/200 [00:16<00:06,  9.14it/s] 72%|███████▎  | 145/200 [00:16<00:05,  9.27it/s] 73%|███████▎  | 146/200 [00:16<00:05,  9.27it/s] 74%|███████▎  | 147/200 [00:16<00:05,  9.23it/s] 74%|███████▍  | 148/200 [00:16<00:05,  9.19it/s] 74%|███████▍  | 149/200 [00:16<00:05,  9.18it/s] 75%|███████▌  | 150/200 [00:17<00:05,  9.16it/s] 76%|███████▌  | 152/200 [00:17<00:04,  9.62it/s] 76%|███████▋  | 153/200 [00:17<00:04,  9.49it/s] 77%|███████▋  | 154/200 [00:17<00:04,  9.40it/s] 78%|███████▊  | 155/200 [00:17<00:04,  9.32it/s] 78%|███████▊  | 156/200 [00:17<00:04,  9.26it/s] 78%|███████▊  | 157/200 [00:17<00:04,  9.22it/s] 79%|███████▉  | 158/200 [00:17<00:04,  9.20it/s] 80%|███████▉  | 159/200 [00:17<00:04,  9.18it/s] 80%|████████  | 160/200 [00:18<00:04,  9.17it/s] 80%|████████  | 161/200 [00:18<00:04,  9.16it/s] 81%|████████  | 162/200 [00:18<00:04,  9.16it/s] 82%|████████▏ | 163/200 [00:18<00:04,  9.15it/s] 82%|████████▏ | 164/200 [00:18<00:03,  9.15it/s] 82%|████████▎ | 165/200 [00:18<00:03,  9.14it/s] 83%|████████▎ | 166/200 [00:18<00:03,  9.14it/s] 84%|████████▎ | 167/200 [00:18<00:03,  9.14it/s] 84%|████████▍ | 168/200 [00:18<00:03,  9.14it/s] 84%|████████▍ | 169/200 [00:19<00:03,  9.11it/s] 85%|████████▌ | 170/200 [00:19<00:03,  9.09it/s] 86%|████████▌ | 171/200 [00:19<00:03,  9.10it/s] 86%|████████▌ | 172/200 [00:19<00:03,  9.10it/s] 86%|████████▋ | 173/200 [00:19<00:02,  9.11it/s] 87%|████████▋ | 174/200 [00:19<00:02,  9.11it/s] 88%|████████▊ | 175/200 [00:19<00:02,  9.12it/s] 88%|████████▊ | 176/200 [00:19<00:02,  9.12it/s] 88%|████████▊ | 177/200 [00:19<00:02,  9.12it/s] 89%|████████▉ | 178/200 [00:20<00:02,  9.11it/s] 90%|████████▉ | 179/200 [00:20<00:02,  9.11it/s] 90%|█████████ | 180/200 [00:20<00:02,  9.11it/s] 90%|█████████ | 181/200 [00:20<00:02,  9.11it/s] 91%|█████████ | 182/200 [00:20<00:01,  9.11it/s] 92%|█████████▏| 183/200 [00:20<00:01,  9.12it/s] 92%|█████████▏| 184/200 [00:20<00:01,  9.11it/s] 92%|█████████▎| 185/200 [00:20<00:01,  9.11it/s] 93%|█████████▎| 186/200 [00:20<00:01,  9.12it/s] 94%|█████████▎| 187/200 [00:21<00:01,  9.12it/s] 94%|█████████▍| 188/200 [00:21<00:01,  9.12it/s] 94%|█████████▍| 189/200 [00:21<00:01,  9.12it/s] 95%|█████████▌| 190/200 [00:21<00:01,  9.12it/s] 96%|█████████▌| 191/200 [00:21<00:00,  9.12it/s] 96%|█████████▌| 192/200 [00:21<00:00,  9.12it/s] 96%|█████████▋| 193/200 [00:21<00:00,  9.11it/s] 97%|█████████▋| 194/200 [00:21<00:00,  9.11it/s] 98%|█████████▊| 195/200 [00:21<00:00,  9.11it/s] 98%|█████████▊| 196/200 [00:22<00:00,  9.11it/s] 98%|█████████▊| 197/200 [00:22<00:00,  9.11it/s] 99%|█████████▉| 198/200 [00:22<00:00,  9.11it/s]100%|█████████▉| 199/200 [00:22<00:00,  9.11it/s]100%|██████████| 200/200 [00:22<00:00,  9.11it/s]100%|██████████| 200/200 [00:22<00:00,  8.89it/s]
+Green Z:
+green tokens 124 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -3.0022213997860536
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 132 out of 300
+CC Z:
+green tokens 162 out of 300
+z_score is: -2.0784609690826525
+z_s_score is: 1.3856406460551016
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 172 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 2.5403411844343533
+Green Z:
+green tokens 123 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: -3.117691453623979
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 140 out of 300
+CC Z:
+green tokens 177 out of 300
+z_score is: -1.1547005383792515
+z_s_score is: 3.117691453623979
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 144 out of 300
+CC Z:
+green tokens 165 out of 300
+z_score is: -0.6928203230275508
+z_s_score is: 1.7320508075688772
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 143 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -0.808290376865476
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 140 out of 300
+z_score is: -1.616580753730952
+z_s_score is: -1.1547005383792515
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 140 out of 300
+z_score is: -2.309401076758503
+z_s_score is: -1.1547005383792515
+Green Z:
+green tokens 121 out of 300
+CC Z:
+green tokens 155 out of 300
+z_score is: -3.348631561299829
+z_s_score is: 0.5773502691896257
+Green Z:
+green tokens 129 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: -2.424871130596428
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 181 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 3.5795716689756794
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 158 out of 300
+CC Z:
+green tokens 172 out of 300
+z_score is: 0.9237604307034011
+z_s_score is: 2.5403411844343533
+Green Z:
+green tokens 116 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -3.9259818304894547
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 127 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -2.6558112382722783
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 149 out of 300
+CC Z:
+green tokens 172 out of 300
+z_score is: -0.11547005383792514
+z_s_score is: 2.5403411844343533
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 177 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 3.117691453623979
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 165 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.7320508075688772
+Green Z:
+green tokens 114 out of 300
+CC Z:
+green tokens 163 out of 300
+z_score is: -4.156921938165305
+z_s_score is: 1.5011106998930268
+Green Z:
+green tokens 150 out of 300
+CC Z:
+green tokens 184 out of 300
+z_score is: 0.0
+z_s_score is: 3.9259818304894547
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 151 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: 0.11547005383792514
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 153 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 0.3464101615137754
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -1.616580753730952
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 120 out of 300
+CC Z:
+green tokens 147 out of 300
+z_score is: -3.4641016151377544
+z_s_score is: -0.3464101615137754
+Green Z:
+green tokens 115 out of 300
+CC Z:
+green tokens 175 out of 300
+z_score is: -4.04145188432738
+z_s_score is: 2.8867513459481287
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 157 out of 300
+CC Z:
+green tokens 161 out of 300
+z_score is: 0.808290376865476
+z_s_score is: 1.2701705922171767
+Green Z:
+green tokens 140 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: -1.1547005383792515
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 143 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -0.808290376865476
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 128 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -2.5403411844343533
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 151 out of 300
+CC Z:
+green tokens 180 out of 300
+z_score is: 0.11547005383792514
+z_s_score is: 3.4641016151377544
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 177 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 3.117691453623979
+Green Z:
+green tokens 154 out of 300
+CC Z:
+green tokens 157 out of 300
+z_score is: 0.46188021535170054
+z_s_score is: 0.808290376865476
+Green Z:
+green tokens 146 out of 300
+CC Z:
+green tokens 196 out of 300
+z_score is: -0.46188021535170054
+z_s_score is: 5.3116224765445565
+Green Z:
+green tokens 115 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -4.04145188432738
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -1.616580753730952
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 115 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: -4.04145188432738
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 157 out of 300
+CC Z:
+green tokens 155 out of 300
+z_score is: 0.808290376865476
+z_s_score is: 0.5773502691896257
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 150 out of 300
+CC Z:
+green tokens 184 out of 300
+z_score is: 0.0
+z_s_score is: 3.9259818304894547
+Green Z:
+green tokens 131 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -2.1939310229205775
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 149 out of 300
+CC Z:
+green tokens 146 out of 300
+z_score is: -0.11547005383792514
+z_s_score is: -0.46188021535170054
+Green Z:
+green tokens 126 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -2.7712812921102032
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 123 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -3.117691453623979
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 122 out of 300
+CC Z:
+green tokens 172 out of 300
+z_score is: -3.233161507461904
+z_s_score is: 2.5403411844343533
+Green Z:
+green tokens 158 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: 0.9237604307034011
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 156 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: 0.6928203230275508
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 113 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -4.2723919920032305
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 158 out of 300
+CC Z:
+green tokens 158 out of 300
+z_score is: 0.9237604307034011
+z_s_score is: 0.9237604307034011
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 144 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -0.6928203230275508
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 155 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 0.5773502691896257
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 162 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 1.3856406460551016
+Green Z:
+green tokens 140 out of 300
+CC Z:
+green tokens 156 out of 300
+z_score is: -1.1547005383792515
+z_s_score is: 0.6928203230275508
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 146 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -0.46188021535170054
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 129 out of 300
+CC Z:
+green tokens 153 out of 300
+z_score is: -2.424871130596428
+z_s_score is: 0.3464101615137754
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 159 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 1.0392304845413263
+Green Z:
+green tokens 152 out of 300
+CC Z:
+green tokens 153 out of 300
+z_score is: 0.23094010767585027
+z_s_score is: 0.3464101615137754
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 163 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 1.5011106998930268
+Green Z:
+green tokens 124 out of 300
+CC Z:
+green tokens 160 out of 300
+z_score is: -3.0022213997860536
+z_s_score is: 1.1547005383792515
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 129 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: -2.424871130596428
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 157 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 0.808290376865476
+Green Z:
+green tokens 121 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -3.348631561299829
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 115 out of 261
+CC Z:
+green tokens 154 out of 261
+z_score is: -1.9188518278295361
+z_s_score is: 2.9092269647738127
+Green Z:
+green tokens 118 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -3.6950417228136043
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 128 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -2.5403411844343533
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 149 out of 300
+CC Z:
+green tokens 163 out of 300
+z_score is: -0.11547005383792514
+z_s_score is: 1.5011106998930268
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 189 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 4.50333209967908
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 143 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: -0.808290376865476
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 152 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 0.23094010767585027
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 186 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 4.156921938165305
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 152 out of 300
+CC Z:
+green tokens 162 out of 300
+z_score is: 0.23094010767585027
+z_s_score is: 1.3856406460551016
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 151 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: 0.11547005383792514
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 131 out of 300
+CC Z:
+green tokens 146 out of 300
+z_score is: -2.1939310229205775
+z_s_score is: -0.46188021535170054
+Green Z:
+green tokens 149 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -0.11547005383792514
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -1.616580753730952
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 129 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -2.424871130596428
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 181 out of 300
+z_score is: -1.616580753730952
+z_s_score is: 3.5795716689756794
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 160 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 1.1547005383792515
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 191 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 4.73427220735493
+Green Z:
+green tokens 109 out of 300
+CC Z:
+green tokens 188 out of 300
+z_score is: -4.73427220735493
+z_s_score is: 4.387862045841155
+Green Z:
+green tokens 152 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: 0.23094010767585027
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 150 out of 300
+CC Z:
+green tokens 178 out of 300
+z_score is: 0.0
+z_s_score is: 3.233161507461904
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 153 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 0.3464101615137754
+Green Z:
+green tokens 117 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -3.8105117766515297
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 132 out of 300
+CC Z:
+green tokens 155 out of 300
+z_score is: -2.0784609690826525
+z_s_score is: 0.5773502691896257
+Green Z:
+green tokens 132 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -2.0784609690826525
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 132 out of 300
+CC Z:
+green tokens 152 out of 300
+z_score is: -2.0784609690826525
+z_s_score is: 0.23094010767585027
+Green Z:
+green tokens 117 out of 300
+CC Z:
+green tokens 167 out of 300
+z_score is: -3.8105117766515297
+z_s_score is: 1.9629909152447274
+Green Z:
+green tokens 151 out of 300
+CC Z:
+green tokens 181 out of 300
+z_score is: 0.11547005383792514
+z_s_score is: 3.5795716689756794
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 120 out of 300
+CC Z:
+green tokens 161 out of 300
+z_score is: -3.4641016151377544
+z_s_score is: 1.2701705922171767
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 124 out of 300
+CC Z:
+green tokens 188 out of 300
+z_score is: -3.0022213997860536
+z_s_score is: 4.387862045841155
+Green Z:
+green tokens 127 out of 300
+CC Z:
+green tokens 194 out of 300
+z_score is: -2.6558112382722783
+z_s_score is: 5.080682368868707
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 178 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 3.233161507461904
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 146 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -0.46188021535170054
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 140 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -1.1547005383792515
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 153 out of 300
+CC Z:
+green tokens 148 out of 300
+z_score is: 0.3464101615137754
+z_s_score is: -0.23094010767585027
+Green Z:
+green tokens 135 out of 300
+CC Z:
+green tokens 165 out of 300
+z_score is: -1.7320508075688772
+z_s_score is: 1.7320508075688772
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 144 out of 300
+CC Z:
+green tokens 174 out of 300
+z_score is: -0.6928203230275508
+z_s_score is: 2.7712812921102032
+Green Z:
+green tokens 128 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -2.5403411844343533
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 144 out of 300
+CC Z:
+green tokens 172 out of 300
+z_score is: -0.6928203230275508
+z_s_score is: 2.5403411844343533
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 148 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: -0.23094010767585027
+Green Z:
+green tokens 119 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -3.5795716689756794
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 156 out of 300
+CC Z:
+green tokens 162 out of 300
+z_score is: 0.6928203230275508
+z_s_score is: 1.3856406460551016
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 186 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 4.156921938165305
+Green Z:
+green tokens 126 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: -2.7712812921102032
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 118 out of 300
+CC Z:
+green tokens 176 out of 300
+z_score is: -3.6950417228136043
+z_s_score is: 3.0022213997860536
+Green Z:
+green tokens 125 out of 300
+CC Z:
+green tokens 177 out of 300
+z_score is: -2.8867513459481287
+z_s_score is: 3.117691453623979
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 161 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 1.2701705922171767
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 162 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 1.3856406460551016
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 156 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 0.6928203230275508
+Green Z:
+green tokens 153 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: 0.3464101615137754
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 192 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 4.849742261192856
+Green Z:
+green tokens 132 out of 300
+CC Z:
+green tokens 158 out of 300
+z_score is: -2.0784609690826525
+z_s_score is: 0.9237604307034011
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 175 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 2.8867513459481287
+Green Z:
+green tokens 160 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: 1.1547005383792515
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 183 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 3.8105117766515297
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 127 out of 300
+CC Z:
+green tokens 158 out of 300
+z_score is: -2.6558112382722783
+z_s_score is: 0.9237604307034011
+Green Z:
+green tokens 135 out of 286
+CC Z:
+green tokens 163 out of 286
+z_score is: -0.9460998335825321
+z_s_score is: 2.3652495839563303
+Green Z:
+green tokens 142 out of 296
+CC Z:
+green tokens 166 out of 296
+z_score is: -0.6974858324629157
+z_s_score is: 2.092457497388747
+Green Z:
+green tokens 131 out of 300
+CC Z:
+green tokens 177 out of 300
+z_score is: -2.1939310229205775
+z_s_score is: 3.117691453623979
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 157 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 0.808290376865476
+Green Z:
+green tokens 125 out of 300
+CC Z:
+green tokens 152 out of 300
+z_score is: -2.8867513459481287
+z_s_score is: 0.23094010767585027
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 157 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 0.808290376865476
+Green Z:
+green tokens 100 out of 236
+CC Z:
+green tokens 127 out of 236
+z_score is: -2.34340039765483
+z_s_score is: 1.171700198827415
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 128 out of 300
+CC Z:
+green tokens 157 out of 300
+z_score is: -2.5403411844343533
+z_s_score is: 0.808290376865476
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 185 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 4.04145188432738
+Green Z:
+green tokens 143 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -0.808290376865476
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 147 out of 300
+CC Z:
+green tokens 166 out of 300
+z_score is: -0.3464101615137754
+z_s_score is: 1.8475208614068022
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 146 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: -0.46188021535170054
+Green Z:
+green tokens 130 out of 300
+CC Z:
+green tokens 168 out of 300
+z_score is: -2.309401076758503
+z_s_score is: 2.0784609690826525
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 150 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 0.0
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 150 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 0.0
+Green Z:
+green tokens 156 out of 300
+CC Z:
+green tokens 175 out of 300
+z_score is: 0.6928203230275508
+z_s_score is: 2.8867513459481287
+Green Z:
+green tokens 144 out of 300
+CC Z:
+green tokens 153 out of 300
+z_score is: -0.6928203230275508
+z_s_score is: 0.3464101615137754
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 152 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 0.23094010767585027
+Green Z:
+green tokens 125 out of 300
+CC Z:
+green tokens 165 out of 300
+z_score is: -2.8867513459481287
+z_s_score is: 1.7320508075688772
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 181 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 3.5795716689756794
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 187 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 4.2723919920032305
+Green Z:
+green tokens 154 out of 300
+CC Z:
+green tokens 159 out of 300
+z_score is: 0.46188021535170054
+z_s_score is: 1.0392304845413263
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 156 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 0.6928203230275508
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 190 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 4.618802153517006
+Green Z:
+green tokens 123 out of 300
+CC Z:
+green tokens 187 out of 300
+z_score is: -3.117691453623979
+z_s_score is: 4.2723919920032305
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 159 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 1.0392304845413263
+Green Z:
+green tokens 125 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -2.8867513459481287
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 123 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -3.117691453623979
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 131 out of 300
+CC Z:
+green tokens 175 out of 300
+z_score is: -2.1939310229205775
+z_s_score is: 2.8867513459481287
+Green Z:
+green tokens 145 out of 300
+CC Z:
+green tokens 167 out of 300
+z_score is: -0.5773502691896257
+z_s_score is: 1.9629909152447274
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 186 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 4.156921938165305
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 181 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 3.5795716689756794
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 155 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: 0.5773502691896257
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 159 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.0392304845413263
+Green Z:
+green tokens 155 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: 0.5773502691896257
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 155 out of 300
+CC Z:
+green tokens 173 out of 300
+z_score is: 0.5773502691896257
+z_s_score is: 2.6558112382722783
+Green Z:
+green tokens 138 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -1.3856406460551016
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 126 out of 300
+CC Z:
+green tokens 158 out of 300
+z_score is: -2.7712812921102032
+z_s_score is: 0.9237604307034011
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 154 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 0.46188021535170054
+Green Z:
+green tokens 131 out of 300
+CC Z:
+green tokens 165 out of 300
+z_score is: -2.1939310229205775
+z_s_score is: 1.7320508075688772
+Green Z:
+green tokens 128 out of 300
+CC Z:
+green tokens 169 out of 300
+z_score is: -2.5403411844343533
+z_s_score is: 2.1939310229205775
+Green Z:
+green tokens 142 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: -0.9237604307034011
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 137 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -1.5011106998930268
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 171 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 2.424871130596428
+Green Z:
+green tokens 139 out of 300
+CC Z:
+green tokens 148 out of 300
+z_score is: -1.2701705922171767
+z_s_score is: -0.23094010767585027
+Green Z:
+green tokens 133 out of 300
+CC Z:
+green tokens 160 out of 300
+z_score is: -1.9629909152447274
+z_s_score is: 1.1547005383792515
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 179 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 3.348631561299829
+Green Z:
+green tokens 148 out of 300
+CC Z:
+green tokens 184 out of 300
+z_score is: -0.23094010767585027
+z_s_score is: 3.9259818304894547
+Green Z:
+green tokens 151 out of 300
+CC Z:
+green tokens 164 out of 300
+z_score is: 0.11547005383792514
+z_s_score is: 1.616580753730952
+Green Z:
+green tokens 141 out of 300
+CC Z:
+green tokens 195 out of 300
+z_score is: -1.0392304845413263
+z_s_score is: 5.196152422706631
+Green Z:
+green tokens 134 out of 300
+CC Z:
+green tokens 163 out of 300
+z_score is: -1.8475208614068022
+z_s_score is: 1.5011106998930268
+Green Z:
+green tokens 155 out of 300
+CC Z:
+green tokens 170 out of 300
+z_score is: 0.5773502691896257
+z_s_score is: 2.309401076758503
+Green Z:
+green tokens 136 out of 300
+CC Z:
+green tokens 191 out of 300
+z_score is: -1.616580753730952
+z_s_score is: 4.73427220735493
+Green Z:
+green tokens 119 out of 300
+CC Z:
+green tokens 167 out of 300
+z_score is: -3.5795716689756794
+z_s_score is: 1.9629909152447274
+{'z_score_list': [-3.0022213997860536, -1.0392304845413263, -1.8475208614068022, -2.0784609690826525, -1.9629909152447274, -3.117691453623979, -1.1547005383792515, -2.309401076758503, -0.6928203230275508, -0.3464101615137754, -0.808290376865476, -1.616580753730952, -2.309401076758503, -3.348631561299829, -2.424871130596428, -0.9237604307034011, -0.3464101615137754, 0.9237604307034011, -3.9259818304894547, -2.6558112382722783, -0.11547005383792514, -1.2701705922171767, -1.8475208614068022, -4.156921938165305, 0.0, -1.0392304845413263, -1.9629909152447274, 0.11547005383792514, -0.5773502691896257, -1.616580753730952, -1.5011106998930268, -3.4641016151377544, -4.04145188432738, -1.3856406460551016, 0.808290376865476, -1.1547005383792515, -0.808290376865476, -2.5403411844343533, 0.11547005383792514, -0.9237604307034011, 0.46188021535170054, -0.46188021535170054, -4.04145188432738, -1.616580753730952, -0.3464101615137754, -4.04145188432738, 0.808290376865476, -0.23094010767585027, 0.0, -2.1939310229205775, -0.11547005383792514, -2.7712812921102032, -3.117691453623979, -0.9237604307034011, -1.5011106998930268, -3.233161507461904, 0.9237604307034011, 0.6928203230275508, -4.2723919920032305, 0.9237604307034011, -1.2701705922171767, -0.6928203230275508, -0.9237604307034011, -0.5773502691896257, -1.1547005383792515, -1.0392304845413263, -0.5773502691896257, -0.46188021535170054, -2.424871130596428, -1.2701705922171767, 0.23094010767585027, -1.3856406460551016, -3.0022213997860536, -1.5011106998930268, -2.424871130596428, -1.5011106998930268, -3.348631561299829, -1.9188518278295361, -3.6950417228136043, -2.5403411844343533, -1.3856406460551016, -0.11547005383792514, -0.5773502691896257, -1.8475208614068022, -1.2701705922171767, -2.309401076758503, -1.9629909152447274, 0.23094010767585027, -1.0392304845413263, 0.11547005383792514, -2.1939310229205775, -0.11547005383792514, -1.0392304845413263, -1.616580753730952, -2.424871130596428, -1.616580753730952, -1.9629909152447274, -2.309401076758503, -4.73427220735493, 0.23094010767585027, 0.0, -1.8475208614068022, -3.8105117766515297, -2.0784609690826525, -2.0784609690826525, -2.0784609690826525, -3.8105117766515297, 0.11547005383792514, -1.5011106998930268, -3.4641016151377544, -0.23094010767585027, -3.0022213997860536, -2.6558112382722783, -1.9629909152447274, -1.9629909152447274, -1.9629909152447274, -0.9237604307034011, -0.46188021535170054, -1.1547005383792515, 0.3464101615137754, -1.7320508075688772, -0.5773502691896257, -0.6928203230275508, -2.5403411844343533, -0.6928203230275508, -1.5011106998930268, -3.5795716689756794, 0.6928203230275508, -0.23094010767585027, -2.7712812921102032, -3.6950417228136043, -2.8867513459481287, -0.23094010767585027, -1.5011106998930268, -1.5011106998930268, 0.3464101615137754, -1.2701705922171767, -2.0784609690826525, -0.3464101615137754, 1.1547005383792515, -2.309401076758503, -0.3464101615137754, -1.8475208614068022, -2.6558112382722783, -0.9460998335825321, -0.6974858324629157, -2.1939310229205775, -2.309401076758503, -2.8867513459481287, -0.9237604307034011, -2.34340039765483, -1.0392304845413263, -2.5403411844343533, -1.8475208614068022, -0.9237604307034011, -0.808290376865476, -0.3464101615137754, -1.2701705922171767, -2.309401076758503, -0.9237604307034011, -1.2701705922171767, 0.6928203230275508, -0.6928203230275508, -1.3856406460551016, -2.8867513459481287, -1.0392304845413263, -1.0392304845413263, 0.46188021535170054, -0.5773502691896257, -0.5773502691896257, -3.117691453623979, -1.9629909152447274, -2.8867513459481287, -3.117691453623979, -2.1939310229205775, -0.5773502691896257, -0.9237604307034011, -1.3856406460551016, -1.2701705922171767, -1.8475208614068022, 0.5773502691896257, 0.5773502691896257, -1.3856406460551016, -2.7712812921102032, -0.9237604307034011, -2.1939310229205775, -2.5403411844343533, -0.9237604307034011, -1.5011106998930268, -1.8475208614068022, -1.2701705922171767, -1.9629909152447274, -0.23094010767585027, -0.23094010767585027, 0.11547005383792514, -1.0392304845413263, -1.8475208614068022, 0.5773502691896257, -1.616580753730952, -3.5795716689756794], 'avarage_z': -1.4503881931304932, 'wm_pred': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'wm_pred_average': 0.0}
+/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+files dir ['eval', 'finance_qa.jsonl', 'z_score', 'z_s_score']
+Evaluating on: ['eval', 'finance_qa.jsonl', 'z_score', 'z_s_score']
+finance_qa.jsonl has began.........
+predictions[0] is:  Hello! I'm here to help you with your question. While it may be more challenging to get a home loan with a poor credit history after a divorce, it's not impossible. Lenders may view you as a higher risk borrowers due to the divorce and any financial difficulties that may have resulted from it. However, there are still options available to you.
+
+Here are a few things you can consider:
+
+1. Rebuild your credit: Make sure to pay your bills on time and keep your credit utilization ratio low. This can help improve your credit score, which can make you more eligible for a home loan.
+2. Consider a co-signer: If you have a co-signer with a good credit history, it may be easier to qualify for a home loan. However, it's important to keep in mind that the co-signer will be legally responsible for the loan if you default.
+3. Look for specialized lenders: Some lenders specialize in working with borrowers with poor credit history, including those who have gone through a divorce. These lenders may offer more flexible terms and lower interest rates.
+4. Consider an FHA loan: FHA loans are designed for borrowers with lower credit scores, including those who have gone through a divorce. These loans typically offer more flexible underwriting requirements and lower down payment options.
