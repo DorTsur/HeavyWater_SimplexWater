@@ -1,2 +1,0 @@
-/var/slurmd/spool/slurmd/job7974151/slurm_script: line 10: 2859615 Killed                  python pred.py --mode "old" --dataset "all" --delta 1.0
-slurmstepd: error: Detected 1 oom_kill event in StepId=7974151.batch. Some of the step tasks have been OOM Killed.

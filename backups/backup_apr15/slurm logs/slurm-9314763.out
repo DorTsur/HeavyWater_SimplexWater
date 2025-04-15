@@ -1,51 +1,0 @@
-/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/huggingface_hub/file_download.py:797: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-finished importing
-finished parsing model, model path ./data/models/llama-2-7b-chat-hf
-device= cuda
-importing llama
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]
-FINISHED importing model
-finished loading model and tokenzier
-trying to brekpoint:
-konwledge_memorization has began.........
-  0%|          | 0/200 [00:00<?, ?it/s]input id device cuda:0
-[8] > [33;01m/n/home12/dtsur/watermarking/WaterBench/watermark/cc_watermark.py[00m([36;01m296[00m)_calc_kernel()
--> A = []
-(Pdb++)   0%|          | 0/200 [00:00<?, ?it/s]
-
-Traceback (most recent call last):
-  File "/n/home12/dtsur/watermarking/WaterBench/pred.py", line 303, in <module>
-    preds = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/watermarking/WaterBench/pred.py", line 199, in get_pred
-    completions_text, completions_tokens  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
-                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/watermarking/WaterBench/generate.py", line 192, in generate
-    outputs = self.model.generate(
-              ^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/transformers/generation/utils.py", line 1588, in generate
-    return self.sample(
-           ^^^^^^^^^^^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/transformers/generation/utils.py", line 2655, in sample
-    next_token_scores = logits_processor(input_ids, next_token_logits)
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/site-packages/transformers/generation/logits_process.py", line 97, in __call__
-    scores = processor(input_ids, scores)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/watermarking/WaterBench/watermark/cc_watermark.py", line 1143, in __call__
-    cc_transform = self._calc_kernel(py_tilde, side_info) 
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/watermarking/WaterBench/watermark/cc_watermark.py", line 296, in _calc_kernel
-    A = []
-        ^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/bdb.py", line 90, in trace_dispatch
-    return self.dispatch_line(frame)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/n/home12/dtsur/.conda/envs/nenv/lib/python3.11/bdb.py", line 115, in dispatch_line
-    if self.quitting: raise BdbQuit
-                      ^^^^^^^^^^^^^
-bdb.BdbQuit
