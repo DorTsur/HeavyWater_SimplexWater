@@ -13,7 +13,8 @@ import torch
 import pdb
 from scipy.stats import norm
 import re
-
+import scipy 
+from watermark.exponential import ExponentialWatermarkDetector
 
 def main(args):
     seed_everything(42)
@@ -135,7 +136,15 @@ def main(args):
                                             dynamic_seed="markov_1",
                                             device=device)
             z_s_score_list = []
-            
+        
+        elif "exponential" in args.input_dir:  
+            print('performing detection for exponential')
+            detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
+                                            vocab=all_token_ids,
+                                            dynamic_seed="markov_1",
+                                            device=device)
+            teststats_list = []
+
         # pdb.set_trace()
         z_score_list = []
         for idx, cur_text in tqdm(enumerate(texts), total=len(texts)):
@@ -169,6 +178,13 @@ def main(args):
                     z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
                 
+                elif "exponential" in args.input_dir:
+                    # print("gen_tokens is:", gen_tokens)
+                    z_scores, teststats = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z_scores)
+                    teststats_list.append(teststats)
+
+                
                 elif "gpt" in args.input_dir:
                       z_score_list.append(detector.detect(gen_tokens[0]))
                 elif "new" in args.input_dir:
@@ -177,6 +193,33 @@ def main(args):
             
             else:   
                 print(f"Warning: sequence {idx} is too short to test.")
+
+        if 'exponential' in args.input_dir:
+            T = len(teststats_list)
+            test_stats_mean = torch.mean(torch.tensor(teststats_list))
+            pval = scipy.stats.gamma.sf(test_stats_mean.item(), T, scale = 1.0)
+            print(f"teststats p-value: {pval}")
+            #thresholding
+            pvalue = 0.001
+            
+            threshold = scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0)
+            #pdb.set_trace()
+            save_dict = {
+                'teststats': teststats_list,
+                'pval_teststats': pval,
+                'wm_pred': [1 if z > threshold else 0 for z in teststats_list],
+                'average_teststats': test_stats_mean.item(),
+                'z_score_list': z_score_list,
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item()
+            }
+            z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
+            output_path = os.path.join(args.input_dir + "/z_score", z_file)
+            output_dir = args.input_dir + "/z_s_score"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            with open(output_path, 'w') as fout:
+                json.dump(save_dict, fout)
+            return
 
         p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
         save_dict = {
@@ -220,7 +263,7 @@ def main(args):
                 json.dump(save_dict, fout)
             
             
-        
+
 
 
 parser = argparse.ArgumentParser(description="Process watermark to calculate z-score for every method")

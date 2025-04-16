@@ -34,7 +34,7 @@ def parse_args(args=None):
         "--mode",
         type=str,
         default="cc",
-        choices=["no", "old", "new", "v2", "gpt", "cc","cc-combined", "cc-k","inv_tr","lin_code"],
+        choices=["no", "old", "new", "v2", "gpt", "cc","cc-combined", "cc-k","inv_tr","lin_code", "exponential"],
         help="Which version of the watermark to generate",
     )
     parser.add_argument(

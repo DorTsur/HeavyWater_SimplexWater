@@ -1,5 +1,4 @@
 *.sh
 *.out
 pred/
-
-
+*.pyc
