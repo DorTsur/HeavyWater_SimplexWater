@@ -134,6 +134,7 @@ class ExponentialWatermarkDetector():
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
         teststats=0
+        gen_token_length = 0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -149,9 +150,12 @@ class ExponentialWatermarkDetector():
             # compute test statistic
             teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-5))
             prev_token = tok_gend
+            gen_token_length += 1
+
             
         # pdb.set_trace()
-        z_score = self._compute_z_score(teststats, len(input_sequence))
+        # teststats ~ Gamma(T,1), mean T and Var T. Hence, we can approximate it as normal with mean T and variance T.
+        z_score = self._compute_z_score(teststats, len(input_sequence)) 
         print(f"z_score={z_score}, teststats={teststats}")
         print(f"teststats bias: {teststats - len(input_sequence)}")
-        return z_score.item(), teststats.item()
+        return z_score.item(), teststats.item(),gen_token_length

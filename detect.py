@@ -144,6 +144,7 @@ def main(args):
                                             dynamic_seed="markov_1",
                                             device=device)
             teststats_list = []
+            gen_token_length_list = []
 
         # pdb.set_trace()
         z_score_list = []
@@ -180,9 +181,10 @@ def main(args):
                 
                 elif "exponential" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z_scores, teststats = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_scores, teststats, gen_token_length = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z_scores)
                     teststats_list.append(teststats)
+                    gen_token_length_list.append(gen_token_length)
 
                 
                 elif "gpt" in args.input_dir:
@@ -195,22 +197,21 @@ def main(args):
                 print(f"Warning: sequence {idx} is too short to test.")
 
         if 'exponential' in args.input_dir:
-            T = len(teststats_list)
-            test_stats_mean = torch.mean(torch.tensor(teststats_list))
-            pval = scipy.stats.gamma.sf(test_stats_mean.item(), T, scale = 1.0)
-            print(f"teststats p-value: {pval}")
+            #pdb.set_trace()
+            # p_value for each 
+
+            pval = [scipy.stats.gamma.sf(test_stats, T, scale = 1.0) for test_stats, T in zip(teststats_list, gen_token_length_list)]
+            average_pval = torch.mean(torch.tensor(pval)).item()
             #thresholding
             pvalue = 0.001
-            
-            threshold = scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0)
-            #pdb.set_trace()
+            threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
             save_dict = {
-                'teststats': teststats_list,
-                'pval_teststats': pval,
-                'wm_pred': [1 if z > threshold else 0 for z in teststats_list],
-                'average_teststats': test_stats_mean.item(),
+                'pval_teststats': average_pval,
+                'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'z_score_list': z_score_list,
-                'avarage_z': torch.mean(torch.tensor(z_score_list)).item()
+                'teststats_list': teststats_list,
+                'gen_token_length_list': gen_token_length_list
             }
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
             output_path = os.path.join(args.input_dir + "/z_score", z_file)
@@ -219,7 +220,7 @@ def main(args):
                 os.makedirs(output_dir)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
-            return
+            continue
 
         p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
         save_dict = {
