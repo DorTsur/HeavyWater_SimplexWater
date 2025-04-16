@@ -144,6 +144,19 @@ class Generator():
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 
+        if args.mode == 'exponential':
+            watermark_processor = ExponentialLogitsProcessor(
+                                            bad_words_ids=None, 
+                                            eos_token_id=tokenizer.eos_token_id, 
+                                            vocab=self.all_token_ids, 
+                                            vocab_size=self.vocab_size, 
+                                            # bl_proportion=1-self.gamma,
+                                            # bl_logit_bias=self.delta,
+                                            # bl_type=self.bl_type, 
+                                            initial_seed=self.init_seed, 
+                                            dynamic_seed=self.dyna_seed
+                                            ) 
+            self.logit_processor_lst = LogitsProcessorList([watermark_processor])
     def generate(self, input_ids, max_new_tokens):
         if self.mode == 'new':
             example = {}
@@ -239,6 +252,15 @@ class Generator():
                 )
 
             elif self.mode == 'lin_code':
+                seed_everything(42)
+                outputs = self.model.generate(
+                    input_ids, max_new_tokens=max_new_tokens,
+                    logits_processor = self.logit_processor_lst,
+                    do_sample=True,
+                    top_k=0,
+                    temperature=self.sampling_temp
+                )
+            elif self.mode == 'exponential':
                 seed_everything(42)
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,

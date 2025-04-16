@@ -12,7 +12,7 @@ import json
 import torch
 import pdb
 import re
-
+from scipy.stats import gamma
 
 def main(args):
     seed_everything(42)
@@ -134,7 +134,15 @@ def main(args):
                                             dynamic_seed="markov_1",
                                             device=device)
             z_s_score_list = []
-            
+        
+        elif "exponential" in args.input_dir:  
+            print('performing detection for exponential')
+            detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
+                                            vocab=all_token_ids,
+                                            dynamic_seed="markov_1",
+                                            device=device)
+            teststats_list = []
+
         # pdb.set_trace()
         z_score_list = []
         for idx, cur_text in tqdm(enumerate(texts), total=len(texts)):
@@ -167,6 +175,13 @@ def main(args):
                     # print("gen_tokens is:", gen_tokens)
                     z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
+                
+                elif "exponential" in args.input_dir:
+                    # print("gen_tokens is:", gen_tokens)
+                    z_scores, teststats = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z_scores)
+                    teststats_list.append(teststats)
+
                 
                 elif "gpt" in args.input_dir:
                       z_score_list.append(detector.detect(gen_tokens[0]))
@@ -216,7 +231,18 @@ def main(args):
                 json.dump(save_dict, fout)
             
             
-        
+        if 'exponential' in args.input_dir:
+            pvalue = 0.001
+            T = len(teststats_list)
+            threshold = gamma.isf(pvalue, a = T, scale = 1.0)
+            save_dict = {
+                'teststats': teststats_list,
+                'wm_pred': [1 if z > threshold else 0 for z in teststats_list],
+                'average_teststats': torch.mean(torch.tensor(teststats_list)).item(),
+                'z_score_list': z_score_list,
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item()
+            }
+
 
 
 parser = argparse.ArgumentParser(description="Process watermark to calculate z-score for every method")
