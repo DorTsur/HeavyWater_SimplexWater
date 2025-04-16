@@ -97,7 +97,9 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
                 store_bl_ids: bool=False,
                 store_spike_ents: bool = False,
                 noop_blacklist: bool = False,
-                cc_k=2
+                cc_k=2,
+                tilt: bool = False,
+                tilting_delta: float = 0.1
                 ):
         
         self.vocab = vocab
@@ -106,6 +108,8 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
         self.bl_logit_bias = bl_logit_bias
         self.bl_type = bl_type
         self.k = cc_k
+        self.tilt = tilt
+        self.tilting_delta = tilting_delta
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -268,8 +272,21 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
         if not self.noop_blacklist:
             # calc py_tilde -> calc channel_cond -> calc q_tilde logits
             py_tilde = self._calc_py_tilde(scores)
-            cc_transform = self._calc_kernel(py_tilde, side_info) # TD
-            scores = self._calc_cc_transform(scores, cc_transform) # TD
+            cc_transform = self._calc_kernel(py_tilde, side_info) 
+            scores = self._calc_cc_transform(scores, cc_transform) 
+
+            # pdb.set_trace()
+            if self.tilt:
+                index_agree = torch.where(self.bad_words_mask[0] == side_info)[0]
+                index_disagree = torch.where(self.bad_words_mask[0] != side_info)[0]
+                # scores[0].index_add_(0, index_agree, torch.full_like(index_agree, self.tilting_delta))
+                # scores[0].index_add_(0, index_disagree, torch.full_like(index_disagree, -self.tilting_delta))
+                sc = scores[0]
+                sc[index_agree] = sc[index_agree] + self.tilting_delta
+                sc[index_disagree] = sc[index_disagree] - self.tilting_delta
+                scores[0] = sc
+
+
             
         # print("scores shape is", scores.shape)
         

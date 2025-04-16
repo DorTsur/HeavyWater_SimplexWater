@@ -8,9 +8,9 @@
 ml python/3.10.13-fasrc01
 ml cuda/11.8.0-fasrc01
 mamba activate nenv
-python detect.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d1.0_temp1.0"
-python eval.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d1.0_temp1.0"
-python detect.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d3.0_temp1.0"
-python eval.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d3.0_temp1.0"
-python detect.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d5.0_temp1.0"
-python eval.py --input_dir "pred/llama2-7b-chat-4k_old_g0.5_d5.0_temp1.0"
+python detect.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.1"
+python eval.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.1"
+python detect.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.3"
+python eval.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.3"
+python detect.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.4"
+python eval.py --input_dir "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_0.4"

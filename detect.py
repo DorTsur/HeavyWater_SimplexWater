@@ -11,6 +11,7 @@ import os
 import json
 import torch
 import pdb
+from scipy.stats import norm
 import re
 
 
@@ -177,8 +178,9 @@ def main(args):
             else:   
                 print(f"Warning: sequence {idx} is too short to test.")
 
-            
+        p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
         save_dict = {
+            'p_val_teststats': p_val,
             'z_score_list': z_score_list,
             'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
             'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
@@ -196,7 +198,9 @@ def main(args):
 
         
         if "cc" in args.input_dir:
+            p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
             save_dict = {
+            'p_val_teststats': p_val,
             'z_score_list': z_s_score_list,
             'avarage_z': torch.mean(torch.tensor(z_s_score_list)).item(),
             'wm_pred': [1 if z > args.threshold else 0 for z in z_s_score_list]

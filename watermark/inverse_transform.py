@@ -1,6 +1,9 @@
 import torch
 import pdb
 from watermark.old_watermark import BlacklistLogitsProcessor
+import random
+from scipy.stats import ttest_1samp
+
 
 
 class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
@@ -35,6 +38,7 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 # let the rng evolve naturally - this is not a realistic setting
                 pass
             
+            
             # set seed and sample the random objects:
             self.g_cuda.manual_seed(seed)
             permuted_list = torch.randperm(self.vocab_size, device=input_ids.device, generator=self.g_cuda)
@@ -48,7 +52,8 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
             # we choose to watermark
             for b_idx in range(input_ids.shape[0]):
                 # 1. create CDF:
-                cdf = torch.cumsum(scores[b_idx, self.permuted_lists[b_idx]], dim=-1)
+                distribution = torch.softmax(scores, dim=-1)
+                cdf = torch.cumsum(distribution[b_idx, self.permuted_lists[b_idx]], dim=-1)
                 # 2. sample uniform [0,1] rv
                 u = self.u_samples[b_idx]
                 # 3. find CDF index we exceed the threshold
@@ -58,3 +63,90 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 scores[b_idx, self.permuted_lists[b_idx][idx]] = 0
 
         return scores
+    
+
+class InverseTransformDetector():
+    def __init__(self,
+                 tokenizer,
+                 vocab: list[int] = None,
+                 gamma: float = 0.5,
+                 delta: float = 5.0,
+                 hash_key: int = 15485863,
+                 initial_seed: int=None,
+                 dynamic_seed: str=None, # "initial", "markov_1", None
+                 device: torch.device = None,
+                 select_green_tokens: bool = True):
+        self.vocab = vocab
+        self.vocab_size = len(vocab)
+        self.hash_key = hash_key
+        self.device = device
+        self.tokenizer = tokenizer
+
+        if initial_seed is None: 
+            self.initial_seed = None
+            assert dynamic_seed != "initial"
+        else:
+            random.seed(initial_seed)
+            self.initial_seed = initial_seed
+            
+        self.dynamic_seed = dynamic_seed
+        self.rng = torch.Generator(device=self.device)
+
+    def detect(self,
+               inputs: list[int]=None,
+               tokenized_text: list[int]=None,
+               debug: bool=True,
+               return_scores: bool = True,):
+        
+        """
+        Implementation of the T-test for detection of Inverse Transform WM.
+        """
+        
+        assert tokenized_text is not None, "Must pass tokenized string"
+        
+        assert inputs is not None,  "Must pass inputs"
+
+        input_sequence = tokenized_text.tolist()[0]
+        
+        # print("input sequence is:", input_sequence)
+        prev_token = inputs[0][-1].item()
+
+        detect_scores = []
+        for idx, tok_gend in enumerate(input_sequence):
+            if self.dynamic_seed == "initial":
+                seed = self.hash_key*self.initial_seed
+            elif self.dynamic_seed == "markov_1":
+                seed = self.hash_key*prev_token
+
+
+            self.rng.manual_seed(seed)
+            permuted_list = torch.randperm(self.vocab_size, device=self.device, generator=self.rng)
+            self.rng.manual_seed(seed)
+            u = torch.rand(1, device=self.device)
+            print("u is:", u)
+
+            inv = torch.argsort(permuted_list)
+            rank = inv[tok_gend].item()
+            score = abs(u - rank / (self.vocab_size - 1))
+            detect_scores.append(score)
+
+            prev_token = tok_gend
+        
+        sum_score = sum(detect_scores)
+        t_stat, p_value = ttest_1samp(detect_scores, popmean=1/3)
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+

@@ -161,6 +161,20 @@ def parse_args(args=None):
         help="The partition size of the cc watermark.",
     )
 
+    parser.add_argument(
+        "--tilt",
+        type=str2bool,
+        default=False,
+        help="tilting option for distortionless distributions",
+    )
+
+    parser.add_argument(
+        "--tilting_delta",
+        type=float,
+        default=0.5,
+        help="tilting value for distortionless distributions",
+    )
+
     parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
     return parser.parse_args(args)
 
@@ -310,6 +324,10 @@ if __name__ == '__main__':
         save_dir = f"pred/{model_name}_{args.mode}_g{args.gamma}_d{args.delta}_hard"
     if args.mode == "cc-k":
         save_dir += f"_k_{args.cc_k}"
+    if args.mode == 'lin_code' and args.tilt:
+        save_dir += f"_d_tile_{args.tilting_delta}"
+    if args.mode == 'cc' and args.tilt:
+        save_dir += f"_d_tile_{args.tilting_delta}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset

@@ -86,7 +86,10 @@ class Generator():
                                             bl_logit_bias=self.delta,
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
-                                            dynamic_seed=self.dyna_seed) 
+                                            dynamic_seed=self.dyna_seed,
+                                            tilt=args.tilt,
+                                            tilting_delta=args.tilting_delta
+                                            ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
         if args.mode == 'cc-combined':
@@ -140,7 +143,9 @@ class Generator():
                                             bl_logit_bias=self.delta,
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
-                                            dynamic_seed=self.dyna_seed
+                                            dynamic_seed=self.dyna_seed,
+                                            tilt=args.tilt,
+                                            tilting_delta=args.tilting_delta
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 

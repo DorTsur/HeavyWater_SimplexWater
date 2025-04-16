@@ -17,7 +17,9 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 dynamic_seed=None, # "initial", "markov_1", None
                 store_bl_ids=False,
                 store_spike_ents= False,
-                noop_blacklist= False
+                noop_blacklist= False,
+                tilt=False,
+                tilting_delta=0.1
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -33,6 +35,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 noop_blacklist)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.gen_params()
+        self.tilt = tilt
+        self.tilting_delta = tilting_delta
         # self.gen_cost(device=device)
     
     # def gen_params(self):
@@ -142,7 +146,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 generator=self.g_cuda,
                 device=input_ids.device
             ).item()  
-            print(f's={s},seed={seed}')     
+            # print(f's={s},seed={seed}')     
 
         if not self.noop_blacklist:
             # we choose to watermark
@@ -186,7 +190,14 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             # numItermax=num_iter,
             stopThr=1e-5
         )
-        P_wm = P[:, side_info - 1] 
+        P_wm = P[:, side_info - 1]
+        if self.tilt:
+            # pdb.set_trace()
+            c = C_orig[ :,side_info - 1]
+            index_1s = torch.where(c == 1)[0]
+            index_0s = torch.where(c == 0)[0]
+            P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
+            P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
         # reconstruct conditional
         # P_wm = torch.zeros(m, device=distribution.device)
         # merged_col = reduced['inverse'][side_info - 1]
@@ -194,6 +205,9 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         P_wm = P_wm / P_wm.sum()
         out_p = torch.zeros(size=(self.vocab_size,), device=distribution.device)
         out_p[filter_indices] = P_wm
+
+        
+        
         return out_p
     
     def generate_generator_matrix(self, device=None):
