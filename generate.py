@@ -8,6 +8,7 @@ from watermark.watermark_v2 import WatermarkLogitsProcessor
 from watermark.cc_watermark import CorrelatedChannelLogitsProcessor, CombinedCCLogitsProcessor, K_CorrelatedChannelLogitsProcessor
 from watermark.inverse_transform import InverseTransformLogitsProcessor
 from watermark.linear_code import LinearCodeLogitsProcessor
+from watermark.exponential import ExponentialLogitsProcessor
 from transformers import  LogitsProcessorList
 import pdb
 import random
@@ -150,9 +151,9 @@ class Generator():
                                             eos_token_id=tokenizer.eos_token_id, 
                                             vocab=self.all_token_ids, 
                                             vocab_size=self.vocab_size, 
-                                            # bl_proportion=1-self.gamma,
-                                            # bl_logit_bias=self.delta,
-                                            # bl_type=self.bl_type, 
+                                            bl_proportion=1-self.gamma,
+                                            bl_logit_bias=self.delta,
+                                            bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed
                                             ) 

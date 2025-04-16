@@ -3,34 +3,33 @@ import torch.nn.functional as F
 import pdb
 from watermark.old_watermark import BlacklistLogitsProcessor
 import math
-
 class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
                 bad_words_ids, 
                 eos_token_id,
                 vocab, 
                 vocab_size,
-                # bl_proportion=0.5,
-                # bl_logit_bias=1.0,
-                # bl_type= "hard", # "soft"
+                bl_proportion=0.5,
+                bl_logit_bias=1.0,
+                bl_type= "hard", # "soft"
                 initial_seed=None, 
                 dynamic_seed=None, # "initial", "markov_1", None
-                # store_bl_ids=False,
+                store_bl_ids=False,
                 store_spike_ents= False,
-                #noop_blacklist= False
+                noop_blacklist= False
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
                 vocab, 
                 vocab_size,
-                # bl_proportion,
-                # bl_logit_bias,
-                # bl_type, # "soft"
+                bl_proportion,
+                bl_logit_bias,
+                bl_type, # "soft"
                 initial_seed, 
                 dynamic_seed, # "initial", "markov_1", None
-                # store_bl_ids,
+                store_bl_ids,
                 store_spike_ents,
-                #noop_blacklist
+                noop_blacklist
                 )
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -148,9 +147,11 @@ class ExponentialWatermarkDetector():
             #print(f'random values={random_values},token={tok_gend}, prev_token={prev_token}')
 
             # compute test statistic
-            teststats += -np.log(max(0.00001, 1 - random_values[tok_gend])) #+ 1e-5
+            teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-5))
             prev_token = tok_gend
             
         # pdb.set_trace()
-        z_score = self._compute_z_score(cnt, len(input_sequence))
-        return z_score, teststats
+        z_score = self._compute_z_score(teststats, len(input_sequence))
+        print(f"z_score={z_score}, teststats={teststats}")
+        print(f"teststats bias: {teststats - len(input_sequence)}")
+        return z_score.item(), teststats.item()
