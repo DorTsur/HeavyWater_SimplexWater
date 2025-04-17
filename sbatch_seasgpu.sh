@@ -8,6 +8,6 @@
 ml python/3.10.13-fasrc01
 ml cuda/11.8.0-fasrc01
 mamba activate nenv
-python pred.py --mode 'cc' --dataset 'finance_qa' --sampling_temp 1.0 --tilt True --tilting_delta 1.0
+python pred.py --mode 'exponential' --dataset 'all' --sampling_temp 1.0 
 
 

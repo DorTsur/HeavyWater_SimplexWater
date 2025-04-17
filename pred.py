@@ -301,7 +301,6 @@ if __name__ == '__main__':
     # model, tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device)
     model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
     print('finished loading model and tokenzier')
-    print(f'trying to brekpoint:')
     # pdb.set_trace()
     max_length = model2maxlen[model_name]
     if args.e:
@@ -326,7 +325,7 @@ if __name__ == '__main__':
         save_dir += f"_k_{args.cc_k}"
     if args.mode == 'lin_code' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
-    if args.mode == 'cc' and args.tilt:
+    if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)

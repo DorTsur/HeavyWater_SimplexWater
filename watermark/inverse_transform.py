@@ -20,7 +20,7 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
         6. find CDF index we exceed the threshold
         7. set that to be the token CDF (set '-inf' to the rest of the scores)
         """
-        pdb.set_trace()
+        # pdb.set_trace()
         
         self.permuted_lists = [None for _ in range(input_ids.shape[0])]
         self.u_samples = [None for _ in range(input_ids.shape[0])]
@@ -43,7 +43,7 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
             self.g_cuda.manual_seed(seed)
             permuted_list = torch.randperm(self.vocab_size, device=input_ids.device, generator=self.g_cuda)
             self.g_cuda.manual_seed(seed)
-            u = torch.rand(1)
+            u = torch.rand(1, device=input_ids.device, generator=self.g_cuda)
 
             self.permuted_lists[b_idx] = permuted_list
             self.u_samples[b_idx] = u        
@@ -56,6 +56,7 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 cdf = torch.cumsum(distribution[b_idx, self.permuted_lists[b_idx]], dim=-1)
                 # 2. sample uniform [0,1] rv
                 u = self.u_samples[b_idx]
+                print(f'u={u.item()}')
                 # 3. find CDF index we exceed the threshold
                 idx = torch.searchsorted(cdf, u)
                 # 4. set that to be the token CDF (set '-inf' to the rest of the scores)
@@ -101,7 +102,7 @@ class InverseTransformDetector():
         """
         Implementation of the T-test for detection of Inverse Transform WM.
         """
-        
+        # pdb.set_trace()
         assert tokenized_text is not None, "Must pass tokenized string"
         
         assert inputs is not None,  "Must pass inputs"
@@ -122,18 +123,22 @@ class InverseTransformDetector():
             self.rng.manual_seed(seed)
             permuted_list = torch.randperm(self.vocab_size, device=self.device, generator=self.rng)
             self.rng.manual_seed(seed)
-            u = torch.rand(1, device=self.device)
-            print("u is:", u)
+            u = torch.rand(1, device=self.device, generator=self.rng)
+            print("u is:", u.item())
 
             inv = torch.argsort(permuted_list)
             rank = inv[tok_gend].item()
             score = abs(u - rank / (self.vocab_size - 1))
-            detect_scores.append(score)
+            detect_scores.append(score.item())
 
             prev_token = tok_gend
         
-        sum_score = sum(detect_scores)
+        pdb.set_trace()
+        # sum_score = sum(detect_scores)
         t_stat, p_value = ttest_1samp(detect_scores, popmean=1/3)
+        z_score = self._compute_z_score(sum(detect_scores), len(input_sequence))
+    
+        return t_stat, p_value, z_score
 
 
 

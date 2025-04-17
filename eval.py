@@ -5,6 +5,8 @@ import numpy as np
 import openai
 from datasets import load_dataset
 from alpaca_farm.auto_annotations import alpaca_leaderboard
+from pred import load_model_and_tokenizer, seed_everything
+import torch
 import datasets
 from metrics import (
     qa_f1_score,
@@ -56,7 +58,14 @@ def parse_args(args=None):
         "--input_dir",
         type=str,
         default="pred/llama2-7b-chat-4k_cc_g0.5_d5.0")
+    
+    parser.add_argument(
+    "--calc_ce",
+    type=int,
+    default=0)
+    
     args = parser.parse_args()
+    
 
     return args
 
@@ -97,7 +106,28 @@ def alpacafarm_score(prompts, predictions, model_name):
     return score
 
 
+def calc_ce(model, tokenizer, prompts, predictions, device):
+    # pdb.set_trace()
+    """
+    calculation of the CE over a dataset of prompts and predictions.
+    steps:
+    1. tokenize the prompts and predictions
+    2. concatenate the prompts and predictions
+    3. calculate the base model -logits
+    4. calculate the CE = mean(-logits)
+    """
+    ce_list = []
+    for prompt, prediction in zip(prompts, predictions):
+        text = prompt + prediction
+        in_ = tokenizer(text, return_tensors="pt", truncation=False).to(device)
+        in_['labels'] = in_['input_ids'].clone()
+        output = model(**in_)
+        ce_list.append(output.loss.item())
+    return np.mean(ce_list)
+
+
 if __name__ == '__main__':
+    # pdb.set_trace()
     args = parse_args()
     scores = dict()
     log_ppl_scores = dict()  # Dictionary to store log-ppl scores
@@ -105,6 +135,15 @@ if __name__ == '__main__':
     files = os.listdir(args.input_dir)
     print(f'files dir {files}')
     model_name = args.input_dir.split("/")[-1]
+    if args.calc_ce:
+        # Load the base model for base calculation
+        if 'llama2-7b-chat-4k' in model_name:
+            seed_everything(42)
+            print('loading model and tokenizer..')
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", 'llama2-7b-chat-4k', device)
+            print('finished loading model and tokenzier')
+            ce_dict = dict()
     # get all json files
     json_files = [f for f in files if f.endswith(".jsonl")]
     save_dir =  os.path.join(args.input_dir, "eval")
@@ -133,6 +172,10 @@ if __name__ == '__main__':
                 score = -1
             else:
                 score = scorer(dataset, predictions, answers, all_classes)
+            if args.calc_ce:
+                # calculate cross entropy between watermarked tokens and predictions
+                ce = calc_ce(model, tokenizer, prompts, predictions,device)
+                ce_dict[dataset] = ce
             scores[dataset] = score
             # Calculate log-ppl for the dataset
             log_ppl_scores[dataset] = sum(log_probabilities_list) / len(log_probabilities_list)
@@ -144,3 +187,8 @@ if __name__ == '__main__':
     log_ppl_path = os.path.join(save_dir, "log_ppl.json")
     with open(log_ppl_path, "w") as f:
         json.dump(log_ppl_scores, f, ensure_ascii=False, indent=4)
+    if args.calc_ce:
+        ce_path = os.path.join(save_dir, "ce.json")
+        with open(ce_path, "w") as f:
+            json.dump(ce_dict, f, ensure_ascii=False, indent=4)
+    

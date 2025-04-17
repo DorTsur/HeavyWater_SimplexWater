@@ -4,6 +4,7 @@ from watermark.our_watermark import NewWatermarkDetector
 from watermark.gptwm import GPTWatermarkDetector
 from watermark.watermark_v2 import WatermarkDetector
 from watermark.linear_code import LinearCodeWatermarkDetector
+from watermark.inverse_transform import InverseTransformDetector
 from tqdm import tqdm
 from pred import load_model_and_tokenizer, seed_everything, str2bool
 import argparse
@@ -145,6 +146,15 @@ def main(args):
                                             device=device)
             teststats_list = []
             gen_token_length_list = []
+        
+        elif "inv_tr" in args.input_dir:  
+            print('performing detection for inverse transform')
+            detector = InverseTransformDetector(tokenizer=tokenizer,
+                                            vocab=all_token_ids,
+                                            dynamic_seed="markov_1",
+                                            device=device)
+            teststats_list = []
+            p_vals_list = []
 
         # pdb.set_trace()
         z_score_list = []
@@ -178,6 +188,14 @@ def main(args):
                     # print("gen_tokens is:", gen_tokens)
                     z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
+
+                elif "inv_tr" in args.input_dir:
+                    # print("gen_tokens is:", gen_tokens)
+                    teststats,p_val,z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z)
+                    p_vals_list.append(p_val)
+                    teststats_list.append(teststats)
+
                 
                 elif "exponential" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
@@ -212,6 +230,31 @@ def main(args):
                 'z_score_list': z_score_list,
                 'teststats_list': teststats_list,
                 'gen_token_length_list': gen_token_length_list
+            }
+            z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
+            output_path = os.path.join(args.input_dir + "/z_score", z_file)
+            output_dir = args.input_dir + "/z_s_score"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            with open(output_path, 'w') as fout:
+                json.dump(save_dict, fout)
+            continue
+
+        if 'inv_tr' in args.input_dir:
+            #pdb.set_trace()
+            # p_value for each 
+
+            average_pval = torch.mean(torch.tensor(p_vals_list)).item()
+            #thresholding
+            pvalue = 0.001
+            # threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
+            save_dict = {
+                'pval_teststats': average_pval,
+                # 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+                'z_score_list': z_score_list,
+                'teststats_list': teststats_list,
+                # 'gen_token_length_list': gen_token_length_list
             }
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
             output_path = os.path.join(args.input_dir + "/z_score", z_file)

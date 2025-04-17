@@ -276,15 +276,7 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
             scores = self._calc_cc_transform(scores, cc_transform) 
 
             # pdb.set_trace()
-            if self.tilt:
-                index_agree = torch.where(self.bad_words_mask[0] == side_info)[0]
-                index_disagree = torch.where(self.bad_words_mask[0] != side_info)[0]
-                # scores[0].index_add_(0, index_agree, torch.full_like(index_agree, self.tilting_delta))
-                # scores[0].index_add_(0, index_disagree, torch.full_like(index_disagree, -self.tilting_delta))
-                sc = scores[0]
-                sc[index_agree] = sc[index_agree] + self.tilting_delta
-                sc[index_disagree] = sc[index_disagree] - self.tilting_delta
-                scores[0] = sc
+            
 
 
             
@@ -1094,7 +1086,11 @@ class K_CorrelatedChannelLogitsProcessor(CorrelatedChannelLogitsProcessor):
             # apply CC tilting:
             py_tilde = self._calc_py_tilde(scores, partition)
             cc_transform = self._calc_kernel(py_tilde, side_info) 
-            scores = self._calc_cc_transform(scores, cc_transform) 
+            scores = self._calc_cc_transform(scores, cc_transform)
+
+            # pdb.set_trace()
+            if self.tilt:
+                scores[0,partition[side_info]] += self.tilting_delta
                     
         return scores
     
