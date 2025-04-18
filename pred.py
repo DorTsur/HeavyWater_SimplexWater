@@ -151,7 +151,7 @@ def parse_args(args=None):
         default="all",
         # default="konwledge_understanding",
         choices=["konwledge_memorization","konwledge_understanding","longform_qa",
-                        "finance_qa","hotpotqa","lcc", "multi_news", "qmsum","alpacafarm", "all","short_finance_qa"],
+                        "finance_qa","hotpotqa","lcc", "multi_news", "qmsum","alpacafarm", "all","short_finance_qa","poem"],
     )
 
     parser.add_argument(
@@ -174,6 +174,18 @@ def parse_args(args=None):
         default=0.5,
         help="tilting value for distortionless distributions",
     )
+
+    parser.add_argument(
+        "--num_seeds",
+        type=int,
+        default=2,
+        help="tilting value for distortionless distributions",
+    )
+
+    parser.add_argument(
+    "--initial_seed_llm",
+    type=int,
+    default=42)
 
     parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
     return parser.parse_args(args)
@@ -278,11 +290,11 @@ def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
 
 if __name__ == '__main__':
     # os.environ["TORCH_USE_CUDA_DSA"] = "1"
-    print('finished importing')
-    seed_everything(42)
+    pdb.set_trace()
     args = parse_args()
     if args.print:
         print(args)
+    seed_everything(args.initial_seed_llm)
     model2path = json.load(open("config/model2path.json", "r"))
     model2maxlen = json.load(open("config/model2maxlen.json", "r"))
     

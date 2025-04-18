@@ -1,6 +1,12 @@
 {
+    "lcc": 0.1843960987789533,
+    "longform_qa": 0.13480826421090303,
     "konwledge_memorization": 0.11281022469100511,
-    "short_finance_qa": 0.21399438693143782,
+    "alpacafarm": 0.10051440750510993,
+    "short_finance_qa": 0.19267671267950423,
     "finance_qa": 0.09779839902922265,
-    "konwledge_understanding": 0.07673028749258569
+    "hotpotqa": 0.0570977112271439,
+    "konwledge_understanding": 0.07673028749258569,
+    "multi_news": 0.07536527513770692,
+    "qmsum": 0.11942754365932762
 }

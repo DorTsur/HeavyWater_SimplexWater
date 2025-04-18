@@ -22,6 +22,20 @@ from metrics import (
 import pdb
 openai.api_key_path = "data/openai_api_key.txt"
 
+
+
+def str2bool(v):
+    """Util function for user friendly boolean flag args"""
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 dataset2metric = {
     "narrativeqa": qa_f1_score,
     "qasper": qa_f1_score,
@@ -61,8 +75,13 @@ def parse_args(args=None):
     
     parser.add_argument(
     "--calc_ce",
-    type=int,
+    type=str2bool,
     default=0)
+
+    parser.add_argument(
+    "--initial_seed_llm",
+    type=int,
+    default=42)
     
     args = parser.parse_args()
     
@@ -138,7 +157,7 @@ if __name__ == '__main__':
     if args.calc_ce:
         # Load the base model for base calculation
         if 'llama2-7b-chat-4k' in model_name:
-            seed_everything(42)
+            seed_everything(args.initial_seed_llm)
             print('loading model and tokenizer..')
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", 'llama2-7b-chat-4k', device)
@@ -172,7 +191,7 @@ if __name__ == '__main__':
                 score = -1
             else:
                 score = scorer(dataset, predictions, answers, all_classes)
-            if args.calc_ce:
+            if args.calc_ce and dataset == 'finance_qa':
                 # calculate cross entropy between watermarked tokens and predictions
                 ce = calc_ce(model, tokenizer, prompts, predictions,device)
                 ce_dict[dataset] = ce

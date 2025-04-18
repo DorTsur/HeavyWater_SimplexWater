@@ -31,6 +31,7 @@ class Generator():
         self.delta, self.bl_type, self.num_beams, self.sampling_temp = args.initial_seed, args.dynamic_seed, args.gamma, args.delta, args.bl_type, args.num_beams, args.sampling_temp
         self.tokenizer = tokenizer
         self.model = model # language model
+        self.args = args
         
         self.all_token_ids = list(tokenizer.get_vocab().values())
         self.vocab_size = len(self.all_token_ids)
@@ -240,7 +241,7 @@ class Generator():
             elif self.mode == 'cc' or self.mode == 'cc-combined' or self.mode == 'cc-k':
                 # pdb.set_trace()
                 #set seeds:
-                seed_everything(42)
+                seed_everything(self.args.initial_seed_llm)
                 #
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,
@@ -261,7 +262,7 @@ class Generator():
                 )
 
             elif self.mode == 'lin_code':
-                seed_everything(42)
+                seed_everything(self.args.initial_seed_llm)
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,
                     logits_processor = self.logit_processor_lst,
@@ -270,7 +271,7 @@ class Generator():
                     temperature=self.sampling_temp
                 )
             elif self.mode == 'exponential':
-                seed_everything(42)
+                seed_everything(self.args.initial_seed_llm)
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,
                     logits_processor = self.logit_processor_lst,

@@ -18,7 +18,7 @@ import scipy
 from watermark.exponential import ExponentialWatermarkDetector
 
 def main(args):
-    seed_everything(42)
+    seed_everything(args.initial_seed_llm)
     model2path = json.load(open("config/model2path.json", "r"))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # get model name
@@ -365,6 +365,11 @@ parser.add_argument(
     default="all",
     help="mission-name",
 )
+
+parser.add_argument(
+    "--initial_seed_llm",
+    type=int,
+    default=42)
 args = parser.parse_args()
 
 main(args)
