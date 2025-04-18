@@ -41,7 +41,7 @@ if __name__ == '__main__':
     max_gen = 300
     prompt_format = dataset2prompt[dataset]
     data_path = os.path.join(save_dir, f"{dataset}")
-    initial_seed = args.initial_seed
+    initial_seed = args.initial_seed_llm
     # loop over several seeds:
     for s in range(args.num_seeds):
         # pdb.set_trace()
