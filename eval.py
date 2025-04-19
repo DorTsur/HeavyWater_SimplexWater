@@ -114,7 +114,7 @@ def alpacafarm_score(prompts, predictions, model_name):
         _input = json_obj["input"]
         prediction = predictions[i]
         my_outputs.append({"instruction": prompt, "input": _input, "generator": model_name, "output": prediction})
-    print("my_outputs[0] is:", my_outputs[0])
+    #print("my_outputs[0] is:", my_outputs[0])
     df_results = alpaca_leaderboard(
         path_or_all_outputs=my_outputs,
         name=model_name,
@@ -140,8 +140,12 @@ def calc_ce(model, tokenizer, prompts, predictions, device):
         text = prompt + prediction
         in_ = tokenizer(text, return_tensors="pt", truncation=False).to(device)
         in_['labels'] = in_['input_ids'].clone()
-        output = model(**in_)
-        ce_list.append(output.loss.item())
+        in_['labels'][:, :len(prompt)] = -100
+        # output = model(**in_)
+        # ce_list.append(output.loss.item())
+        with torch.no_grad():
+            output = model(input_ids=in_['input_ids'], labels=in_['labels'])
+            ce_list.append(output.loss.item())
     return np.mean(ce_list)
 
 
@@ -184,7 +188,7 @@ if __name__ == '__main__':
             answers = [json.loads(line)["answers"] for line in lines]
             all_classes = json.loads(lines[0])["all_classes"]
             log_probabilities_list = [calculate_log_ppl(json.loads(line)["completions_tokens"]) for line in lines]
-            print(f"predictions[0] is: {predictions[0]}")
+            #print(f"predictions[0] is: {predictions[0]}")
             # pdb.set_trace()
             if dataset == "alpacafarm":
                 # score = alpacafarm_score(prompts, predictions, model_name)
