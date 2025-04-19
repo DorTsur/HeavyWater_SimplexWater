@@ -24,7 +24,7 @@ if __name__ == '__main__':
     model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
     save_dir = f"simple_pred/{model_name}/{args.mode}_temp{args.sampling_temp}"
     if args.mode == 'old':
-        save_dir += f'g{args.gamma}_d{args.delta}'
+        save_dir += f'_g{args.gamma}_d{args.delta}'
     if args.mode == 'cc-k':
         save_dir += f"_k_{args.cc_k}"
     if args.mode == 'lin_code' and args.tilt:
@@ -55,8 +55,8 @@ if __name__ == '__main__':
         d. create response
         e. collect responsequit()
         """
-        args.initial_seed_llm = initial_seed + s
-        seed_everything(args.initial_seed_llm)
+        # args.initial_seed_llm = initial_seed + s
+        seed_everything(initial_seed + s)
         preds = []
         generator = Generator(args, tokenizer, model)
         torch.cuda.empty_cache()
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             completions_text, completions_tokens  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
             pred = completions_text
             preds.append({"prompt":prompt, "pred": pred, "completions_tokens":completions_tokens})
-        out_path = data_path + f"/_seed_{args.initial_seed}.jsonl"
+        out_path = data_path + f"/_seed_{args.initial_seed_llm}.jsonl"
         if os.path.exists(out_path):
             with open(out_path, "a", encoding="utf-8") as f:
                 for pred in preds:

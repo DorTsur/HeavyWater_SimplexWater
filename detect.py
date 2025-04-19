@@ -30,12 +30,18 @@ def main(args):
     vocab_size = len(all_token_ids)
     # get gamma and delta
     # pdb.set_trace()
-    if "gpt" in args.input_dir:
-        gamma = float(args.input_dir.split("_g")[2].split("_")[0])
+    if "gpt" in args.input_dir or 'old' in args.input_dir or 'no' in args.input_dir or 'v2' in args.input_dir:
+        # pdb.set_trace()
+        if 'poem' in args.input_dir:
+            delta = float(args.input_dir.split("_d")[1].split("/")[0])
+            gamma = float(args.input_dir.split("_g")[1].split("_")[0])
+        else:
+            delta = float(args.input_dir.split("_d")[1].split("_")[0])
+            gamma = float(args.input_dir.split("_g")[1].split("_")[0]) 
     else:
-        gamma = float(args.input_dir.split("_g")[1].split("_")[0])
+        gamma = delta = 0.0
     
-    delta = float(args.input_dir.split("_d")[1].split("_")[0])
+    
     # get all files from input_dir
     files = os.listdir(args.input_dir)
     # get all json files
@@ -158,9 +164,13 @@ def main(args):
 
         # pdb.set_trace()
         z_score_list = []
+        i=0
         for idx, cur_text in tqdm(enumerate(texts), total=len(texts)):
             #print("cur_text is:", cur_text)
-            
+            if 'poem' in args.input_dir:
+                seed_everything(args.initial_seed_llm + i)
+                print(f'seed = {args.initial_seed_llm + i}')
+
             gen_tokens = tokenizer.encode(cur_text, return_tensors="pt", truncation=True, add_special_tokens=False)
             #print("gen_tokens is:", gen_tokens)
             prompt = prompts[idx]
@@ -213,6 +223,8 @@ def main(args):
             
             else:   
                 print(f"Warning: sequence {idx} is too short to test.")
+            
+            i += 1
 
         if 'exponential' in args.input_dir:
             #pdb.set_trace()
@@ -250,9 +262,11 @@ def main(args):
             # threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
             save_dict = {
                 'pval_teststats': average_pval,
+                'pval_std': torch.std(torch.tensor(p_vals_list)).item(),
                 # 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'z_score_list': z_score_list,
+                'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
                 'teststats_list': teststats_list,
                 # 'gen_token_length_list': gen_token_length_list
             }
@@ -270,6 +284,7 @@ def main(args):
             'p_val_teststats': p_val,
             'z_score_list': z_score_list,
             'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+            'std_z': torch.std(torch.tensor(z_score_list)).item(),
             'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
             }
         
@@ -290,6 +305,7 @@ def main(args):
             'p_val_teststats': p_val,
             'z_score_list': z_s_score_list,
             'avarage_z': torch.mean(torch.tensor(z_s_score_list)).item(),
+            'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
             'wm_pred': [1 if z > args.threshold else 0 for z in z_s_score_list]
             }
             

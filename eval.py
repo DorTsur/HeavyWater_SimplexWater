@@ -138,6 +138,7 @@ def calc_ce(model, tokenizer, prompts, predictions, device):
     ce_list = []
     for prompt, prediction in zip(prompts, predictions):
         text = prompt + prediction
+        # text = prediction
         in_ = tokenizer(text, return_tensors="pt", truncation=False).to(device)
         in_['labels'] = in_['input_ids'].clone()
         in_['labels'][:, :len(prompt)] = -100
@@ -147,6 +148,7 @@ def calc_ce(model, tokenizer, prompts, predictions, device):
             output = model(input_ids=in_['input_ids'], labels=in_['labels'])
             ce_list.append(output.loss.item())
     return np.mean(ce_list)
+    # return np.mean(ce_list), np.std(ce_list)
 
 
 if __name__ == '__main__':
@@ -160,7 +162,7 @@ if __name__ == '__main__':
     model_name = args.input_dir.split("/")[-1]
     if args.calc_ce:
         # Load the base model for base calculation
-        if 'llama2-7b-chat-4k' in model_name:
+        if 'llama2-7b-chat-4k' in args.input_dir:
             seed_everything(args.initial_seed_llm)
             print('loading model and tokenizer..')
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -185,12 +187,17 @@ if __name__ == '__main__':
             # texts
             prompts = [json.loads(line)["prompt"] for line in lines]
             predictions = [json.loads(line)["pred"] for line in lines]
-            answers = [json.loads(line)["answers"] for line in lines]
-            all_classes = json.loads(lines[0])["all_classes"]
+            if 'poem' not in args.input_dir:
+                answers = [json.loads(line)["answers"] for line in lines]
+                all_classes = json.loads(lines[0])["all_classes"]
             log_probabilities_list = [calculate_log_ppl(json.loads(line)["completions_tokens"]) for line in lines]
             #print(f"predictions[0] is: {predictions[0]}")
             # pdb.set_trace()
-            if dataset == "alpacafarm":
+            if 'poem' in args.input_dir and args.calc_ce:
+                score = -1
+                ce = calc_ce(model, tokenizer, prompts, predictions,device)
+                ce_dict[dataset] = ce
+            elif dataset == "alpacafarm":
                 # score = alpacafarm_score(prompts, predictions, model_name)
                 score = -1
             else:
