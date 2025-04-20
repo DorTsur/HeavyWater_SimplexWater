@@ -30,6 +30,8 @@ def main(args):
     vocab_size = len(all_token_ids)
     # get gamma and delta
     # pdb.set_trace()
+    if "fresh" in args.input_dir:
+        args.dynamic_seed = "fresh"
     if "gpt" in args.input_dir or 'old' in args.input_dir or 'no' in args.input_dir or 'v2' in args.input_dir:
         # pdb.set_trace()
         if 'poem' in args.input_dir:
@@ -74,7 +76,7 @@ def main(args):
                                             vocab=all_token_ids,
                                             gamma=gamma,
                                             delta=delta,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device)
         
         if "new" in args.input_dir:
@@ -82,7 +84,7 @@ def main(args):
                                         vocab=all_token_ids,
                                         gamma=gamma,
                                         delta=delta,
-                                        dynamic_seed="markov_1",
+                                        dynamic_seed=args.dynamic_seed,
                                         device=device,
                                         # vocabularys=vocabularys,
                                         )
@@ -119,7 +121,7 @@ def main(args):
                                             vocab=all_token_ids,
                                             gamma=gamma,
                                             delta=delta,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device,
                                             k=cc_k)
             z_s_score_list = []
@@ -130,7 +132,7 @@ def main(args):
                                             vocab=all_token_ids,
                                             gamma=gamma,
                                             delta=delta,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device)
             z_s_score_list = []
         
@@ -140,7 +142,7 @@ def main(args):
                                             vocab=all_token_ids,
                                             gamma=gamma,
                                             delta=delta,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device)
             z_s_score_list = []
         
@@ -148,7 +150,7 @@ def main(args):
             print('performing detection for exponential')
             detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device)
             teststats_list = []
             gen_token_length_list = []
@@ -157,7 +159,7 @@ def main(args):
             print('performing detection for inverse transform')
             detector = InverseTransformDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
-                                            dynamic_seed="markov_1",
+                                            dynamic_seed=args.dynamic_seed,
                                             device=device)
             teststats_list = []
             p_vals_list = []
@@ -386,6 +388,14 @@ parser.add_argument(
     "--initial_seed_llm",
     type=int,
     default=42)
+
+parser.add_argument(
+        "--dynamic_seed",
+        type=str,
+        default="markov_1",
+        choices=[None, "initial", "markov_1","fresh"],
+        help="The seeding procedure to use when sampling the redlist at each step.",
+        )
 args = parser.parse_args()
 
 main(args)

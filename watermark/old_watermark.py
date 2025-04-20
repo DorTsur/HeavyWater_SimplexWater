@@ -80,6 +80,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         self.bl_proportion = bl_proportion
         self.bl_logit_bias = bl_logit_bias
         self.bl_type = bl_type
+        self.seed_increment = 0
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -177,6 +178,9 @@ class BlacklistLogitsProcessor(LogitsProcessor):
             elif self.dynamic_seed is None:
                 # let the rng evolve naturally - this is not a realistic setting
                 pass
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             
             # print(f"now tok is {input_ids[b_idx][-1].item()}")
             bl_ct = int(self.vocab_size*self.bl_proportion)
@@ -285,7 +289,7 @@ def score_sequence(inputs: Tensor = None,
 
     prev_token = inputs[0][-1].item()
     # prev_token = toks_generated[0] # haven't decided whether this edge effect matters
-
+    seed_increment = 0
     # for idx,tok_gend in enumerate(toks_generated[1:]):
     for idx,tok_gend in enumerate(toks_generated):
 
@@ -298,6 +302,9 @@ def score_sequence(inputs: Tensor = None,
         elif dynamic_seed is None:
             # let the rng evolve naturally - this is not a realistic setting
             pass
+        elif dynamic_seed == 'fresh':
+                seed_increment += 1
+                g_cuda.manual_seed(large_prime*prev_token)
 
         bl_ct = int(vocab_size*bl_proportion)
         posthoc_blacklist = torch.randperm(vocab_size, device=device, generator=g_cuda)[:bl_ct] # ty Yuxin :]
@@ -847,6 +854,7 @@ class OldWatermarkDetector():
         self.device = device
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
+        self.seed_increment = 0
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -901,6 +909,11 @@ class OldWatermarkDetector():
                 
             elif self.dynamic_seed == "None":
                 pass
+
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
+                self.rng.manual_seed(seed)
             
             # print("prev_token is: ", prev_token)
             redlist_size = int(self.vocab_size*(1 - self.gamma))

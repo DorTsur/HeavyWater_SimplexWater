@@ -57,6 +57,9 @@ class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
             elif self.dynamic_seed is None:
                 # let the rng evolve naturally - this is not a realistic setting
                 pass
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
 
         # set seed and generate random number
         self.g_cuda.manual_seed(seed)
@@ -102,6 +105,7 @@ class ExponentialWatermarkDetector():
         self.device = device
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
+        self.seed_increment = 0
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -140,6 +144,9 @@ class ExponentialWatermarkDetector():
                 seed = self.hash_key*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.hash_key*prev_token
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             
             self.rng.manual_seed(seed)
             random_values = torch.rand(size=(self.vocab_size,), \

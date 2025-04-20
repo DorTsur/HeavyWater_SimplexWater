@@ -37,6 +37,9 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
             elif self.dynamic_seed is None:
                 # let the rng evolve naturally - this is not a realistic setting
                 pass
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             
             
             # set seed and sample the random objects:
@@ -82,6 +85,7 @@ class InverseTransformDetector():
         self.hash_key = hash_key
         self.device = device
         self.tokenizer = tokenizer
+        self.seed_increment = 0
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -118,6 +122,9 @@ class InverseTransformDetector():
                 seed = self.hash_key*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.hash_key*prev_token
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
 
 
             self.rng.manual_seed(seed)

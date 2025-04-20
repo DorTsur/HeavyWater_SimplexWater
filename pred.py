@@ -49,7 +49,7 @@ def parse_args(args=None):
         "--dynamic_seed",
         type=str,
         default="markov_1",
-        choices=[None, "initial", "markov_1"],
+        choices=[None, "initial", "markov_1","fresh"],
         help="The seeding procedure to use when sampling the redlist at each step.",
         )
 
@@ -290,7 +290,7 @@ def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
 
 if __name__ == '__main__':
     # os.environ["TORCH_USE_CUDA_DSA"] = "1"
-    pdb.set_trace()
+    # pdb.set_trace()
     args = parse_args()
     if args.print:
         print(args)
@@ -339,6 +339,8 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
+    if args.dynamic_seed == 'fresh':
+        save_dir += f"_fresh_"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset

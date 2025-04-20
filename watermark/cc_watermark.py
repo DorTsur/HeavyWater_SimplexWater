@@ -110,6 +110,7 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
         self.k = cc_k
         self.tilt = tilt
         self.tilting_delta = tilting_delta
+        self.seed_increment = 0
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -215,7 +216,9 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
                 seed = self.large_prime*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.large_prime*input_ids[b_idx][-1].item()
-
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             # print(f'seed={seed}')
             
             
@@ -446,7 +449,7 @@ def score_sequence(inputs: Tensor = None,
 
     prev_token = inputs[0][-1].item()
     # prev_token = toks_generated[0] # haven't decided whether this edge effect matters
-
+    seed_increment = 0
     # for idx,tok_gend in enumerate(toks_generated[1:]):
     for idx,tok_gend in enumerate(toks_generated):
 
@@ -459,6 +462,10 @@ def score_sequence(inputs: Tensor = None,
         elif dynamic_seed is None:
             # let the rng evolve naturally - this is not a realistic setting
             pass
+        elif dynamic_seed == 'fresh':
+                seed_increment += 1
+                g_cuda.manual_seed(large_prime + seed_increment)
+
 
         bl_ct = int(vocab_size*bl_proportion)
         posthoc_blacklist = torch.randperm(vocab_size, device=device, generator=g_cuda)[:bl_ct] # ty Yuxin :]
@@ -989,7 +996,9 @@ class CombinedCCLogitsProcessor(CorrelatedChannelLogitsProcessor):
                 seed = self.large_prime*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.large_prime*input_ids[b_idx][-1].item()
-
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
 
             bl_ct = int(self.vocab_size*self.bl_proportion)
             self.g_cuda.manual_seed(seed)
@@ -1052,6 +1061,9 @@ class K_CorrelatedChannelLogitsProcessor(CorrelatedChannelLogitsProcessor):
                 seed = self.large_prime * self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.large_prime * input_ids[b_idx][-1].item()
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             # pdb.set_trace()
             bl_ct = int(self.vocab_size * self.bl_proportion)
             self.g_cuda.manual_seed(seed)
@@ -1155,7 +1167,8 @@ class CCWatermarkDetector():
         self.device = device
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
-        
+        self.seed_increment =0
+
         if initial_seed is None: 
             self.initial_seed = None
             assert dynamic_seed != "initial"
@@ -1205,6 +1218,9 @@ class CCWatermarkDetector():
                 seed = self.hash_key*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.hash_key*prev_token
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
 
             # print(f'seed={seed}')
 
@@ -1286,6 +1302,7 @@ class K_CCWatermarkDetector():
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
         self.k = k
+        self.seed_increment = 0
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -1334,7 +1351,9 @@ class K_CCWatermarkDetector():
                 seed = self.hash_key*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.hash_key*prev_token
-
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             # print(f'seed={seed}')
 
             bl_ct = int(self.vocab_size/self.k)

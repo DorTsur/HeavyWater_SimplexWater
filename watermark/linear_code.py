@@ -37,6 +37,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.gen_params()
         self.tilt = tilt
         self.tilting_delta = tilting_delta
+        self.seed_increment = 0
         # self.gen_cost(device=device)
     
     # def gen_params(self):
@@ -136,6 +137,9 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             elif self.dynamic_seed is None:
                 # let the rng evolve naturally - this is not a realistic setting
                 pass
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             
             # set seed and generate s
             self.g_cuda.manual_seed(seed)
@@ -252,6 +256,7 @@ class LinearCodeWatermarkDetector():
         self.device = device
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
+        self.seed_increment = 0
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -298,6 +303,9 @@ class LinearCodeWatermarkDetector():
                 seed = self.hash_key*self.initial_seed
             elif self.dynamic_seed == "markov_1":
                 seed = self.hash_key*prev_token
+            elif self.dynamic_seed == 'fresh':
+                self.seed_increment += 1
+                seed = self.large_prime + self.seed_increment
             
             self.rng.manual_seed(seed)
             s = torch.randint(

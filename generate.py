@@ -167,6 +167,8 @@ class Generator():
                                             dynamic_seed=self.dyna_seed
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
+    
+        # pdb.set_trace()
     def generate(self, input_ids, max_new_tokens):
         if self.mode == 'new':
             example = {}
@@ -202,7 +204,8 @@ class Generator():
             completions_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
             return completions_text, completions_tokens
         else:    
-        
+            self.logit_processor_lst[0].seed_increment = 0
+
             if self.mode == 'no':
                 
                 outputs = self.model.generate(

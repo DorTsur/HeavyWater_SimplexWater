@@ -29,6 +29,8 @@ if __name__ == '__main__':
         save_dir += f"_k_{args.cc_k}"
     if args.mode == 'lin_code' and args.tilt:
         save_dir += f"_d_tilt_{args.tilting_delta}"
+    if args.dynamic_seed == 'fresh':
+        save_dir += f"_fresh_"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
