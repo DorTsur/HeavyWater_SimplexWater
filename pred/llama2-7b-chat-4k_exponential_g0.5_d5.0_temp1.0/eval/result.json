@@ -1,4 +1,12 @@
 {
+    "lcc": 50.67,
+    "longform_qa": 22.16,
+    "konwledge_memorization": 6.08,
+    "alpacafarm": -1,
     "short_finance_qa": 22.97,
-    "finance_qa": 21.26
+    "finance_qa": 21.26,
+    "hotpotqa": 27.61,
+    "konwledge_understanding": 32.5,
+    "multi_news": 25.73,
+    "qmsum": 20.49
 }

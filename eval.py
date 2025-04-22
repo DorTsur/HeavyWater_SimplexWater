@@ -158,22 +158,22 @@ if __name__ == '__main__':
     log_ppl_scores = dict()  # Dictionary to store log-ppl scores
     # get all files from input_dir
     files = os.listdir(args.input_dir)
-    print(f'files dir {files}')
+    #print(f'files dir {files}')
     model_name = args.input_dir.split("/")[-1]
     if args.calc_ce:
         # Load the base model for base calculation
         if 'llama2-7b-chat-4k' in args.input_dir:
             seed_everything(args.initial_seed_llm)
-            print('loading model and tokenizer..')
+            #print('loading model and tokenizer..')
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", 'llama2-7b-chat-4k', device)
-            print('finished loading model and tokenzier')
+            #print('finished loading model and tokenzier')
             ce_dict = dict()
     # get all json files
     json_files = [f for f in files if f.endswith(".jsonl")]
     save_dir =  os.path.join(args.input_dir, "eval")
     os.makedirs(save_dir, exist_ok=True)
-    print("Evaluating on:", files)
+    #print("Evaluating on:", files)
     for json_file in json_files:
         if not json_file.endswith("jsonl"):
             continue
