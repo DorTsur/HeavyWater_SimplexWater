@@ -181,7 +181,11 @@ class BlacklistLogitsProcessor(LogitsProcessor):
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
                 seed = self.large_prime + self.seed_increment
+                self.g_cuda.manual_seed(seed)
+                print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
             
+            
+
             # print(f"now tok is {input_ids[b_idx][-1].item()}")
             bl_ct = int(self.vocab_size*self.bl_proportion)
             blacklist_ids = torch.randperm(self.vocab_size, device=input_ids.device, generator=self.g_cuda)[:bl_ct] # ty Yuxin :]
@@ -829,6 +833,7 @@ def check_output_lengths(example,min_output_len=0):
     ])
     return conds
 
+
 class OldWatermarkDetector():
     """
     Class for detecting watermarks
@@ -898,7 +903,7 @@ class OldWatermarkDetector():
         # print("input sequence is:", input_sequence)
         prev_token = inputs[0][-1].item()
         # print("prev_token0 is: ", prev_token)
-        
+        self.seed_increment=0
         # prev_token = input_sequence[1]
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
@@ -912,8 +917,11 @@ class OldWatermarkDetector():
 
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
                 self.rng.manual_seed(seed)
+                print(f'seed {seed}, prev_token {prev_token}')
+
+            
             
             # print("prev_token is: ", prev_token)
             redlist_size = int(self.vocab_size*(1 - self.gamma))

@@ -139,6 +139,7 @@ class ExponentialWatermarkDetector():
         prev_token = inputs[0][-1].item()
         teststats=0
         gen_token_length = 0
+        self.seed_increment=0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -146,7 +147,7 @@ class ExponentialWatermarkDetector():
                 seed = self.hash_key*prev_token
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
             
             self.rng.manual_seed(seed)
             random_values = torch.rand(size=(self.vocab_size,), \

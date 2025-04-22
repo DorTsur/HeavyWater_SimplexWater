@@ -1213,6 +1213,7 @@ class CCWatermarkDetector():
         # prev_token = input_sequence[1]
         # pdb.set_trace()
         cnt_s = 0
+        self.seed_increment = 0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -1220,7 +1221,7 @@ class CCWatermarkDetector():
                 seed = self.hash_key*prev_token
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
 
             # print(f'seed={seed}')
 
@@ -1346,6 +1347,7 @@ class K_CCWatermarkDetector():
         # prev_token = input_sequence[1]
         # pdb.set_trace()
         cnt_s = 0
+        self.seed_increment=0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -1353,7 +1355,7 @@ class K_CCWatermarkDetector():
                 seed = self.hash_key*prev_token
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
             # print(f'seed={seed}')
 
             bl_ct = int(self.vocab_size/self.k)

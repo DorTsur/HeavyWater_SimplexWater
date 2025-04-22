@@ -298,6 +298,7 @@ class LinearCodeWatermarkDetector():
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
         cnt=0
+        self.seed_increment = 0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -305,7 +306,7 @@ class LinearCodeWatermarkDetector():
                 seed = self.hash_key*prev_token
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
             
             self.rng.manual_seed(seed)
             s = torch.randint(

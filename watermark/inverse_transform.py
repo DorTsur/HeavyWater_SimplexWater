@@ -117,6 +117,7 @@ class InverseTransformDetector():
         prev_token = inputs[0][-1].item()
 
         detect_scores = []
+        self.seed_increment=0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -124,7 +125,7 @@ class InverseTransformDetector():
                 seed = self.hash_key*prev_token
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
-                seed = self.large_prime + self.seed_increment
+                seed = self.hash_key + self.seed_increment
 
 
             self.rng.manual_seed(seed)

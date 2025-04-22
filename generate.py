@@ -286,7 +286,7 @@ class Generator():
             # pdb.set_trace()
             scores = outputs.scores
             output_ids = outputs.sequences[0, -len(scores):]
-            print(output_ids)
+            # print(output_ids)
             # compute logprob for each token
             completions_tokens = []
             completions_logprob = 0

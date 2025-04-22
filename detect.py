@@ -31,17 +31,18 @@ def main(args):
     # get gamma and delta
     # pdb.set_trace()
     if "fresh" in args.input_dir:
+        print(f'fresh seed generation')
         args.dynamic_seed = "fresh"
     if "gpt" in args.input_dir or 'old' in args.input_dir or 'no' in args.input_dir or 'v2' in args.input_dir:
         # pdb.set_trace()
-        if 'poem' in args.input_dir:
+        if 'poem' in args.input_dir and 'fresh' not in args.input_dir:
             delta = float(args.input_dir.split("_d")[1].split("/")[0])
-            gamma = float(args.input_dir.split("_g")[1].split("_")[0])
         else:
             delta = float(args.input_dir.split("_d")[1].split("_")[0])
-            gamma = float(args.input_dir.split("_g")[1].split("_")[0]) 
+        gamma = float(args.input_dir.split("_g")[1].split("_")[0])
     else:
         gamma = delta = 0.0
+    print(f"gamma is: {gamma}, delta is: {delta}")
     
     
     # get all files from input_dir
@@ -55,7 +56,7 @@ def main(args):
         print(f"{json_file} has began.........")
         
         # for debugging on a single dataset prediction:
-        # if json_file != "finance_qa.jsonl":
+        # if json_file != "short_finance_qa.jsonl":
         #     continue
         
         # read jsons
@@ -239,9 +240,11 @@ def main(args):
             threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
             save_dict = {
                 'pval_teststats': average_pval,
+                'pval_std': torch.std(torch.tensor(pval)).item(),
                 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'z_score_list': z_score_list,
+                'z_std': torch.std(torch.tensor(z_score_list)).item(),
                 'teststats_list': teststats_list,
                 'gen_token_length_list': gen_token_length_list
             }
@@ -282,8 +285,11 @@ def main(args):
             continue
 
         p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+        p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
         save_dict = {
-            'p_val_teststats': p_val,
+            'p_val_teststats': p_vals,
+            'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
+            'std_pval': torch.std(torch.tensor(p_vals)).item(),
             'z_score_list': z_score_list,
             'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
             'std_z': torch.std(torch.tensor(z_score_list)).item(),
@@ -303,8 +309,11 @@ def main(args):
         
         if "cc" in args.input_dir:
             p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+            p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
             save_dict = {
-            'p_val_teststats': p_val,
+            'p_val_teststats': p_vals,
+            'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
+            'std_pval': torch.std(torch.tensor(p_vals)).item(),
             'z_score_list': z_s_score_list,
             'avarage_z': torch.mean(torch.tensor(z_s_score_list)).item(),
             'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
