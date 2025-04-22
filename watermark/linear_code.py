@@ -162,13 +162,16 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             scores_new = torch.stack(scores_new,axis=0)
         return scores_new
     
-    def tilt_q_SC(self, distribution, side_info, reg_const=0.05, num_iter=100, top_k=100, top_p=0.999):
+    def tilt_q_SC(self, distribution, side_info, reg_const=0.05, num_iter=2000, top_k=100, top_p=0.999):
         # reg_const = 0.5
         # num_iter=20
         # top-p filtering:
         # pdb.set_trace()
         filter_indices = self.top_p_indices(distribution, top_p)
         distribution = distribution[filter_indices]
+        ## normalize
+        distribution = distribution / distribution.sum()
+        ##
         # distribution = torch.cat((distribution, torch.zeros(self.padding, device=distribution.device)))
         ps = torch.ones(self.k, device=distribution.device) / self.k  # uniform over S
         # generator matrix and bit matrix
@@ -191,7 +194,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             b=ps,
             M=C,
             reg=reg_const,
-            # numItermax=num_iter,
+            numItermax=num_iter,
             stopThr=1e-5
         )
         P_wm = P[:, side_info - 1]
