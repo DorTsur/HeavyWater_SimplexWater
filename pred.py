@@ -346,6 +346,8 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.dynamic_seed == 'fresh':
         save_dir += f"_fresh_"
+    if args.top_p != 1.0:
+        save_dir += f"_top_p_{args.top_p}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset
