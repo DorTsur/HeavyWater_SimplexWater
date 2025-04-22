@@ -209,17 +209,18 @@ class Generator():
             if self.mode == 'no':
                 
                 outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
+                    input_ids, max_new_tokens=max_new_tokens,top_p=self.args.top_p,
                 )
 
             elif self.mode == 'old':
-                
+                pdb.set_trace()
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
-                    temperature=self.sampling_temp
+                    temperature=self.sampling_temp,
+                    top_p=self.args.top_p
                 )
 
             elif self.mode == 'gpt':

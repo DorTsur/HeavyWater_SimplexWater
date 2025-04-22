@@ -187,6 +187,11 @@ def parse_args(args=None):
     type=int,
     default=42)
 
+    parser.add_argument(
+    "--top_p",
+    type=float,
+    default=1.0)
+
     parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
     return parser.parse_args(args)
 

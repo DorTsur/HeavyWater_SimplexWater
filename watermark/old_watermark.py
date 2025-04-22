@@ -164,7 +164,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         return sum_renormed_probs
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
-
+        # pdb.set_trace()
         self.bad_words_id_length_1 = [None for _ in range(input_ids.shape[0])]
 
         if self.g_cuda is None:

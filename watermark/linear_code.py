@@ -168,6 +168,9 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # top-p filtering:
         # pdb.set_trace()
         filter_indices = self.top_p_indices(distribution, top_p)
+        if len(filter_indices) == 1:
+            # then there's nothing to watermark.
+            return distribution
         distribution = distribution[filter_indices]
         ## normalize
         distribution = distribution / distribution.sum()
