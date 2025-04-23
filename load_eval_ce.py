@@ -5,19 +5,19 @@ def loop_json(method):
     if method == "rg":
         bool_base_folder_0 = False
         deltas = [1, 1.5, 2, 3, 4, 5, 6]
-        base_folder_template = "pred/llama2-7b-chat-4k_old_g0.5_d{:.1f}_temp1.0/eval/ce.json"
+        base_folder_template = "pred/llama2-7b-chat-4k_old_g0.5_d{:.1f}_temp1.0_fresh_/eval/ce.json"
     elif method == "lc":
         deltas = [0.1, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9, 0.95, 0.98]
-        base_folder_template = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_{}/eval/ce.json"
+        base_folder_template = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_{}_fresh_/eval/ce.json"
         bool_base_folder_0 = True
-        base_folder_0 = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0/eval/ce.json"
+        base_folder_0 = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_fresh_/eval/ce.json"
     elif method == "cc":
         bool_base_folder_0 = True
-        base_folder_0 = "pred/llama2-7b-chat-4k_cc-k_g0.5_d5.0_temp1.0_k_2_d_tile_1.0/eval/ce.json"
+        base_folder_0 = "pred/llama2-7b-chat-4k_cc-k_g0.5_d5.0_temp1.0_k_2_d_tile_1.0_fresh_/eval/ce.json"
         deltas = []
     elif method == "baseline":
         bool_base_folder_0 = True
-        base_folder_0 = "pred/llama2-7b-chat-4k_old_g0.5_d0.0_temp1.0/eval/ce.json"
+        base_folder_0 = "pred/llama2-7b-chat-4k_old_g0.5_d0.0_temp1.0_fresh_/eval/ce.json"
         deltas = []
     # Dictionary to hold the results
     finance_qa_scores = {}
