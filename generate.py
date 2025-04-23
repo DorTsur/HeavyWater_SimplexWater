@@ -178,7 +178,8 @@ class Generator():
                 logits_processor = self.logit_processor_lst,
                 do_sample=True,
                 top_k=0,
-                temperature=self.sampling_temp
+                temperature=self.sampling_temp,
+                top_p=self.args.top_p
             )
 
             example.update({"bl_vocabularys":self.logit_processor_lst[0].get_and_clear_vocabularys()})
@@ -252,7 +253,8 @@ class Generator():
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
-                    temperature=self.sampling_temp
+                    temperature=self.sampling_temp,
+                    top_p=self.args.top_p
                 )
             
             elif self.mode == 'inv_tr':
@@ -262,7 +264,8 @@ class Generator():
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
-                    temperature=self.sampling_temp
+                    temperature=self.sampling_temp,
+                    top_p=self.args.top_p
                 )
 
             elif self.mode == 'lin_code':
@@ -281,7 +284,8 @@ class Generator():
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
-                    temperature=self.sampling_temp
+                    temperature=self.sampling_temp,
+                top_p=self.args.top_p
                 )
             # remove the attached input from output for some model
             # pdb.set_trace()
