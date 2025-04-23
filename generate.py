@@ -291,21 +291,27 @@ class Generator():
             # pdb.set_trace()
             scores = outputs.scores
             output_ids = outputs.sequences[0, -len(scores):]
+            # access unwatermarked distributions
+            original_distributions = lc_processor.saved_distributions  # list of tensors (shape: [vocab_size])
+
             # print(output_ids)
             # compute logprob for each token
             completions_tokens = []
             completions_logprob = 0
+            CE_log_prob_list = []
 
-            for score, token in zip(scores, output_ids, strict=True):
+            for no_watermark_prob, score, token in zip(original_distributions, scores, output_ids, strict=True):
                 logprobs = F.log_softmax(score[0], dim=-1)
                 logprob = logprobs[token].item()
+                CElogprob = torch.log(no_watermark_prob[token].item()+1e-8)
                 completions_tokens.append({
                     'text': self.tokenizer.decode(token),
                     'logprob': logprob,
+                    'CElogprob': CElogprob.item(), #just average this for CE
                 })
                 completions_logprob += logprob
-            
+                CE_log_prob_list.append(CElogprob.item())
             completions_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
 
             
-            return completions_text, completions_tokens
+            return completions_text, completions_tokens, CE_log_prob_list

@@ -247,7 +247,7 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     #     temperature=1.0,
     # )[0]
         # pdb.set_trace()
-        completions_text, completions_tokens  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
+        completions_text, completions_tokens, CE_log_prob_list  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
     # gc.collect()
     # torch.cuda.empty_cache()
     
@@ -257,7 +257,7 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
             
         pred = completions_text
         pred = post_process(pred, model_name)
-        preds.append({"prompt":prompt, "pred": pred, "completions_tokens":completions_tokens, "answers": json_obj["outputs"], "all_classes": json_obj["all_classes"], "length":json_obj["length"]})
+        preds.append({'CE_log_prob_list': CE_log_prob_list, "prompt":prompt, "pred": pred, "completions_tokens":completions_tokens, "answers": json_obj["outputs"], "all_classes": json_obj["all_classes"], "length":json_obj["length"]})
         
     return preds
 

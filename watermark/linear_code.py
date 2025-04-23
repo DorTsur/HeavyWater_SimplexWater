@@ -38,6 +38,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.tilt = tilt
         self.tilting_delta = tilting_delta
         self.seed_increment = 0
+        self.saved_distributions = []
         # self.gen_cost(device=device)
     
     # def gen_params(self):
@@ -157,6 +158,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             scores_new = [None for _ in range(input_ids.shape[0])]
             for b_idx in range(input_ids.shape[0]):
                 p = torch.softmax(scores[b_idx], dim=-1)
+                # Save a clone so future changes don't affect it
+                self.saved_distributions.append(p.detach().cpu().clone())
                 p_new =  self.tilt_q_SC(distribution=p, side_info=s)
                 scores_new[b_idx] = torch.log(p_new)
             scores_new = torch.stack(scores_new,axis=0)
