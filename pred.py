@@ -373,6 +373,9 @@ if __name__ == '__main__':
             with open(outpath_ce, "w", encoding="utf-8") as f_ce:
                 dictionary = {"CE_ave": np.mean(CE_ave_per_prompt), "CE_std": np.std(CE_ave_per_prompt), "CE list": CE_ave_per_prompt}
                 json.dump(dictionary, f_ce, ensure_ascii=False)
+            print(f"CE ave for {dataset} is {dictionary['CE_ave']}, CE std is {dictionary['CE_std']}")
+            print(f"saving results in {outpath_ce}")
+
 
             with open(out_path, "w", encoding="utf-8") as f:
                 for pred in preds:
@@ -389,7 +392,19 @@ if __name__ == '__main__':
         out_path = os.path.join(save_dir, f"{dataset}.jsonl")
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
-        preds = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
+        preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
+        
+        outpath_ce = os.path.join(save_dir, f"/eval/{dataset}_CE.jsonl")
+        if not os.path.exists(os.path.dirname(outpath_ce)):
+            os.makedirs(os.path.dirname(outpath_ce), exist_ok=True)
+
+        with open(outpath_ce, "w", encoding="utf-8") as f_ce:
+            dictionary = {"CE_ave": np.mean(CE_ave_per_prompt), "CE_std": np.std(CE_ave_per_prompt), "CE list": CE_ave_per_prompt}
+            json.dump(dictionary, f_ce, ensure_ascii=False)
+        print(f"CE ave for {dataset} is {dictionary['CE_ave']}, CE std is {dictionary['CE_std']}")
+        print(f"saving results in {outpath_ce}")
+
+
         if os.path.exists(out_path):
             with open(out_path, "a", encoding="utf-8") as f:
                 for pred in preds:
