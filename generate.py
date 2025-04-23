@@ -216,7 +216,7 @@ class Generator():
                 )
 
             elif self.mode == 'old':
-                pdb.set_trace()
+                # pdb.set_trace()
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,
                     logits_processor = self.logit_processor_lst,
