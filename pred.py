@@ -366,7 +366,7 @@ if __name__ == '__main__':
             max_gen = dataset2maxlen[dataset]
             preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
             
-            outpath_ce = os.path.join(save_dir, f"/eval/{dataset}_CE.jsonl")
+            outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")
             if not os.path.exists(os.path.dirname(outpath_ce)):
                 os.makedirs(os.path.dirname(outpath_ce), exist_ok=True)
 
@@ -394,7 +394,7 @@ if __name__ == '__main__':
         max_gen = dataset2maxlen[dataset]
         preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
         
-        outpath_ce = os.path.join(save_dir, f"/eval/{dataset}_CE.jsonl")
+        outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")
         if not os.path.exists(os.path.dirname(outpath_ce)):
             os.makedirs(os.path.dirname(outpath_ce), exist_ok=True)
 
