@@ -224,6 +224,7 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     preds = []
     generator = Generator(watermark_args, tokenizer, model)
     torch.cuda.empty_cache()
+    CE_ave_per_prompt = []
     for json_obj in tqdm(data[watermark_args.start_point:]):
     # for json_obj in tqdm(data[2]):
     # json_obj = data[695
@@ -247,7 +248,8 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     #     temperature=1.0,
     # )[0]
         # pdb.set_trace()
-        completions_text, completions_tokens, CE_log_prob_list  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
+        completions_text, completions_tokens, CE_prompt  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
+        CE_ave_per_prompt.append(CE_prompt)
     # gc.collect()
     # torch.cuda.empty_cache()
     
@@ -257,9 +259,9 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
             
         pred = completions_text
         pred = post_process(pred, model_name)
-        preds.append({'CE_log_prob_list': CE_log_prob_list, "prompt":prompt, "pred": pred, "completions_tokens":completions_tokens, "answers": json_obj["outputs"], "all_classes": json_obj["all_classes"], "length":json_obj["length"]})
+        preds.append({"prompt":prompt, "pred": pred, "completions_tokens":completions_tokens, "answers": json_obj["outputs"], "all_classes": json_obj["all_classes"], "length":json_obj["length"]})
         
-    return preds
+    return preds,CE_ave_per_prompt
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -362,7 +364,16 @@ if __name__ == '__main__':
             out_path = os.path.join(save_dir, f"{dataset}.jsonl")
             prompt_format = dataset2prompt[dataset]
             max_gen = dataset2maxlen[dataset]
-            preds = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
+            preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
+            
+            outpath_ce = os.path.join(save_dir, f"/eval/{dataset}_CE.jsonl")
+            if not os.path.exists(os.path.dirname(outpath_ce)):
+                os.makedirs(os.path.dirname(outpath_ce), exist_ok=True)
+
+            with open(outpath_ce, "w", encoding="utf-8") as f_ce:
+                dictionary = {"CE_ave": np.mean(CE_ave_per_prompt), "CE_std": np.std(CE_ave_per_prompt), "CE list": CE_ave_per_prompt}
+                json.dump(dictionary, f_ce, ensure_ascii=False)
+
             with open(out_path, "w", encoding="utf-8") as f:
                 for pred in preds:
                     json.dump(pred, f, ensure_ascii=False)

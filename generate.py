@@ -297,7 +297,7 @@ class Generator():
             if self.mode == 'no':
                 original_distributions = scores
             else:
-                original_distributions = logit_processor_lst[0].saved_distributions  # list of tensors (shape: [vocab_size])
+                original_distributions = self.logit_processor_lst[0].saved_distributions  # list of tensors (shape: [vocab_size])
 
             # print(output_ids)
             # compute logprob for each token
@@ -305,19 +305,19 @@ class Generator():
             completions_logprob = 0
             CE_log_prob_list = []
 
+            #pdb.set_trace()
             for no_watermark_prob, score, token in zip(original_distributions, scores, output_ids, strict=True):
                 logprobs = F.log_softmax(score[0], dim=-1)
                 logprob = logprobs[token].item()
-                CElogprob = torch.log(no_watermark_prob[token].item()+1e-8)
+                CElogprob = -np.log(no_watermark_prob[token].item()+1e-8)
                 completions_tokens.append({
                     'text': self.tokenizer.decode(token),
                     'logprob': logprob,
-                    'CElogprob': CElogprob.item(), #just average this for CE
+                    #'CElogprob': CElogprob.item(), #just average this for CE
                 })
                 completions_logprob += logprob
                 CE_log_prob_list.append(CElogprob.item())
-            print(f"Cross-Entropy is: {np.mean(CE_log_prob_list)}")
+            CE_log_prob_promp = np.mean(CE_log_prob_list)
+            print(f"Cross-Entropy is: {CE_log_prob_promp}")
             completions_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
-
-            
-            return completions_text, completions_tokens, CE_log_prob_list
+            return completions_text, completions_tokens, CE_log_prob_promp

@@ -81,6 +81,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         self.bl_logit_bias = bl_logit_bias
         self.bl_type = bl_type
         self.seed_increment = 0
+        self.saved_distributions = []
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -184,7 +185,9 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 self.g_cuda.manual_seed(seed)
                 print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
             
-            
+            #pdb.set_trace()
+            p = torch.softmax(scores[b_idx], dim=-1)
+            self.saved_distributions.append(p.detach().cpu().clone())
 
             # print(f"now tok is {input_ids[b_idx][-1].item()}")
             bl_ct = int(self.vocab_size*self.bl_proportion)
