@@ -170,6 +170,7 @@ class Generator():
     
         # pdb.set_trace()
     def generate(self, input_ids, max_new_tokens):
+        self.logit_processor_lst[0].saved_distributions = []
         if self.mode == 'new':
             example = {}
             
@@ -211,6 +212,7 @@ class Generator():
                 
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,top_p=self.args.top_p,
+                    temperature = self.sampling_temp,
                 )
 
             elif self.mode == 'old':
@@ -292,7 +294,10 @@ class Generator():
             scores = outputs.scores
             output_ids = outputs.sequences[0, -len(scores):]
             # access unwatermarked distributions
-            original_distributions = lc_processor.saved_distributions  # list of tensors (shape: [vocab_size])
+            if self.mode == 'no':
+                original_distributions = scores
+            else:
+                original_distributions = logit_processor_lst[0].saved_distributions  # list of tensors (shape: [vocab_size])
 
             # print(output_ids)
             # compute logprob for each token
@@ -311,6 +316,7 @@ class Generator():
                 })
                 completions_logprob += logprob
                 CE_log_prob_list.append(CElogprob.item())
+            print(f"Cross-Entropy is: {np.mean(CE_log_prob_list)}")
             completions_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
 
             
