@@ -278,6 +278,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp
+                    ,top_p=self.args.top_p
                 )
             elif self.mode == 'exponential':
                 seed_everything(self.args.initial_seed_llm)

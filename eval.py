@@ -202,7 +202,7 @@ if __name__ == '__main__':
                 score = -1
             else:
                 score = scorer(dataset, predictions, answers, all_classes)
-            if args.calc_ce and dataset == 'finance_qa':
+            if args.calc_ce and dataset in ('finance_qa','short_finance_qa'):
                 # calculate cross entropy between watermarked tokens and predictions
                 ce = calc_ce(model, tokenizer, prompts, predictions,device)
                 ce_dict[dataset] = ce

@@ -183,7 +183,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 self.seed_increment += 1
                 seed = self.large_prime + self.seed_increment
                 self.g_cuda.manual_seed(seed)
-                print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
+                # print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
             
             #pdb.set_trace()
             p = torch.softmax(scores[b_idx], dim=-1)
