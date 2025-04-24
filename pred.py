@@ -151,7 +151,7 @@ def parse_args(args=None):
         default="all",
         # default="konwledge_understanding",
         choices=["konwledge_memorization","konwledge_understanding","longform_qa",
-                        "finance_qa","hotpotqa","lcc", "multi_news", "qmsum","alpacafarm", "all","short_finance_qa","poem"],
+                        "finance_qa","hotpotqa","lcc", "multi_news", "qmsum","alpacafarm", "all","short_finance_qa","poem", "high_entropy_qa", "alpacafarm_qa"],
     )
 
     parser.add_argument(

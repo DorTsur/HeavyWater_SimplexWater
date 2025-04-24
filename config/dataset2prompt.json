@@ -26,5 +26,7 @@
     "finance_qa": "You are a helpful assistant, please answer the following question with financial knowledge within 300 words:\n{context}\n{input}",
     "short_finance_qa": "You are a helpful assistant, please answer the following question with financial knowledge within 300 words:\n{context}\n{input}",
     "alpacafarm": "You are a helpful assistant, please answer the following instruction: \n{context}\n{input}",
-    "poem": "{input}"
+    "poem": "{input}",
+    "high_entropy_qa": "You are a helpful assistant, please answer the following instruction: \n{context}\n{input}",
+    "alpacafarm_qa": "You are a helpful assistant, please answer the following instruction: \n{context}\n{input}"
 }

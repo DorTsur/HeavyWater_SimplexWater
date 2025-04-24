@@ -14,7 +14,7 @@ from tokenizers import Tokenizer
 from transformers import LogitsProcessor, LogitsProcessorList, set_seed
 import pdb
 
-def top_p_indices(self, matrix, p):
+def top_p_indices(matrix, p):
     """
     Given:
     - a 1D tensor of shape (num_cols,) representing a single probability distribution, OR
@@ -241,11 +241,12 @@ class BlacklistLogitsProcessor(LogitsProcessor):
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)
-            p = p[filter_indices]
+            p_new = torch.zeros(size=(self.vocab_size,), device=p.device)
+            p_new[filter_indices] = p[filter_indices]
             ## normalize
-            p = p / p.sum()
+            p_new = p_new / p_new.sum()
             ##
-            scores[b_idx] = torch.log(p)
+            scores[b_idx] = torch.log(p_new+ 1e-10)  # add small value to avoid log(0)
             # print(f"now tok is {input_ids[b_idx][-1].item()}")
             bl_ct = int(self.vocab_size*self.bl_proportion)
             blacklist_ids = torch.randperm(self.vocab_size, device=input_ids.device, generator=self.g_cuda)[:bl_ct] # ty Yuxin :]

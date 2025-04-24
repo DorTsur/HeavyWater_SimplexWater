@@ -26,5 +26,7 @@
     "finance_qa": 300,
     "short_finance_qa": 300,
     "alpacafarm": 300,
-    "poem": 300
+    "poem": 300,
+    "high_entropy_qa": 300,
+    "alpacafarm_qa": 300
 }
