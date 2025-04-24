@@ -1,7 +1,7 @@
 import torch
 import pdb
 import ot
-from watermark.old_watermark import BlacklistLogitsProcessor
+from watermark.old_watermark import BlacklistLogitsProcessor, top_p_indices
 import math
 
 class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
@@ -19,7 +19,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 store_spike_ents= False,
                 noop_blacklist= False,
                 tilt=False,
-                tilting_delta=0.1
+                tilting_delta=0.1,
+                top_p = 0.999,
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -39,6 +40,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.tilting_delta = tilting_delta
         self.seed_increment = 0
         self.saved_distributions = []
+        self.top_p = top_p
         # self.gen_cost(device=device)
     
     # def gen_params(self):
@@ -50,54 +52,54 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     #         self.m = 2 ** n
 
     
-    def top_p_indices(self, matrix, p):
-        """
-        Given:
-        - a 1D tensor of shape (num_cols,) representing a single probability distribution, OR
-        - a 2D tensor of shape (batch_size, num_cols) representing multiple distributions,
+    # def top_p_indices(self, matrix, p):
+    #     """
+    #     Given:
+    #     - a 1D tensor of shape (num_cols,) representing a single probability distribution, OR
+    #     - a 2D tensor of shape (batch_size, num_cols) representing multiple distributions,
 
-        return:
-        - if 1D input: a 1D tensor containing the smallest set of indices whose sum is >= p.
-        - if 2D input: a list of length batch_size, each element is a 1D tensor of column indices
-            for the smallest set of entries in that row whose sum is >= p.
+    #     return:
+    #     - if 1D input: a 1D tensor containing the smallest set of indices whose sum is >= p.
+    #     - if 2D input: a list of length batch_size, each element is a 1D tensor of column indices
+    #         for the smallest set of entries in that row whose sum is >= p.
 
-        :param matrix: Probability distribution(s) with shape either (num_cols,) or (batch_size, num_cols).
-        :param p: Threshold for cumulative probability (0 < p <= 1).
-        :return: A 1D tensor of INDICES (for 1D input) or a list of 1D tensors (for 2D input).
-        """
-        if matrix.dim() not in (1, 2):
-            raise ValueError("Input must be either a 1D or 2D tensor.")
+    #     :param matrix: Probability distribution(s) with shape either (num_cols,) or (batch_size, num_cols).
+    #     :param p: Threshold for cumulative probability (0 < p <= 1).
+    #     :return: A 1D tensor of INDICES (for 1D input) or a list of 1D tensors (for 2D input).
+    #     """
+    #     if matrix.dim() not in (1, 2):
+    #         raise ValueError("Input must be either a 1D or 2D tensor.")
 
-        if matrix.dim() == 1:
-            # Single distribution: shape (num_cols,).
-            # Convert to shape (1, num_cols) for unified processing,
-            # then we'll extract the single row result at the end.
-            matrix = matrix.unsqueeze(0)
-            single_distribution = True
-        else:
-            single_distribution = False
+    #     if matrix.dim() == 1:
+    #         # Single distribution: shape (num_cols,).
+    #         # Convert to shape (1, num_cols) for unified processing,
+    #         # then we'll extract the single row result at the end.
+    #         matrix = matrix.unsqueeze(0)
+    #         single_distribution = True
+    #     else:
+    #         single_distribution = False
 
-        # 1) Sort probabilities (descending) along the last dimension and keep track of original indices
-        sorted_probs, sorted_indices = torch.sort(matrix, descending=True, dim=-1)
+    #     # 1) Sort probabilities (descending) along the last dimension and keep track of original indices
+    #     sorted_probs, sorted_indices = torch.sort(matrix, descending=True, dim=-1)
 
-        # 2) Compute cumulative sums along the sorted probabilities
-        cumsum_probs = sorted_probs.cumsum(dim=-1)
+    #     # 2) Compute cumulative sums along the sorted probabilities
+    #     cumsum_probs = sorted_probs.cumsum(dim=-1)
 
-        # 3) For each row, find how many entries are needed to reach or exceed p
-        #    We do this by checking where cumsum_probs < p, counting those positions,
-        #    then taking the next index to ensure >= p.
-        keep_lens = (cumsum_probs < p).sum(dim=-1) + 1  # Convert count of "still below p" to index of >= p
+    #     # 3) For each row, find how many entries are needed to reach or exceed p
+    #     #    We do this by checking where cumsum_probs < p, counting those positions,
+    #     #    then taking the next index to ensure >= p.
+    #     keep_lens = (cumsum_probs < p).sum(dim=-1) + 1  # Convert count of "still below p" to index of >= p
 
-        # 4) Gather top-p indices
-        results = []
-        for row_idx, length in enumerate(keep_lens):
-            results.append(sorted_indices[row_idx, :length])
+    #     # 4) Gather top-p indices
+    #     results = []
+    #     for row_idx, length in enumerate(keep_lens):
+    #         results.append(sorted_indices[row_idx, :length])
 
-        # For a single distribution, return the single row's result, otherwise return list of results
-        if single_distribution:
-            return results[0]
-        else:
-            return results
+    #     # For a single distribution, return the single row's result, otherwise return list of results
+    #     if single_distribution:
+    #         return results[0]
+    #     else:
+    #         return results
     
     def gen_params(self):
         m = self.vocab_size
@@ -170,7 +172,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # num_iter=20
         # top-p filtering:
         # pdb.set_trace()
-        filter_indices = self.top_p_indices(distribution, top_p)
+        # apply top_p filtering to the scores
+        filter_indices = top_p_indices(distribution, top_p)
         if len(filter_indices) == 1:
             # then there's nothing to watermark.
             return distribution

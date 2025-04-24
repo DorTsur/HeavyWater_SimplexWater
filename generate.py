@@ -171,6 +171,8 @@ class Generator():
         # pdb.set_trace()
     def generate(self, input_ids, max_new_tokens):
         self.logit_processor_lst[0].saved_distributions = []
+        self.logit_processor_lst[0].top_p = self.args.top_p
+
         if self.mode == 'new':
             example = {}
             
@@ -180,7 +182,7 @@ class Generator():
                 do_sample=True,
                 top_k=0,
                 temperature=self.sampling_temp,
-                top_p=self.args.top_p
+                top_p= 1 # top-p implemented in the logit processor
             )
 
             example.update({"bl_vocabularys":self.logit_processor_lst[0].get_and_clear_vocabularys()})
@@ -307,6 +309,10 @@ class Generator():
             CE_log_prob_list = []
 
             #pdb.set_trace()
+            # process original distributions for temperature
+            for i in range(len(original_distributions)):
+                score = torch.log(original_distributions[i]) / self.sampling_temp
+                original_distributions[i] = torch.softmax(score, dim=-1)
             for no_watermark_prob, score, token in zip(original_distributions, scores, output_ids, strict=True):
                 logprobs = F.log_softmax(score[0], dim=-1)
                 logprob = logprobs[token].item()
