@@ -121,8 +121,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 dynamic_seed: str=None, # "initial", "markov_1", None
                 store_bl_ids: bool=False,
                 store_spike_ents: bool = False,
-                noop_blacklist: bool = False,
-                top_p = 0.999,
+                noop_blacklist: bool = False
                 ):
         
         self.vocab = vocab
@@ -207,6 +206,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         self.spike_entropies = None
         return spike_ents
 
+   
     def compute_spike_entropy(self, scores):
         # precomputed z value in init
         probs = scores.softmax(dim=-1)
@@ -236,8 +236,9 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 self.g_cuda.manual_seed(seed)
                 # print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
             
-            #pdb.set_trace()
-            # apply top-p filtering
+            #
+            # pdb.set_trace()
+            #
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)

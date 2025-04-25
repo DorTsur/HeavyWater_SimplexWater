@@ -47,7 +47,8 @@ class Generator():
                                             bl_logit_bias=self.delta,
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
-                                            dynamic_seed=self.dyna_seed)
+                                            dynamic_seed=self.dyna_seed,
+                                            top_p=self.args.top_p)
         self.logit_processor_lst = LogitsProcessorList([self.bl_processor])
         if args.mode == 'new': 
             self.bl_processor = OurBlacklistLogitsProcessor(tokenizer=tokenizer,
