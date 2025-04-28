@@ -8,7 +8,9 @@ from watermark.watermark_v2 import WatermarkLogitsProcessor
 from watermark.cc_watermark import CorrelatedChannelLogitsProcessor, CombinedCCLogitsProcessor, K_CorrelatedChannelLogitsProcessor
 from watermark.inverse_transform import InverseTransformLogitsProcessor
 from watermark.linear_code import LinearCodeLogitsProcessor
+from watermark.gaussian_lincode import GaussianLinearCodeLogitsProcessor
 from watermark.exponential import ExponentialLogitsProcessor
+from watermark.qarry_linear_code import Q_LinearCodeLogitsProcessor
 from transformers import  LogitsProcessorList
 import pdb
 import random
@@ -160,6 +162,44 @@ class Generator():
                                             hashing=args.hashing_fn
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
+        
+        if args.mode == 'q_lin_code':
+            watermark_processor = Q_LinearCodeLogitsProcessor(
+                                            bad_words_ids=None, 
+                                            eos_token_id=tokenizer.eos_token_id, 
+                                            vocab=self.all_token_ids, 
+                                            vocab_size=self.vocab_size, 
+                                            bl_proportion=1-self.gamma,
+                                            bl_logit_bias=self.delta,
+                                            bl_type=self.bl_type, 
+                                            initial_seed=self.init_seed, 
+                                            dynamic_seed=self.dyna_seed,
+                                            tilt=args.tilt,
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p,
+                                            context=args.context,
+                                            hashing=args.hashing_fn
+                                            ) 
+            self.logit_processor_lst = LogitsProcessorList([watermark_processor])
+        
+        if args.mode == 'gauss_lin_code':
+            watermark_processor = GaussianLinearCodeLogitsProcessor(
+                                            bad_words_ids=None, 
+                                            eos_token_id=tokenizer.eos_token_id, 
+                                            vocab=self.all_token_ids, 
+                                            vocab_size=self.vocab_size, 
+                                            bl_proportion=1-self.gamma,
+                                            bl_logit_bias=self.delta,
+                                            bl_type=self.bl_type, 
+                                            initial_seed=self.init_seed, 
+                                            dynamic_seed=self.dyna_seed,
+                                            tilt=args.tilt,
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p,
+                                            context=args.context,
+                                            hashing=args.hashing_fn
+                                            ) 
+            self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 
         if args.mode == 'exponential':
             watermark_processor = ExponentialLogitsProcessor(
@@ -290,6 +330,30 @@ class Generator():
                     temperature=self.sampling_temp
                     ,top_p=self.args.top_p
                 )
+
+            elif self.mode == 'q_lin_code':
+                seed_everything(self.args.initial_seed_llm)
+                outputs = self.model.generate(
+                    input_ids, max_new_tokens=max_new_tokens,
+                    logits_processor = self.logit_processor_lst,
+                    do_sample=True,
+                    top_k=0,
+                    temperature=self.sampling_temp
+                    ,top_p=self.args.top_p
+                )
+            
+            elif self.mode == 'gauss_lin_code':
+                # pdb.set_trace()
+                seed_everything(self.args.initial_seed_llm)
+                outputs = self.model.generate(
+                    input_ids, max_new_tokens=max_new_tokens,
+                    logits_processor = self.logit_processor_lst,
+                    do_sample=True,
+                    top_k=0,
+                    temperature=self.sampling_temp
+                    ,top_p=self.args.top_p
+                )
+
             elif self.mode == 'exponential':
                 seed_everything(self.args.initial_seed_llm)
                 outputs = self.model.generate(

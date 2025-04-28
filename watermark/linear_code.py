@@ -63,15 +63,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             self.m = m
         
         self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
-        # self.G = self.gen_rand_G(device=self.device)
         
-    def gen_rand_G(self, device=None):
-        # pdb.set_trace()
-        rng = torch.Generator(device=self.device)
-        rng.manual_seed(self.large_prime)
-        return torch.randn(size=(self.n, self.m - 1), device=device, generator=rng)
-
-
         
         
     def gen_seed(self, token_ids):
@@ -325,9 +317,6 @@ class LinearCodeWatermarkDetector():
             # binary generator:
             cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
             
-            # gaussian generator:
-            # cnt += self.calc_fxs(binary_x, s).item()
-            
             
             prev_token = tok_gend
             
@@ -335,15 +324,4 @@ class LinearCodeWatermarkDetector():
         z_score = self._compute_z_score(cnt, len(input_sequence))
         print("LC z score is:", z_score)
         return z_score
-
-    def calc_fxs(self,x,s):
-        # pdb.set_trace()
-        score = ((x.to(torch.float))@self.g[:,s])%2
-        return score/torch.sqrt(4*x.sum())+0.5
-
-    def gen_rand_G(self, device=None):
-        # pdb.set_trace()
-        rng = torch.Generator(device=self.device)
-        rng.manual_seed(self.hash_key)
-        self.g = torch.randn(size=(self.n, self.m - 1), device=device, generator=rng)
 
