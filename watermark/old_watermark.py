@@ -121,7 +121,8 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 dynamic_seed: str=None, # "initial", "markov_1", None
                 store_bl_ids: bool=False,
                 store_spike_ents: bool = False,
-                noop_blacklist: bool = False
+                noop_blacklist: bool = False,
+                top_p: float = 0.999,
                 ):
         
         self.vocab = vocab

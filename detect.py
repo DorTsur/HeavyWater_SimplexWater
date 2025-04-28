@@ -16,6 +16,7 @@ from scipy.stats import norm
 import re
 import scipy 
 from watermark.exponential import ExponentialWatermarkDetector
+import numpy as np
 
 def main(args):
     seed_everything(args.initial_seed_llm)
@@ -65,6 +66,12 @@ def main(args):
             # lines
             lines = f.readlines()
             # texts
+            # pdb.set_trace()
+            for line in lines:
+                if "prompt" not in line:
+                    print(f"line is: {line}")
+                    print(f"json_file is: {json_file}")
+                    raise ValueError("prompt not in line")
             prompts = [json.loads(line)["prompt"] for line in lines]
             texts = [json.loads(line)["pred"] for line in lines]
             # print(f"texts[0] is: {texts[0]}")
@@ -193,9 +200,8 @@ def main(args):
                 
                 elif "cc" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z,z_s = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
-                    z_s_score_list.append(z_s)
                 
                 elif "lin_code" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
@@ -238,7 +244,12 @@ def main(args):
             #thresholding
             pvalue = 0.001
             threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
+            ##
+            agg_pvals = [-np.log10(pv+1e-16) for pv in pval]
+            ##
             save_dict = {
+                'agg_pvals_avg': np.mean(agg_pvals),
+                'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
                 'pval_teststats': average_pval,
                 'pval_std': torch.std(torch.tensor(pval)).item(),
                 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
@@ -265,13 +276,18 @@ def main(args):
             #thresholding
             pvalue = 0.001
             # threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
+            ##
+            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals_list]
+            ##
             save_dict = {
+                'agg_pvals_avg': np.mean(agg_pvals),
+                'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
                 'pval_teststats': average_pval,
                 'pval_std': torch.std(torch.tensor(p_vals_list)).item(),
                 # 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
-                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
-                'z_score_list': z_score_list,
-                'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
+                # 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+                # 'z_score_list': z_score_list,
+                # 'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
                 'teststats_list': teststats_list,
                 # 'gen_token_length_list': gen_token_length_list
             }
@@ -286,7 +302,12 @@ def main(args):
 
         p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
         p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
+        ##
+        agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+        ##
         save_dict = {
+            'agg_pvals_avg': np.mean(agg_pvals),
+            'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
             'p_val_teststats': p_vals,
             'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
             'std_pval': torch.std(torch.tensor(p_vals)).item(),
@@ -309,8 +330,14 @@ def main(args):
         
         if "cc" in args.input_dir:
             p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+            # pdb.set_trace()
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
+            ##
+            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+            ##
             save_dict = {
+            'agg_pvals_avg': np.mean(agg_pvals),
+            'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
             'p_val_teststats': p_vals,
             'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
             'std_pval': torch.std(torch.tensor(p_vals)).item(),

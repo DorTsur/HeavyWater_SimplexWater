@@ -5,6 +5,56 @@ import random
 from scipy.stats import ttest_1samp
 
 
+def top_p_indices(matrix, p):
+    """
+    Given:
+    - a 1D tensor of shape (num_cols,) representing a single probability distribution, OR
+    - a 2D tensor of shape (batch_size, num_cols) representing multiple distributions,
+
+    return:
+    - if 1D input: a 1D tensor containing the smallest set of indices whose sum is >= p.
+    - if 2D input: a list of length batch_size, each element is a 1D tensor of column indices
+        for the smallest set of entries in that row whose sum is >= p.
+
+    :param matrix: Probability distribution(s) with shape either (num_cols,) or (batch_size, num_cols).
+    :param p: Threshold for cumulative probability (0 < p <= 1).
+    :return: A 1D tensor of INDICES (for 1D input) or a list of 1D tensors (for 2D input).
+    """
+    if matrix.dim() not in (1, 2):
+        raise ValueError("Input must be either a 1D or 2D tensor.")
+
+    if matrix.dim() == 1:
+        # Single distribution: shape (num_cols,).
+        # Convert to shape (1, num_cols) for unified processing,
+        # then we'll extract the single row result at the end.
+        matrix = matrix.unsqueeze(0)
+        single_distribution = True
+    else:
+        single_distribution = False
+
+    # 1) Sort probabilities (descending) along the last dimension and keep track of original indices
+    sorted_probs, sorted_indices = torch.sort(matrix, descending=True, dim=-1)
+
+    # 2) Compute cumulative sums along the sorted probabilities
+    cumsum_probs = sorted_probs.cumsum(dim=-1)
+
+    # 3) For each row, find how many entries are needed to reach or exceed p
+    #    We do this by checking where cumsum_probs < p, counting those positions,
+    #    then taking the next index to ensure >= p.
+    keep_lens = (cumsum_probs < p).sum(dim=-1) + 1  # Convert count of "still below p" to index of >= p
+
+    # 4) Gather top-p indices
+    results = []
+    for row_idx, length in enumerate(keep_lens):
+        results.append(sorted_indices[row_idx, :length])
+
+    # For a single distribution, return the single row's result, otherwise return list of results
+    if single_distribution:
+        return results[0]
+    else:
+        return results
+
+
 
 class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
     def __call__(self, input_ids, scores):
@@ -41,7 +91,18 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 self.seed_increment += 1
                 seed = self.large_prime + self.seed_increment
             
-            
+            #####
+            p = torch.softmax(scores[b_idx], dim=-1)
+            self.saved_distributions.append(p.detach().cpu().clone())
+            filter_indices = top_p_indices(p, self.top_p)
+            p_new = torch.zeros(size=(self.vocab_size,), device=p.device)
+            p_new[filter_indices] = p[filter_indices]
+            ## normalize
+            p_new = p_new / p_new.sum()
+            ##
+            scores[b_idx] = torch.log(p_new+ 1e-10)  # add small value to avoid log(0)
+            #####
+
             # set seed and sample the random objects:
             self.g_cuda.manual_seed(seed)
             permuted_list = torch.randperm(self.vocab_size, device=input_ids.device, generator=self.g_cuda)
@@ -59,7 +120,7 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 cdf = torch.cumsum(distribution[b_idx, self.permuted_lists[b_idx]], dim=-1)
                 # 2. sample uniform [0,1] rv
                 u = self.u_samples[b_idx]
-                print(f'u={u.item()}')
+                # print(f'u={u.item()}')
                 # 3. find CDF index we exceed the threshold
                 idx = torch.searchsorted(cdf, u)
                 # 4. set that to be the token CDF (set '-inf' to the rest of the scores)
@@ -132,7 +193,7 @@ class InverseTransformDetector():
             permuted_list = torch.randperm(self.vocab_size, device=self.device, generator=self.rng)
             self.rng.manual_seed(seed)
             u = torch.rand(1, device=self.device, generator=self.rng)
-            print("u is:", u.item())
+            # print("u is:", u.item())
 
             inv = torch.argsort(permuted_list)
             rank = inv[tok_gend].item()
@@ -141,10 +202,10 @@ class InverseTransformDetector():
 
             prev_token = tok_gend
         
-        pdb.set_trace()
+        # pdb.set_trace()
         # sum_score = sum(detect_scores)
         t_stat, p_value = ttest_1samp(detect_scores, popmean=1/3)
-        z_score = self._compute_z_score(sum(detect_scores), len(input_sequence))
+        z_score = [0]
     
         return t_stat, p_value, z_score
 

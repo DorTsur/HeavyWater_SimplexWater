@@ -3,6 +3,7 @@ import pdb
 import ot
 from watermark.old_watermark import BlacklistLogitsProcessor, top_p_indices
 import math
+import numpy as np
 
 class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
@@ -21,6 +22,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 tilt=False,
                 tilting_delta=0.1,
                 top_p = 0.999,
+                context=1,
+                hashing='min'
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -41,65 +44,11 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.seed_increment = 0
         self.saved_distributions = []
         self.top_p = top_p
+        self.context = context
+        self.hashing = hashing
         # self.gen_cost(device=device)
     
-    # def gen_params(self):
-    #     m = self.vocab_size
-    #     n = int(torch.ceil(torch.log2(torch.tensor(m, dtype=torch.float32))).item())
-    #     if 2 ** n != int(m):
-    #         # print("m must be a power of 2")
-    #         # padding = 2 ** n - int(m)
-    #         self.m = 2 ** n
 
-    
-    # def top_p_indices(self, matrix, p):
-    #     """
-    #     Given:
-    #     - a 1D tensor of shape (num_cols,) representing a single probability distribution, OR
-    #     - a 2D tensor of shape (batch_size, num_cols) representing multiple distributions,
-
-    #     return:
-    #     - if 1D input: a 1D tensor containing the smallest set of indices whose sum is >= p.
-    #     - if 2D input: a list of length batch_size, each element is a 1D tensor of column indices
-    #         for the smallest set of entries in that row whose sum is >= p.
-
-    #     :param matrix: Probability distribution(s) with shape either (num_cols,) or (batch_size, num_cols).
-    #     :param p: Threshold for cumulative probability (0 < p <= 1).
-    #     :return: A 1D tensor of INDICES (for 1D input) or a list of 1D tensors (for 2D input).
-    #     """
-    #     if matrix.dim() not in (1, 2):
-    #         raise ValueError("Input must be either a 1D or 2D tensor.")
-
-    #     if matrix.dim() == 1:
-    #         # Single distribution: shape (num_cols,).
-    #         # Convert to shape (1, num_cols) for unified processing,
-    #         # then we'll extract the single row result at the end.
-    #         matrix = matrix.unsqueeze(0)
-    #         single_distribution = True
-    #     else:
-    #         single_distribution = False
-
-    #     # 1) Sort probabilities (descending) along the last dimension and keep track of original indices
-    #     sorted_probs, sorted_indices = torch.sort(matrix, descending=True, dim=-1)
-
-    #     # 2) Compute cumulative sums along the sorted probabilities
-    #     cumsum_probs = sorted_probs.cumsum(dim=-1)
-
-    #     # 3) For each row, find how many entries are needed to reach or exceed p
-    #     #    We do this by checking where cumsum_probs < p, counting those positions,
-    #     #    then taking the next index to ensure >= p.
-    #     keep_lens = (cumsum_probs < p).sum(dim=-1) + 1  # Convert count of "still below p" to index of >= p
-
-    #     # 4) Gather top-p indices
-    #     results = []
-    #     for row_idx, length in enumerate(keep_lens):
-    #         results.append(sorted_indices[row_idx, :length])
-
-    #     # For a single distribution, return the single row's result, otherwise return list of results
-    #     if single_distribution:
-    #         return results[0]
-    #     else:
-    #         return results
     
     def gen_params(self):
         m = self.vocab_size
@@ -112,9 +61,43 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             self.m = 2 ** self.n
         else:
             self.m = m
-        self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
         
+        self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
+        # self.G = self.gen_rand_G(device=self.device)
+        
+    def gen_rand_G(self, device=None):
+        # pdb.set_trace()
+        rng = torch.Generator(device=self.device)
+        rng.manual_seed(self.large_prime)
+        return torch.randn(size=(self.n, self.m - 1), device=device, generator=rng)
 
+
+        
+        
+    def gen_seed(self, token_ids):
+        pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg
+            
+        
     def __call__(self, input_ids, scores):
         """
         Linear Code WM logitprocessor - currently Simplex.
@@ -143,7 +126,10 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
                 seed = self.large_prime + self.seed_increment
-            
+            elif self.dynamic_seed == 'agg_hash':
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(input_ids[b_idx][-self.context:])
+
             # set seed and generate s
             self.g_cuda.manual_seed(seed)
             s = torch.randint(
@@ -287,6 +273,8 @@ class LinearCodeWatermarkDetector():
             # print("m must be a power of 2")
             # padding = 2 ** n - int(m)
             self.m = 2 ** self.n
+        
+        self.gen_rand_G(device=self.device)
 
     def _compute_z_score(self, observed_count, T):
         # count refers to number of green tokens, T is total number of tokens
@@ -329,18 +317,33 @@ class LinearCodeWatermarkDetector():
                 device=self.device
             ).item()
 
-            print(f's={s},token={tok_gend}, prev_token={prev_token}')
+            # print(f's={s},token={tok_gend}, prev_token={prev_token}')
 
             binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
             binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
-
-            # binary_x = np.array(list(np.binary_repr(sampled_element.item(), width=int(np.log2(m)))), dtype=int) # sampled_element [0,...,m]
-            # binary_s = np.array(list(np.binary_repr(side_info, width=int(np.log2(m)))), dtype=int) # side_info [1,...,m-1]
-            # pdb.set_trace()
+            
+            # binary generator:
             cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
+            
+            # gaussian generator:
+            # cnt += self.calc_fxs(binary_x, s).item()
+            
+            
             prev_token = tok_gend
             
         # pdb.set_trace()
         z_score = self._compute_z_score(cnt, len(input_sequence))
         print("LC z score is:", z_score)
         return z_score
+
+    def calc_fxs(self,x,s):
+        # pdb.set_trace()
+        score = ((x.to(torch.float))@self.g[:,s])%2
+        return score/torch.sqrt(4*x.sum())+0.5
+
+    def gen_rand_G(self, device=None):
+        # pdb.set_trace()
+        rng = torch.Generator(device=self.device)
+        rng.manual_seed(self.hash_key)
+        self.g = torch.randn(size=(self.n, self.m - 1), device=device, generator=rng)
+

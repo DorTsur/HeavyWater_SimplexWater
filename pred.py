@@ -49,7 +49,7 @@ def parse_args(args=None):
         "--dynamic_seed",
         type=str,
         default="markov_1",
-        choices=[None, "initial", "markov_1","fresh"],
+        choices=[None, "initial", "markov_1","fresh", "agg_hash"],
         help="The seeding procedure to use when sampling the redlist at each step.",
         )
 
@@ -191,6 +191,19 @@ def parse_args(args=None):
     "--top_p",
     type=float,
     default=1.0)
+
+    parser.add_argument(
+    "--context",
+    type=int,
+    default=1)
+
+    parser.add_argument(
+        "--hashing_fn",
+        type=str,
+        default=None,
+        choices=[None, "min", "sum","prod", "repeat"],
+        help="The seeding procedure to use when sampling the redlist at each step.",
+        )
 
     parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
     return parser.parse_args(args)
@@ -346,8 +359,11 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
-    if args.dynamic_seed == 'fresh':
-        save_dir += f"_fresh_"
+    # if args.dynamic_seed == 'fresh':
+    #     save_dir += f"_fresh_"
+    save_dir += f"_{args.dynamic_seed}"
+    if args.hashing_fn is not None and args.context != 1:
+        save_dir += f"_{args.hashing_fn}_context_{args.context}"
     if args.top_p != 1.0:
         save_dir += f"_top_p_{args.top_p}"
     if not os.path.exists(save_dir):

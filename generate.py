@@ -91,7 +91,8 @@ class Generator():
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed,
                                             tilt=args.tilt,
-                                            tilting_delta=args.tilting_delta
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
@@ -121,7 +122,8 @@ class Generator():
                                             dynamic_seed=self.dyna_seed,
                                             cc_k=args.cc_k,
                                             tilt=args.tilt,
-                                            tilting_delta=args.tilting_delta
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
@@ -136,6 +138,7 @@ class Generator():
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed
+                                            ,top_p=args.top_p
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
@@ -151,7 +154,10 @@ class Generator():
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed,
                                             tilt=args.tilt,
-                                            tilting_delta=args.tilting_delta
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p,
+                                            context=args.context,
+                                            hashing=args.hashing_fn
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 
@@ -165,7 +171,8 @@ class Generator():
                                             bl_logit_bias=self.delta,
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
-                                            dynamic_seed=self.dyna_seed
+                                            dynamic_seed=self.dyna_seed,
+                                            top_p=args.top_p
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
     
