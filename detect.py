@@ -66,12 +66,13 @@ def main(args):
             # lines
             lines = f.readlines()
             # texts
-            # pdb.set_trace()
-            for line in lines:
-                if "prompt" not in line:
-                    print(f"line is: {line}")
-                    print(f"json_file is: {json_file}")
-                    raise ValueError("prompt not in line")
+            for i, line in enumerate(lines):
+                try:
+                    obj = json.loads(line)
+                except Exception as e:
+                    print(f"\n[Error] Line {i}: {repr(line)}\n{e}")
+                    print(f"output directory is: {args.input_dir + '/z_score'}")
+                    break
             prompts = [json.loads(line)["prompt"] for line in lines]
             texts = [json.loads(line)["pred"] for line in lines]
             # print(f"texts[0] is: {texts[0]}")
