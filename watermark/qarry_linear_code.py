@@ -11,6 +11,15 @@ import itertools
 def log_base_q(x, q):
     return np.log(x) / np.log(q)
 
+def int_to_base_q_vec(i: int, n: int, q: int, device=None):
+    """
+    Return a length-n LongTensor whose entries are the base-q digits of i.
+    Most-significant digit first.  No Python loops on the hot path.
+    """
+    i = torch.as_tensor(i, device=device, dtype=torch.long)
+    powers = q ** torch.arange(n - 1, -1, -1, device=device)   # q^{n-1},…,q^0
+    return ((i.unsqueeze(-1) // powers) % q)
+
 class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
                 bad_words_ids, 
@@ -44,7 +53,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 store_bl_ids,
                 store_spike_ents,
                 noop_blacklist)
-        pdb.set_trace()
+        # pdb.set_trace()
         self.q = q
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.gen_params()
@@ -59,7 +68,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # self.gen_cost(device=device)
     
     def gen_params(self):
-        pdb.set_trace()
+        # pdb.set_trace()
         m = self.vocab_size
         self.n = int(np.ceil(log_base_q(m,self.q)).item())
         if self.q ** self.n != int(m):
@@ -82,7 +91,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
             
     def gen_seed(self, token_ids):
-        pdb.set_trace()
+        # pdb.set_trace()
         token_ids = token_ids.tolist()
         if self.hashing == 'min':
             agg = min(token_ids)
@@ -114,7 +123,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         3. p_new - tilt_q_sC(p, s, params)
         4. p_new into logits
         """
-        pdb.set_trace()
+        # pdb.set_trace()
 
 
 
@@ -161,6 +170,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         return scores_new
     
     def tilt_q_SC(self, distribution, side_info, reg_const=0.05, num_iter=2000, top_k=100, top_p=0.999):
+        # pdb.set_trace()
         filter_indices = top_p_indices(distribution, top_p)
         # FILTER OUT ID=0
         if len(filter_indices) == 1:
@@ -170,7 +180,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         distribution = distribution / distribution.sum()
         ps = torch.ones(self.k, device=distribution.device) / self.k  # uniform over S
         matrix = self.int_to_log_q_matrix(token_ids=filter_indices,device=distribution.device)
-        C_orig = matrix @ self.G % 2
+        C_orig = (matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q
         C = 1-C_orig 
         P = ot.sinkhorn(
             a=distribution,
@@ -202,16 +212,17 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         #     rows.insert(0, [1]*len(points))
         # G = np.array(rows) % q
         # return torch.tensor(G, dtype=torch.float32, device=device)
-        return torch.stack([
-                self.int_to_base_q(i, device=device) for i in range(1, m)
+        # pdb.set_trace()
+        return torch.stack([int_to_base_q_vec(i, self.n, self.q, device=device) for i in range(1, m)]).T
                 # torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device)
                 # for i in token_ids
-            ]).T
+            
 
     
     def int_to_log_q_matrix(self, token_ids, device=None):
+        # pdb.set_trace()
         return torch.stack([
-            self.int_to_base_q(i, device=device) for i in token_ids
+            int_to_base_q_vec(i, self.n, self.q, device=device) for i in token_ids
             # torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device)
             # for i in token_ids
         ])
@@ -220,17 +231,11 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         #####
         # # pdb.set_trace()
         # Generate all binary vectors of length n (excluding 0)
-        all_columns = torch.stack([
-            torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device)
-            for i in range(1, self.m)
-        ])
+        all_columns = torch.stack([ torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device) for i in range(1, self.m)])
         return all_columns.T  # Shape: (n, m-1)
 
     def int_to_bit_matrix(self, token_ids, device=None):
-        return torch.stack([
-            torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device)
-            for i in token_ids
-        ])
+        return torch.stack([torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device) for i in token_ids])
     
     
     

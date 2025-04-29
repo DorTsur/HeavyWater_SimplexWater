@@ -204,6 +204,11 @@ def parse_args(args=None):
         choices=[None, "min", "sum","prod", "repeat"],
         help="The seeding procedure to use when sampling the redlist at each step.",
         )
+    
+    parser.add_argument(
+    "--q",
+    type=int,
+    default=2)
 
     parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
     return parser.parse_args(args)
@@ -366,6 +371,8 @@ if __name__ == '__main__':
         save_dir += f"_{args.hashing_fn}_context_{args.context}"
     if args.top_p != 1.0:
         save_dir += f"_top_p_{args.top_p}"
+    if args.mode == "q_lin_code":
+        save_dir += f"_q_{args.q}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset

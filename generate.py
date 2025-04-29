@@ -178,7 +178,8 @@ class Generator():
                                             tilting_delta=args.tilting_delta,
                                             top_p=args.top_p,
                                             context=args.context,
-                                            hashing=args.hashing_fn
+                                            hashing=args.hashing_fn,
+                                            q=args.q
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
