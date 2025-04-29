@@ -266,7 +266,7 @@ class LinearCodeWatermarkDetector():
             # padding = 2 ** n - int(m)
             self.m = 2 ** self.n
         
-        self.gen_rand_G(device=self.device)
+        # self.gen_rand_G(device=self.device)
 
     def _compute_z_score(self, observed_count, T):
         # count refers to number of green tokens, T is total number of tokens

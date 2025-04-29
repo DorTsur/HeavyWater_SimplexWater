@@ -45,6 +45,11 @@ def main(args):
     else:
         gamma = delta = 0.0
     print(f"gamma is: {gamma}, delta is: {delta}")
+    if 'q_lin_code' in args.input_dir:
+        # q = int(args.input_dir.split("_q")[1].split("_")[0])
+        # pdb.set_trace() 
+        q = int(args.input_dir.rsplit("_q_", 1)[1].split("_", 1)[0])
+        print(f'q is: {q}')
     
     
     # get all files from input_dir
@@ -146,6 +151,18 @@ def main(args):
                                             device=device)
             z_s_score_list = []
         
+        elif "q_lin_code" in args.input_dir:
+            print('performing detection for q-linear code')
+            detector = Q_LinearCodeWatermarkDetector(tokenizer=tokenizer,
+                                            vocab=all_token_ids,
+                                            gamma=gamma,
+                                            delta=delta,
+                                            dynamic_seed=args.dynamic_seed,
+                                            device=device,
+                                            q=q)
+            chi_square_statistic_list = []
+            p_vals_list = []
+        
         elif "lin_code" in args.input_dir:  
             print('performing detection fo linear code')
             detector = LinearCodeWatermarkDetector(tokenizer=tokenizer,
@@ -156,16 +173,7 @@ def main(args):
                                             device=device)
             z_s_score_list = []
         
-        elif "q_lin_code" in args.input_dir:
-            print('performing detection for q-linear code')
-            detector = Q_LinearCodeWatermarkDetector(tokenizer=tokenizer,
-                                            vocab=all_token_ids,
-                                            gamma=gamma,
-                                            delta=delta,
-                                            dynamic_seed=args.dynamic_seed,
-                                            device=device)
-            chi_square_statistic_list = []
-            p_vals_list = []
+        
         elif "exponential" in args.input_dir:  
             print('performing detection for exponential')
             detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
@@ -215,16 +223,17 @@ def main(args):
                     z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
                 
-                elif "lin_code" in args.input_dir:
-                    # print("gen_tokens is:", gen_tokens)
-                    z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
-                    z_score_list.append(z)
-
                 elif "q_lin_code" in args.input_dir:
                     chi_square_statistic, p_val = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     chi_square_statistic_list.append(chi_square_statistic)
                     p_vals_list.append(p_val)
 
+                elif "lin_code" in args.input_dir:
+                    # print("gen_tokens is:", gen_tokens)
+                    z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z)
+
+                
                 elif "inv_tr" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
                     teststats,p_val,z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
@@ -318,15 +327,19 @@ def main(args):
             continue
         
         if "q_lin_code" in args.input_dir:
+            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals_list]
             save_dict = {
+                'avg_pval': torch.mean(torch.tensor(agg_pvals)).item(),
+                'std_pval': torch.std(torch.tensor(agg_pvals)).item()/np.sqrt(len(agg_pvals)),
                 'chi_square_statistic_list': chi_square_statistic_list,
                 'p_vals_list': p_vals_list,
-                'avg_pval': torch.mean(torch.tensor(p_vals_list)).item(),
-                'std_pval': torch.std(torch.tensor(p_vals_list)).item(),
                 'wm_pred': [1 if chi_square_statistic > args.threshold else 0 for chi_square_statistic in chi_square_statistic_list],
             }
-            save_file = json_file.replace('.jsonl', f'chi_square_{args.threshold}.jsonl')
-            output_path = os.path.join(args.input_dir + "/chi_score", save_file)
+            save_file = json_file.replace('.jsonl', f'_chi_square_{args.threshold}.jsonl')
+            # output_path = os.path.join(args.input_dir + "/chi_score", save_file)
+            output_dir = os.path.join(args.input_dir, "chi_score")
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, save_file)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
 

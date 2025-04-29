@@ -5,6 +5,7 @@ from watermark.old_watermark import BlacklistLogitsProcessor, top_p_indices
 import math
 import numpy as np
 import itertools
+from scipy.stats import power_divergence
 
 
 # Compute log with base q
@@ -300,9 +301,9 @@ class Q_LinearCodeWatermarkDetector():
         #     # padding = 2 ** n - int(m)
         #     self.m = 2 ** self.n
         
-        self.gen_rand_G(device=self.device)
+        # self.gen_rand_G(device=self.device)
 
-    def g_test(counts):
+    def g_test(self, counts):
         """
         counts : 1-D integer array of length q (field size), summing to T (generated tokens)
         Returns (G2 statistic, p_value) using χ²_{q-1} null.
@@ -332,7 +333,7 @@ class Q_LinearCodeWatermarkDetector():
         assert tokenized_text is not None, "Must pass tokenized string"
         
         assert inputs is not None,  "Must pass inputs"
-
+        # pdb.set_trace()
 
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
@@ -358,8 +359,8 @@ class Q_LinearCodeWatermarkDetector():
 
             # print(f's={s},token={tok_gend}, prev_token={prev_token}')
             # Bug! int_to_base_q needs to move to global scope
-            qarray_x = torch.tensor[int_to_base_q_vec(tok_gend, self.n, self.q, device=self.device)]
-            qarray_s = torch.tensor[int_to_base_q_vec(s, self.n, self.q, device=self.device)]
+            qarray_x = int_to_base_q_vec(tok_gend, self.n, self.q, device=self.device)
+            qarray_s = int_to_base_q_vec(s, self.n, self.q, device=self.device)
             # qarray generator: f(x,s)
             temp_f = int((qarray_x.to(torch.float32) @ qarray_s.to(torch.float32) % self.q).item())
             cnt[temp_f] += 1
@@ -374,7 +375,7 @@ class Q_LinearCodeWatermarkDetector():
             
         # pdb.set_trace()
         chi_square_statistic, p_value = self.g_test(cnt)
-        print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
+        # print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
         return chi_square_statistic, p_value
         # z_score = self._compute_z_score(cnt, len(input_sequence))
         # print("LC z score is:", z_score)
