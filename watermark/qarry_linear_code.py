@@ -258,7 +258,7 @@ class Q_LinearCodeWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 
+                 q = 2,
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -269,6 +269,7 @@ class Q_LinearCodeWatermarkDetector():
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
+        self.q = q
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -281,14 +282,33 @@ class Q_LinearCodeWatermarkDetector():
         self.rng = torch.Generator(device=self.device)
 
         m = self.vocab_size
-        self.n = int(torch.ceil(torch.log2(torch.tensor(m, dtype=torch.float32))).item())
-        z=2
-        if 2 ** self.n != int(m):
-            # print("m must be a power of 2")
-            # padding = 2 ** n - int(m)
-            self.m = 2 ** self.n
+        self.n = int(np.ceil(log_base_q(m,self.q)).item())
+        if self.q ** self.n != int(m):
+            self.m = self.q ** self.n
+        else:
+            self.m = m
+        self.k = self.m-1
+        # self.n = int(torch.ceil(torch.log2(torch.tensor(m, dtype=torch.float32))).item())
+        # z=2
+        # if 2 ** self.n != int(m):
+        #     # print("m must be a power of 2")
+        #     # padding = 2 ** n - int(m)
+        #     self.m = 2 ** self.n
         
         self.gen_rand_G(device=self.device)
+
+    def g_test(counts):
+        """
+        counts : 1-D integer array of length q (field size), summing to T (generated tokens)
+        Returns (G2 statistic, p_value) using χ²_{q-1} null.
+        """
+        counts = np.asarray(counts, dtype=float)
+        T, q = counts.sum(), len(counts)
+        expected = T / q
+        # power_divergence with lambda_=0 gives the log-likelihood ratio (G-test)
+        G2, p = power_divergence(counts, f_exp=np.full(q, expected),
+                                lambda_="log-likelihood")
+        return G2, p
 
     def _compute_z_score(self, observed_count, T):
         # count refers to number of green tokens, T is total number of tokens
@@ -311,7 +331,7 @@ class Q_LinearCodeWatermarkDetector():
 
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
-        cnt=0
+        cnt= [0 for _ in range(self.q)]
         self.seed_increment = 0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
@@ -332,18 +352,26 @@ class Q_LinearCodeWatermarkDetector():
             ).item()
 
             # print(f's={s},token={tok_gend}, prev_token={prev_token}')
-
-            binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
-            binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
+            # Bug! int_to_base_q needs to move to global scope
+            qarray_x = torch.tensor[int_to_base_q_vec(tok_gend, self.n, self.q, device=self.device)]
+            qarray_s = torch.tensor[int_to_base_q_vec(s, self.n, self.q, device=self.device)]
+            # qarray generator: f(x,s)
+            temp_f = int((qarray_x.to(torch.float32) @ qarray_s.to(torch.float32) % self.q).item())
+            cnt[temp_f] += 1
+            # binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
+            # binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
             
             # binary generator:
-            cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
+            # cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
             
             
             prev_token = tok_gend
             
         # pdb.set_trace()
-        z_score = self._compute_z_score(cnt, len(input_sequence))
-        print("LC z score is:", z_score)
-        return z_score
+        chi_square_statistic, p_value = self.g_test(cnt)
+        print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
+        return chi_square_statistic, p_value
+        # z_score = self._compute_z_score(cnt, len(input_sequence))
+        # print("LC z score is:", z_score)
+        # return z_score
 
