@@ -262,7 +262,7 @@ class Generator():
             if self.mode == 'no':
                 
                 outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,top_p=self.args.top_p,
+                    input_ids, max_new_tokens=max_new_tokens,
                     temperature = self.sampling_temp,
                     top_p= 1 # top-p implemented in the logit processor
                 )
