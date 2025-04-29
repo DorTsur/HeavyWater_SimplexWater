@@ -275,7 +275,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
+<<<<<<< HEAD
                     top_p= 1 # top-p implemented in the logit processor
+=======
+                    # top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
 
             elif self.mode == 'gpt':
@@ -308,7 +312,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
+<<<<<<< HEAD
                     top_p= 1 # top-p implemented in the logit processor
+=======
+                    # top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
             
             elif self.mode == 'inv_tr':
@@ -319,7 +327,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
+<<<<<<< HEAD
                     top_p= 1 # top-p implemented in the logit processor
+=======
+                    # top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
 
             elif self.mode == 'lin_code':
@@ -330,7 +342,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp
+<<<<<<< HEAD
                     ,top_p= 1 # top-p implemented in the logit processor
+=======
+                    # ,top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
 
             elif self.mode == 'q_lin_code':
@@ -340,8 +356,13 @@ class Generator():
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
+<<<<<<< HEAD
                     temperature=self.sampling_temp,
                     top_p= 1 # top-p implemented in the logit processor
+=======
+                    temperature=self.sampling_temp
+                    # ,top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
             
             elif self.mode == 'gauss_lin_code':
@@ -353,7 +374,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp
+<<<<<<< HEAD
                     ,top_p= 1 # top-p implemented in the logit processor
+=======
+                    # ,top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
 
             elif self.mode == 'exponential':
@@ -364,7 +389,11 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
+<<<<<<< HEAD
                     top_p= 1 # top-p implemented in the logit processor
+=======
+                # top_p=self.args.top_p
+>>>>>>> 32b0ab8 (added q-arry tilting)
                 )
             # remove the attached input from output for some model
             # pdb.set_trace()

@@ -48,8 +48,6 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.hashing = hashing
         # self.gen_cost(device=device)
     
-
-    
     def gen_params(self):
         m = self.vocab_size
         self.n = int(torch.ceil(torch.log2(torch.tensor(m, dtype=torch.float32))).item())
@@ -63,9 +61,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             self.m = m
         
         self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
-        
-        
-        
+         
     def gen_seed(self, token_ids):
         pdb.set_trace()
         token_ids = token_ids.tolist()
@@ -89,7 +85,6 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                     agg *= i
         return agg
             
-        
     def __call__(self, input_ids, scores):
         """
         Linear Code WM logitprocessor - currently Simplex.
@@ -100,8 +95,6 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         4. p_new into logits
         """
         # pdb.set_trace()
-
-
 
         if self.g_cuda is None:
             self.g_cuda = torch.Generator(device=input_ids.device)

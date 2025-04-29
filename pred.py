@@ -360,7 +360,7 @@ if __name__ == '__main__':
         save_dir = f"pred/{model_name}_{args.mode}_g{args.gamma}_d{args.delta}_hard"
     if args.mode == "cc-k":
         save_dir += f"_k_{args.cc_k}"
-    if args.mode == 'lin_code' and args.tilt:
+    if args.mode in ('lin_code','q_lin_code') and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"

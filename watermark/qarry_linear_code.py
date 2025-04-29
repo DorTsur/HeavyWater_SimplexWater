@@ -78,18 +78,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             self.m = m
         self.k = self.m-1
         self.G = self.qary_hadamard_generator(self.q, self.m, include_constant=False, device=self.device)
-        ###
-        # self.n = int(torch.ceil(torch.log2(torch.tensor(m, dtype=torch.float32))).item())
-        # self.k = 2**self.n - 1
-        # z=2
-        # if 2 ** self.n != int(m):
-        #     # print("m must be a power of 2")
-        #     # padding = 2 ** n - int(m)
-        #     self.m = 2 ** self.n
-        # else:
-        #     self.m = m
-        
-        # self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
+
             
     def gen_seed(self, token_ids):
         # pdb.set_trace()
@@ -181,7 +170,8 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         distribution = distribution / distribution.sum()
         ps = torch.ones(self.k, device=distribution.device) / self.k  # uniform over S
         matrix = self.int_to_log_q_matrix(token_ids=filter_indices,device=distribution.device)
-        C_orig = (matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q
+        # C_orig = ((matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q)
+        C_orig = ((matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q)/float(self.q-1)
         C = 1-C_orig 
         P = ot.sinkhorn(
             a=distribution,
@@ -192,16 +182,20 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             stopThr=1e-5
         )
         P_wm = P[:, side_info - 1]
-        # if self.tilt:
-        #     # pdb.set_trace()
-        #     c = C_orig[ :,side_info - 1]
-        #     index_1s = torch.where(c == 1)[0]
-        #     index_0s = torch.where(c == 0)[0]
-        #     P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
-        #     P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
+        if self.tilt:
+            # print(f'tilting')
+            # pdb.set_trace()
+            q = float(self.q)
+            thresh = 0.5
+            c = C_orig[ :,side_info - 1]
+            index_up = torch.where(c >= thresh)[0]
+            index_down = torch.where(c < thresh)[0]
+            P_wm[index_up] = P_wm[index_up]*(1+self.tilting_delta)
+            P_wm[index_down] = P_wm[index_down]*(1-self.tilting_delta)
         P_wm = P_wm / P_wm.sum()
         out_p = torch.zeros(size=(self.vocab_size,), device=distribution.device)
         out_p[filter_indices] = P_wm
+        
         return out_p
         
         
@@ -221,12 +215,21 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
 
     
     def int_to_log_q_matrix(self, token_ids, device=None):
-        # pdb.set_trace()
-        return torch.stack([
-            int_to_base_q_vec(i, self.n, self.q, device=device) for i in token_ids
-            # torch.tensor([int(bit) for bit in format(i, f'0{self.n}b')], device=device)
-            # for i in token_ids
-        ])
+        token_ids_ = [i-1 for i in token_ids if i != 0]
+        if 0 in token_ids:
+            # pdb.set_trace()
+            matrix = self.G[:,token_ids_]
+            zero_vec = int_to_base_q_vec(0, self.n, self.q, device=device).unsqueeze(0).T
+            matrix = torch.concatenate([zero_vec,matrix], axis=1).T
+        else:
+            matrix =  self.G[:,token_ids_].T
+        # matrix =  torch.stack([int_to_base_q_vec(i, self.n, self.q, device=device) for i in token_ids])
+        
+        # if torch.any(matrix != matrix_):
+        #     print("discrepancy in matrices")
+        return matrix
+
+        
     
     def generate_generator_matrix(self, device=None):
         #####
