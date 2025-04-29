@@ -264,6 +264,7 @@ class Generator():
                 outputs = self.model.generate(
                     input_ids, max_new_tokens=max_new_tokens,top_p=self.args.top_p,
                     temperature = self.sampling_temp,
+                    top_p= 1 # top-p implemented in the logit processor
                 )
 
             elif self.mode == 'old':
@@ -274,7 +275,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
-                    top_p=self.args.top_p
+                    top_p= 1 # top-p implemented in the logit processor
                 )
 
             elif self.mode == 'gpt':
@@ -307,7 +308,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
-                    top_p=self.args.top_p
+                    top_p= 1 # top-p implemented in the logit processor
                 )
             
             elif self.mode == 'inv_tr':
@@ -318,7 +319,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
-                    top_p=self.args.top_p
+                    top_p= 1 # top-p implemented in the logit processor
                 )
 
             elif self.mode == 'lin_code':
@@ -329,7 +330,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp
-                    ,top_p=self.args.top_p
+                    ,top_p= 1 # top-p implemented in the logit processor
                 )
 
             elif self.mode == 'q_lin_code':
@@ -339,8 +340,8 @@ class Generator():
                     logits_processor = self.logit_processor_lst,
                     do_sample=True,
                     top_k=0,
-                    temperature=self.sampling_temp
-                    ,top_p=self.args.top_p
+                    temperature=self.sampling_temp,
+                    top_p= 1 # top-p implemented in the logit processor
                 )
             
             elif self.mode == 'gauss_lin_code':
@@ -352,7 +353,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp
-                    ,top_p=self.args.top_p
+                    ,top_p= 1 # top-p implemented in the logit processor
                 )
 
             elif self.mode == 'exponential':
@@ -363,7 +364,7 @@ class Generator():
                     do_sample=True,
                     top_k=0,
                     temperature=self.sampling_temp,
-                top_p=self.args.top_p
+                    top_p= 1 # top-p implemented in the logit processor
                 )
             # remove the attached input from output for some model
             # pdb.set_trace()
