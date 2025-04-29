@@ -230,6 +230,6 @@ class ExponentialWatermarkDetector():
         # pdb.set_trace()
         # teststats ~ Gamma(T,1), mean T and Var T. Hence, we can approximate it as normal with mean T and variance T.
         z_score = self._compute_z_score(teststats, len(input_sequence)) 
-        print(f"z_score={z_score}, teststats={teststats}")
-        print(f"teststats bias: {teststats - len(input_sequence)}")
+        # print(f"z_score={z_score}, teststats={teststats}")
+        # print(f"teststats bias: {teststats - len(input_sequence)}")
         return z_score.item(), teststats.item(),gen_token_length

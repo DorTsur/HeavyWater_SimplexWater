@@ -162,6 +162,7 @@ def main(args):
                                             q=q)
             chi_square_statistic_list = []
             p_vals_list = []
+            z_score_list = []
         
         elif "lin_code" in args.input_dir:  
             print('performing detection fo linear code')
@@ -224,9 +225,10 @@ def main(args):
                     z_score_list.append(z)
                 
                 elif "q_lin_code" in args.input_dir:
-                    chi_square_statistic, p_val = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    chi_square_statistic, p_val, z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     chi_square_statistic_list.append(chi_square_statistic)
                     p_vals_list.append(p_val)
+                    z_score_list.append(z)
 
                 elif "lin_code" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
@@ -285,6 +287,8 @@ def main(args):
                 'teststats_list': teststats_list,
                 'gen_token_length_list': gen_token_length_list
             }
+            print('average p value is:', save_dict['agg_pvals_avg'])
+            print('std p value is:', save_dict['agg_pvals_stder'])
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
             output_path = os.path.join(args.input_dir + "/z_score", z_file)
             output_dir = args.input_dir + "/z_s_score"
@@ -327,15 +331,30 @@ def main(args):
             continue
         
         if "q_lin_code" in args.input_dir:
-            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals_list]
+            p_vals_ztest = [1-norm.cdf(z_) for z_ in z_score_list]
+            ##
+            agg_pvals_ztest = [-np.log10(pv+1e-16) for pv in p_vals_ztest]
+
+            agg_pvals_chi_test = [-np.log10(pv+1e-16) for pv in p_vals_list]
             save_dict = {
-                'avg_pval': torch.mean(torch.tensor(agg_pvals)).item(),
-                'std_pval': torch.std(torch.tensor(agg_pvals)).item()/np.sqrt(len(agg_pvals)),
+                'avg_pval_chisq': torch.mean(torch.tensor(agg_pvals_chi_test)).item(),
+                'std_pval_chisq': torch.std(torch.tensor(agg_pvals_chi_test)).item()/np.sqrt(len(agg_pvals_chi_test)),
+                'avg_pval_ztest': torch.mean(torch.tensor(agg_pvals_ztest)).item(),
+                'std_pval_ztest': torch.std(torch.tensor(agg_pvals_ztest)).item()/np.sqrt(len(agg_pvals_ztest)),
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+                'std_z': torch.std(torch.tensor(z_score_list)).item()/np.sqrt(len(z_score_list)),
+                'z_score_list': z_score_list,
                 'chi_square_statistic_list': chi_square_statistic_list,
                 'p_vals_list': p_vals_list,
                 'wm_pred': [1 if chi_square_statistic > args.threshold else 0 for chi_square_statistic in chi_square_statistic_list],
             }
-            save_file = json_file.replace('.jsonl', f'_chi_square_{args.threshold}.jsonl')
+            print('average z score is:', save_dict['avarage_z'])
+            print('std z score is:', save_dict['std_z'])
+            print('average p value chisq test is:', save_dict['avg_pval_chisq'])
+            print('std p value chisq test is:', save_dict['std_pval_chisq'])
+            print('average p value z test is:', save_dict['avg_pval_ztest'])
+            print('std p value z test is:', save_dict['std_pval_ztest'])
+            save_file = json_file.replace('.jsonl', f'results_{args.threshold}.jsonl')
             # output_path = os.path.join(args.input_dir + "/chi_score", save_file)
             output_dir = os.path.join(args.input_dir, "chi_score")
             os.makedirs(output_dir, exist_ok=True)
@@ -344,7 +363,7 @@ def main(args):
                 json.dump(save_dict, fout)
 
         else:
-            p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+            #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
             ##
             agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
@@ -357,10 +376,11 @@ def main(args):
                 'std_pval': torch.std(torch.tensor(p_vals)).item(),
                 'z_score_list': z_score_list,
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
-                'std_z': torch.std(torch.tensor(z_score_list)).item(),
+                'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
                 'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
                 }
-            
+            print('average p value is:', save_dict['agg_pvals_avg'])
+            print('std p value is:', save_dict['agg_pvals_stder'])
             wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
             save_dict.update({'wm_pred_average': wm_pred_average.item()})   
             
@@ -387,7 +407,7 @@ def main(args):
             'std_pval': torch.std(torch.tensor(p_vals)).item(),
             'z_score_list': z_s_score_list,
             'avarage_z': torch.mean(torch.tensor(z_s_score_list)).item(),
-            'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
+            'std_z': torch.std(torch.tensor(z_s_score_list)).item()/ np.sqrt(len(z_s_score_list)),
             'wm_pred': [1 if z > args.threshold else 0 for z in z_s_score_list]
             }
             

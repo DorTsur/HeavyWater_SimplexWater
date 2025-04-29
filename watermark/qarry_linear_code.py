@@ -318,10 +318,12 @@ class Q_LinearCodeWatermarkDetector():
 
     def _compute_z_score(self, observed_count, T):
         # count refers to number of green tokens, T is total number of tokens
-        expected_count =  0.5
-        print(f"detected {observed_count} tokens out of {T}")
+        expected_count =  (self.q -1)/2
+        var = (self.q**2 - 1)/12
+        # print(f"mean: {expected_count}, variance: {var}")
+        #print(f"detected {observed_count} tokens out of {T}")
         numer = observed_count - expected_count * T
-        denom = math.sqrt(T * expected_count * (1 - expected_count))
+        denom = math.sqrt(T * var)
         z = numer / denom
         return z
     
@@ -338,6 +340,8 @@ class Q_LinearCodeWatermarkDetector():
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
         cnt= [0 for _ in range(self.q)]
+        cnt_zscore = 0
+        # f_sum_indep = np.zeros(len(input_sequence))
         self.seed_increment = 0
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
@@ -358,12 +362,13 @@ class Q_LinearCodeWatermarkDetector():
             ).item()
 
             # print(f's={s},token={tok_gend}, prev_token={prev_token}')
-            # Bug! int_to_base_q needs to move to global scope
             qarray_x = int_to_base_q_vec(tok_gend, self.n, self.q, device=self.device)
             qarray_s = int_to_base_q_vec(s, self.n, self.q, device=self.device)
             # qarray generator: f(x,s)
             temp_f = int((qarray_x.to(torch.float32) @ qarray_s.to(torch.float32) % self.q).item())
             cnt[temp_f] += 1
+            cnt_zscore += temp_f
+            # f_sum_indep[idx] = temp_f
             # binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
             # binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
             
@@ -375,9 +380,13 @@ class Q_LinearCodeWatermarkDetector():
             
         # pdb.set_trace()
         chi_square_statistic, p_value = self.g_test(cnt)
-        # print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
-        return chi_square_statistic, p_value
-        # z_score = self._compute_z_score(cnt, len(input_sequence))
-        # print("LC z score is:", z_score)
+        #print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
+        
+        z_score = self._compute_z_score(cnt_zscore, len(input_sequence))
+        # f_sum_mean = (self.q - 1) / 2
+        # f_sum_st = math.sqrt((self.q**2 - 1) / 12)
+        # v = (f_sum_indep - f_sum_mean)/ f_sum_st
+        # print('centered z-score stats mean, variance:', v.mean(), v.std())
+        #print("Qarray z score is:", z_score)
         # return z_score
-
+        return chi_square_statistic, p_value, z_score
