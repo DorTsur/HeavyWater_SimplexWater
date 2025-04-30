@@ -265,7 +265,7 @@ def g_stat(counts):
     counts = counts[counts > 0]
     return 2 * np.sum(counts * np.log(counts / (counts.sum() / len(counts))))
 
-def multinomial_uniform_exact(counts, n_sim=200_000, seed=None):
+def multinomial_uniform_exact(counts, n_sim=200000, seed=None):
     """
     Estimates the exact p-value by Monte-Carlo.
     n_sim : number of simulated multinomial tables
@@ -346,11 +346,9 @@ class Q_LinearCodeWatermarkDetector():
         T, q = counts.sum(), len(counts)
         expected = T / q
         # power_divergence with lambda_=0 gives the log-likelihood ratio (G-test)
-        #G2, p = power_divergence(counts, f_exp=np.full(q, expected),
-                             #   lambda_="log-likelihood")
-        #G2, p = power_divergence(counts, f_exp=np.full(q, expected),
-               #                 lambda_="pearson")
-        G2, p = multinomial_uniform_exact(counts, n_sim=2000, seed=self.hash_key)
+        G2, p = power_divergence(counts, f_exp=np.full(q, expected), lambda_="log-likelihood")
+        #G2, p = power_divergence(counts, f_exp=np.full(q, expected), lambda_="pearson")
+        #G2, p = multinomial_uniform_exact(counts, n_sim=2000, seed=self.hash_key)
         # G2, p = pearson_chi2(counts)
         return G2, p
 
