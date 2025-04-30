@@ -350,8 +350,8 @@ def main(args):
             }
             print('average z score is:', save_dict['avarage_z'])
             print('std z score is:', save_dict['std_z'])
-            print('average p value chisq test is:', save_dict['avg_pval_chisq'])
-            print('std p value chisq test is:', save_dict['std_pval_chisq'])
+            print('average p value is:', save_dict['avg_pval_chisq'])
+            print('std p value is:', save_dict['std_pval_chisq'])
             print('average p value z test is:', save_dict['avg_pval_ztest'])
             print('std p value z test is:', save_dict['std_pval_ztest'])
             save_file = json_file.replace('.jsonl', f'results_{args.threshold}.jsonl')

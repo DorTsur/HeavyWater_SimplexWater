@@ -5,8 +5,9 @@ from watermark.old_watermark import BlacklistLogitsProcessor, top_p_indices
 import math
 import numpy as np
 import itertools
-from scipy.stats import power_divergence
-
+from scipy.stats import power_divergence, chisquare
+from numpy.random import default_rng
+from tqdm import tqdm
 
 # Compute log with base q
 def log_base_q(x, q):
@@ -252,6 +253,36 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         return torch.tensor(digits, device=device)
     
 
+# ---------- 2.  Pearson χ² test (for comparison) ----------
+def pearson_chi2(counts):
+    counts = np.asarray(counts, dtype=float)
+    n, m = counts.sum(), len(counts)
+    stat, p = chisquare(counts, f_exp=np.full(m, n/m))
+    return stat, p
+
+# ---------- 3.  Exact p-value via Monte Carlo ----------
+def g_stat(counts):
+    counts = counts[counts > 0]
+    return 2 * np.sum(counts * np.log(counts / (counts.sum() / len(counts))))
+
+def multinomial_uniform_exact(counts, n_sim=200_000, seed=None):
+    """
+    Estimates the exact p-value by Monte-Carlo.
+    n_sim : number of simulated multinomial tables
+    """
+    counts = np.asarray(counts, dtype=int)
+    n, m = counts.sum(), len(counts)
+    obs = g_stat(counts)
+    rng = default_rng(seed)
+    more_extreme = 0
+    for _ in tqdm(range(n_sim)):
+        sim = rng.multinomial(n, np.repeat(1/m, m))
+        if g_stat(sim) >= obs:
+            more_extreme += 1
+    # add-one smoothing so p>0 even when more_extreme==0
+    p_mc = (more_extreme + 1) / (n_sim + 1)
+    return obs, p_mc
+
 class Q_LinearCodeWatermarkDetector():
     """
     Class for detecting watermarks
@@ -315,8 +346,12 @@ class Q_LinearCodeWatermarkDetector():
         T, q = counts.sum(), len(counts)
         expected = T / q
         # power_divergence with lambda_=0 gives the log-likelihood ratio (G-test)
-        G2, p = power_divergence(counts, f_exp=np.full(q, expected),
-                                lambda_="log-likelihood")
+        #G2, p = power_divergence(counts, f_exp=np.full(q, expected),
+                             #   lambda_="log-likelihood")
+        #G2, p = power_divergence(counts, f_exp=np.full(q, expected),
+               #                 lambda_="pearson")
+        G2, p = multinomial_uniform_exact(counts, n_sim=2000, seed=self.hash_key)
+        # G2, p = pearson_chi2(counts)
         return G2, p
 
     def _compute_z_score(self, observed_count, T):
@@ -368,20 +403,14 @@ class Q_LinearCodeWatermarkDetector():
             qarray_x = int_to_base_q_vec(tok_gend, self.n, self.q, device=self.device)
             qarray_s = int_to_base_q_vec(s, self.n, self.q, device=self.device)
             # qarray generator: f(x,s)
-            temp_f = int((qarray_x.to(torch.float32) @ qarray_s.to(torch.float32) % self.q).item())
+            temp_f = int((qarray_x.float() @ qarray_s.float() % self.q))
             cnt[temp_f] += 1
             cnt_zscore += temp_f
-            # f_sum_indep[idx] = temp_f
-            # binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
-            # binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
-            
-            # binary generator:
-            # cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
-            
-            
+            # f_sum_indep[idx] = temp_f 
             prev_token = tok_gend
             
         # pdb.set_trace()
+        print(cnt)
         chi_square_statistic, p_value = self.g_test(cnt)
         #print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
         

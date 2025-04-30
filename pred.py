@@ -422,7 +422,7 @@ if __name__ == '__main__':
             os.makedirs(os.path.dirname(outpath_ce), exist_ok=True)
 
         with open(outpath_ce, "w", encoding="utf-8") as f_ce:
-            dictionary = {"CE_ave": np.mean(CE_ave_per_prompt), "CE_std": np.std(CE_ave_per_prompt), "CE list": CE_ave_per_prompt}
+            dictionary = {"CE_ave": np.mean(CE_ave_per_prompt), "CE_std": np.std(CE_ave_per_prompt)/np.sqrt(len(CE_ave_per_prompt)), "CE list": CE_ave_per_prompt}
             json.dump(dictionary, f_ce, ensure_ascii=False)
         print(f"CE ave for {dataset} is {dictionary['CE_ave']}, CE std is {dictionary['CE_std']}")
         print(f"saving results in {outpath_ce}")
