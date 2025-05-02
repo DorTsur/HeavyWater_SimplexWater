@@ -148,7 +148,7 @@ class SynthIDLogitsProcessor(LogitsProcessor):
 
             # 2. Generate binary g-values (0 or 1) for the vocabulary
             g1_values = self._get_binary_g_values(current_seed) # Shape [vocab_size]
-
+            #print("g1_values:", g1_values)
             if self.store_g_values:
                  # Store g-values for this step and batch index (optional)
                  # Store the full g-value vector or just for the sampled token later
@@ -289,8 +289,7 @@ class SynthIDDetector:
         # simple_hash = (token_id * self.hash_key + seed) % (self.vocab_size * 10)
         # g_value = simple_hash % 2
         # For consistency with the processor's current RNG method:
-        hashed_values = torch.randint(0, self.vocab_size * 10, (token_id + 1,),
-                                      generator=self.rng, device=self.device)
+        hashed_values = torch.randint(low = 0, high = self.vocab_size * 10,size = (self.vocab_size,), generator=self.rng, device=self.device)
         g_value = hashed_values[token_id] % 2
         return g_value.item()
 
@@ -334,38 +333,44 @@ class SynthIDDetector:
                      Higher scores suggest a higher likelihood. If return_raw_score is True,
                      returns the integer count of g1=1 tokens.
         """
-        assert (text is not None and tokenizer is not None) or (tokenized_text is not None), \
-               "Either text and tokenizer or tokenized_text must be provided."
-        assert self.dynamic_seed != "markov_1" or inputs is not None, \
-               "inputs must be provided for dynamic_seed='markov_1'."
+        assert tokenized_text is not None, "Must pass tokenized string"
+        
+        assert inputs is not None,  "Must pass inputs"
 
-        if tokenized_text is None:
-            tokenized_text = tokenizer.encode(text, add_special_tokens=False)
+        # assert (text is not None and tokenizer is not None) or (tokenized_text is not None), \
+        #        "Either text and tokenizer or tokenized_text must be provided."
+        # assert self.dynamic_seed != "markov_1" or inputs is not None, \
+        #        "inputs must be provided for dynamic_seed='markov_1'."
 
+        # if tokenized_text is None:
+        #     tokenized_text = tokenizer.encode(text, add_special_tokens=False)
+
+        input_sequence = tokenized_text.tolist()[0]
+        prev_token_id = inputs[0][-1].item()
 
         # Determine the starting token for seeding
-        if self.dynamic_seed == "markov_1":
-            if not inputs:
-                 # Maybe raise error or use a default if prompt is empty/not given
-                 # For now, assume a default start token ID like 0 if prompt is empty
-                 prev_token_id = 0
-            else:
-                 prev_token_id = inputs[-1]
-        else:
-             # For 'initial' or None seed, the first token's seed is fixed
-             prev_token_id = -1 # Placeholder, not used directly for seeding in these cases
+        # if self.dynamic_seed == "markov_1":
+        #     if not inputs:
+        #          # Maybe raise error or use a default if prompt is empty/not given
+        #          # For now, assume a default start token ID like 0 if prompt is empty
+        #          prev_token_id = 0
+        #     else:
+        #          prev_token_id = inputs[-1]
+        # else:
+        #      # For 'initial' or None seed, the first token's seed is fixed
+        #      prev_token_id = -1 # Placeholder, not used directly for seeding in these cases
         # implement fresh randomness
         self.seed_increment=0
 
         g1_count = 0
-        total_tokens = len(tokenized_text)
+        total_tokens = len(input_sequence)
 
-        for i, token_id in enumerate(tokenized_text):
+        for i, token_id in enumerate(input_sequence):
             # Get seed based on the *previous* token
             current_seed = self._get_seed_for_token(prev_token_id)
             # Get the g-value for the *current* token using that seed
             g1_value = self._get_binary_g_value_for_token(token_id, current_seed)
-
+            #print("g1_values:", g1_values)
             if g1_value == 1:
                 g1_count += 1
 

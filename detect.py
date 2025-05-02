@@ -216,7 +216,7 @@ def main(args):
             teststats_list = []
             p_vals_list = []
 
-        pdb.set_trace()
+        #pdb.set_trace()
         z_score_list = []
         i=0
         for idx, cur_text in tqdm(enumerate(texts), total=len(texts)):
@@ -420,7 +420,7 @@ def main(args):
                 os.makedirs(output_dir)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
-                
+
         else:
             #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
@@ -438,12 +438,15 @@ def main(args):
                 'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
                 'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
                 }
+            print('average z score is:', save_dict['avarage_z'])
+            print('std z score is:', save_dict['std_z'])
+
             print('average p value is:', save_dict['agg_pvals_avg'])
             print('std p value is:', save_dict['agg_pvals_stder'])
             wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
             save_dict.update({'wm_pred_average': wm_pred_average.item()})   
             
-            print(save_dict)
+            #print(save_dict)
             # average_z = torch.mean(z_score_list)
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
             output_path = os.path.join(args.input_dir + "/z_score", z_file)
