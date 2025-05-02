@@ -177,7 +177,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             numItermax=num_iter,
             stopThr=1e-5
         )
-        P_wm = P[:, side_info - 1]
+        P_wm = P[:, side_info - 1] # map side_info [1,...m-1] to [0,...,m-2] inclusive.
         if self.tilt:
             # pdb.set_trace()
             c = C_orig[ :,side_info - 1]

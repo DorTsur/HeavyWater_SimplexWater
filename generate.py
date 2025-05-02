@@ -11,6 +11,7 @@ from watermark.linear_code import LinearCodeLogitsProcessor
 from watermark.gaussian_lincode import GaussianLinearCodeLogitsProcessor
 from watermark.exponential import ExponentialLogitsProcessor
 from watermark.qarry_linear_code import Q_LinearCodeLogitsProcessor
+from watermark.synthid import SynthIDLogitsProcessor
 from transformers import  LogitsProcessorList
 import pdb
 import random
@@ -52,6 +53,12 @@ class Generator():
                                             dynamic_seed=self.dyna_seed,
                                             top_p=self.args.top_p)
         self.logit_processor_lst = LogitsProcessorList([self.bl_processor])
+        if args.mode == 'synthid':
+            self.bl_processor = SynthIDLogitsProcessor(
+                                        vocab_size= self.vocab_size,
+                                        dynamic_seed= self.dyna_seed, 
+                                        initial_seed= self.init_seed, 
+                                        top_p= self.args.top_p)
         if args.mode == 'new': 
             self.bl_processor = OurBlacklistLogitsProcessor(tokenizer=tokenizer,
                                         bad_words_ids=None, 
@@ -278,6 +285,15 @@ class Generator():
                     top_p= 1 # top-p implemented in the logit processor
                 )
 
+            elif self.mode == 'synthid':
+                outputs = self.model.generate(
+                    input_ids, max_new_tokens=max_new_tokens,
+                    logits_processor = self.logit_processor_lst,
+                    do_sample=True,
+                    top_k=0,
+                    temperature=self.sampling_temp,
+                    top_p= 1 # top-p implemented in the logit processor
+                )
             elif self.mode == 'gpt':
                 
                 outputs = self.model.generate(

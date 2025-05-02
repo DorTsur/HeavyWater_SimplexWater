@@ -10,6 +10,8 @@ import numpy as np
 
 from torch import Tensor
 from transformers import LogitsProcessor
+from watermark.old_watermark import top_p_indices
+import pdb  # For debugging purposes, can be removed in production
 
 class SynthIDLogitsProcessor(LogitsProcessor):
     """
@@ -40,7 +42,8 @@ class SynthIDLogitsProcessor(LogitsProcessor):
                  device: torch.device = None,
                  dynamic_seed: str = "markov_1", # "initial", None
                  initial_seed: int = None,
-                 store_g_values: bool = False
+                 store_g_values: bool = False,
+                 top_p: float = 0.999
                  ):
 
         self.vocab_size = vocab_size
@@ -50,6 +53,9 @@ class SynthIDLogitsProcessor(LogitsProcessor):
         self.initial_seed = initial_seed
         self.store_g_values = store_g_values
         self.g_values_history = None # To store g-values if store_g_values is True
+        self.top_p = top_p
+        self.seed_increment = 0 # For fresh randomness if needed
+        self.saved_distributions = []
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."
@@ -78,6 +84,11 @@ class SynthIDLogitsProcessor(LogitsProcessor):
              # Use the fixed RNG state (seeded once in __init__)
              # Note: This is generally not secure as the sequence is predictable
              return 0 # Seed value doesn't matter here as we use the generator state
+        elif self.dynamic_seed == "fresh":
+            # For fresh randomness, we increment the seed based on the current state
+            # This is a simple way to ensure each call has a unique seed
+            self.seed_increment += 1
+            return self.hash_key + self.seed_increment
         else:
             raise ValueError(f"Unknown dynamic_seed type: {self.dynamic_seed}")
 
@@ -120,10 +131,18 @@ class SynthIDLogitsProcessor(LogitsProcessor):
             if self.g_values_history is None:
                 self.g_values_history = [[] for _ in range(batch_size)]
 
-        # Calculate current probabilities from logits
-        probs = torch.softmax(scores, dim=-1)
-
         for b_idx in range(batch_size):
+            # Calculate current probabilities from logits
+            probs = torch.softmax(scores[b_idx], dim=-1)
+            self.saved_distributions.append(probs.detach().cpu().clone())
+            # top-p filtering
+            filter_indices = top_p_indices(probs, self.top_p)
+            ####
+            p_new = torch.zeros(size=(self.vocab_size,), device=probs.device)
+            p_new[filter_indices] = probs[filter_indices]
+            p_new = p_new / p_new.sum()
+            ####
+
             # 1. Get the seed for the current step
             current_seed = self._get_seed_for_token(input_ids, b_idx)
 
@@ -139,7 +158,7 @@ class SynthIDLogitsProcessor(LogitsProcessor):
             # 3. Calculate p(V | g1=1) = sum of probabilities of tokens with g1=1
             # Ensure g1_values is boolean or compatible type for indexing/masking
             mask_g1_1 = (g1_values == 1)
-            p_g1_1 = torch.sum(probs[b_idx][mask_g1_1])
+            p_g1_1 = torch.sum(p_new[b_idx][mask_g1_1])
 
             # Avoid division by zero or log(0) if p_g1_1 is 0 or 1
             # Clamp p_g1_1 to avoid numerical instability
@@ -154,7 +173,7 @@ class SynthIDLogitsProcessor(LogitsProcessor):
 
             # 5. Calculate watermarked probabilities p_wm
             # Initialize p_wm with original probabilities
-            p_wm = probs[b_idx].clone()
+            p_wm = p_new[b_idx].clone()
 
             # Apply factors based on g-values
             # Ensure mask_g1_1 is boolean
@@ -223,6 +242,7 @@ class SynthIDDetector:
         self.dynamic_seed = dynamic_seed
         self.initial_seed = initial_seed
         self.expected_g1_proportion = expected_g1_proportion
+        self.seed_increment = 0 # For fresh randomness if needed
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."
@@ -242,6 +262,11 @@ class SynthIDDetector:
         elif self.dynamic_seed is None:
              # Use the fixed RNG state (seeded once in __init__)
              return 0 # Seed value doesn't matter here
+        elif self.dynamic_seed == "fresh":
+            # For fresh randomness, we increment the seed based on the current state
+            # This is a simple way to ensure each call has a unique seed
+            self.seed_increment += 1
+            return self.hash_key + self.seed_increment
         else:
             raise ValueError(f"Unknown dynamic_seed type: {self.dynamic_seed}")
 
@@ -288,7 +313,7 @@ class SynthIDDetector:
     def detect(self,
                text: str = None,
                tokenized_text: list[int] = None,
-               prompt_tokens: list[int] = None,
+               inputs: list[int] = None,
                tokenizer = None,
                return_raw_score: bool = False) -> float:
         """
@@ -297,7 +322,7 @@ class SynthIDDetector:
         Args:
             text (`str`, *optional*): The text sequence to analyze.
             tokenized_text (`list[int]`, *optional*): Pre-tokenized text sequence.
-            prompt_tokens (`list[int]`, *optional*): The tokenized prompt used to generate the text.
+            inputs (`list[int]`, *optional*): The tokenized prompt used to generate the text.
                                                      Needed for 'markov_1' seeding.
             tokenizer: The tokenizer used for the model. Required if `text` is provided.
             return_raw_score (`bool`, *optional*, defaults to `False`):
@@ -311,27 +336,26 @@ class SynthIDDetector:
         """
         assert (text is not None and tokenizer is not None) or (tokenized_text is not None), \
                "Either text and tokenizer or tokenized_text must be provided."
-        assert self.dynamic_seed != "markov_1" or prompt_tokens is not None, \
-               "prompt_tokens must be provided for dynamic_seed='markov_1'."
+        assert self.dynamic_seed != "markov_1" or inputs is not None, \
+               "inputs must be provided for dynamic_seed='markov_1'."
 
         if tokenized_text is None:
             tokenized_text = tokenizer.encode(text, add_special_tokens=False)
 
-        if not tokenized_text:
-             return 0.0 # No tokens to analyze
 
         # Determine the starting token for seeding
         if self.dynamic_seed == "markov_1":
-            if not prompt_tokens:
+            if not inputs:
                  # Maybe raise error or use a default if prompt is empty/not given
                  # For now, assume a default start token ID like 0 if prompt is empty
                  prev_token_id = 0
             else:
-                 prev_token_id = prompt_tokens[-1]
+                 prev_token_id = inputs[-1]
         else:
              # For 'initial' or None seed, the first token's seed is fixed
              prev_token_id = -1 # Placeholder, not used directly for seeding in these cases
-
+        # implement fresh randomness
+        self.seed_increment=0
 
         g1_count = 0
         total_tokens = len(tokenized_text)
@@ -339,7 +363,6 @@ class SynthIDDetector:
         for i, token_id in enumerate(tokenized_text):
             # Get seed based on the *previous* token
             current_seed = self._get_seed_for_token(prev_token_id)
-
             # Get the g-value for the *current* token using that seed
             g1_value = self._get_binary_g_value_for_token(token_id, current_seed)
 
@@ -356,88 +379,88 @@ class SynthIDDetector:
              return z_score
 
 
-# Example Usage (Conceptual - requires tokenizer, model context)
-if __name__ == '__main__':
-    # Dummy values for demonstration
-    vocab_size = 50257 # Example: GPT-2 vocab size
-    hash_key = 12345
-    initial_seed = 42
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# # Example Usage (Conceptual - requires tokenizer, model context)
+# if __name__ == '__main__':
+#     # Dummy values for demonstration
+#     vocab_size = 50257 # Example: GPT-2 vocab size
+#     hash_key = 12345
+#     initial_seed = 42
+#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # --- Processor Example ---
-    print("--- Logits Processor Example ---")
-    processor = SynthIDLogitsProcessor(
-        vocab_size=vocab_size,
-        hash_key=hash_key,
-        device=device,
-        dynamic_seed="markov_1", # Use previous token for seed
-        initial_seed=initial_seed # Needed for the very first token if input_ids len is 1
-    )
+#     # --- Processor Example ---
+#     print("--- Logits Processor Example ---")
+#     processor = SynthIDLogitsProcessor(
+#         vocab_size=vocab_size,
+#         hash_key=hash_key,
+#         device=device,
+#         dynamic_seed="markov_1", # Use previous token for seed
+#         initial_seed=initial_seed # Needed for the very first token if input_ids len is 1
+#     )
 
-    # Dummy input logits and input_ids
-    batch_size = 2
-    seq_len = 10
-    dummy_scores = torch.randn(batch_size, vocab_size, device=device)
-    dummy_input_ids = torch.randint(0, vocab_size, (batch_size, seq_len), device=device)
+#     # Dummy input logits and input_ids
+#     batch_size = 2
+#     seq_len = 10
+#     dummy_scores = torch.randn(batch_size, vocab_size, device=device)
+#     dummy_input_ids = torch.randint(0, vocab_size, (batch_size, seq_len), device=device)
 
-    print(f"Original logits shape: {dummy_scores.shape}")
-    print(f"Input IDs shape: {dummy_input_ids.shape}")
+#     print(f"Original logits shape: {dummy_scores.shape}")
+#     print(f"Input IDs shape: {dummy_input_ids.shape}")
 
-    # Apply the watermark
-    watermarked_scores = processor(dummy_input_ids, dummy_scores)
-    print(f"Watermarked logits shape: {watermarked_scores.shape}")
+#     # Apply the watermark
+#     watermarked_scores = processor(dummy_input_ids, dummy_scores)
+#     print(f"Watermarked logits shape: {watermarked_scores.shape}")
 
-    # Verify probabilities sum roughly to 1 (after softmax)
-    watermarked_probs = torch.softmax(watermarked_scores, dim=-1)
-    print(f"Sum of watermarked probabilities (batch 0): {watermarked_probs[0].sum()}")
-    print(f"Sum of watermarked probabilities (batch 1): {watermarked_probs[1].sum()}")
-    print("-" * 20)
+#     # Verify probabilities sum roughly to 1 (after softmax)
+#     watermarked_probs = torch.softmax(watermarked_scores, dim=-1)
+#     print(f"Sum of watermarked probabilities (batch 0): {watermarked_probs[0].sum()}")
+#     print(f"Sum of watermarked probabilities (batch 1): {watermarked_probs[1].sum()}")
+#     print("-" * 20)
 
 
-    # --- Detector Example ---
-    print("\n--- Detector Example ---")
-    detector = SynthIDDetector(
-        vocab_size=vocab_size,
-        hash_key=hash_key, # Must match processor
-        device=device,
-        dynamic_seed="markov_1", # Must match processor
-        initial_seed=initial_seed # Must match processor if needed
-    )
+#     # --- Detector Example ---
+#     print("\n--- Detector Example ---")
+#     detector = SynthIDDetector(
+#         vocab_size=vocab_size,
+#         hash_key=hash_key, # Must match processor
+#         device=device,
+#         dynamic_seed="markov_1", # Must match processor
+#         initial_seed=initial_seed # Must match processor if needed
+#     )
 
-    # Dummy generated text (token IDs) and prompt
-    dummy_prompt_tokens = [101, 500, 600] # Example token IDs
-    dummy_generated_tokens = [1000, 2000, 3000, 1500, 2500, 3500, 4000, 1200, 2200, 3200] * 2 # Longer sequence
+#     # Dummy generated text (token IDs) and prompt
+#     dummy_prompt_tokens = [101, 500, 600] # Example token IDs
+#     dummy_generated_tokens = [1000, 2000, 3000, 1500, 2500, 3500, 4000, 1200, 2200, 3200] * 2 # Longer sequence
 
-    print(f"Prompt tokens: {dummy_prompt_tokens}")
-    print(f"Generated tokens length: {len(dummy_generated_tokens)}")
+#     print(f"Prompt tokens: {dummy_prompt_tokens}")
+#     print(f"Generated tokens length: {len(dummy_generated_tokens)}")
 
-    # Detect the watermark
-    z_score = detector.detect(
-        tokenized_text=dummy_generated_tokens,
-        prompt_tokens=dummy_prompt_tokens
-    )
-    print(f"Calculated z-score: {z_score:.4f}")
+#     # Detect the watermark
+#     z_score = detector.detect(
+#         tokenized_text=dummy_generated_tokens,
+#         prompt_tokens=dummy_prompt_tokens
+#     )
+#     print(f"Calculated z-score: {z_score:.4f}")
 
-    # Example with raw score
-    raw_score = detector.detect(
-        tokenized_text=dummy_generated_tokens,
-        prompt_tokens=dummy_prompt_tokens,
-        return_raw_score=True
-    )
-    print(f"Raw g1=1 count: {raw_score}")
-    print("-" * 20)
+#     # Example with raw score
+#     raw_score = detector.detect(
+#         tokenized_text=dummy_generated_tokens,
+#         prompt_tokens=dummy_prompt_tokens,
+#         return_raw_score=True
+#     )
+#     print(f"Raw g1=1 count: {raw_score}")
+#     print("-" * 20)
 
-    # Example with initial seed dynamic seeding
-    print("\n--- Detector Example (Initial Seed) ---")
-    detector_initial = SynthIDDetector(
-        vocab_size=vocab_size,
-        hash_key=hash_key,
-        device=device,
-        dynamic_seed="initial", # Use fixed initial seed
-        initial_seed=initial_seed # Must provide seed
-    )
-    z_score_initial = detector_initial.detect(
-        tokenized_text=dummy_generated_tokens,
-        prompt_tokens=dummy_prompt_tokens # Prompt still needed for context, but not for seeding after first token
-    )
-    print(f"Calculated z-score (initial seed): {z_score_initial:.4f}")
+#     # Example with initial seed dynamic seeding
+#     print("\n--- Detector Example (Initial Seed) ---")
+#     detector_initial = SynthIDDetector(
+#         vocab_size=vocab_size,
+#         hash_key=hash_key,
+#         device=device,
+#         dynamic_seed="initial", # Use fixed initial seed
+#         initial_seed=initial_seed # Must provide seed
+#     )
+#     z_score_initial = detector_initial.detect(
+#         tokenized_text=dummy_generated_tokens,
+#         prompt_tokens=dummy_prompt_tokens # Prompt still needed for context, but not for seeding after first token
+#     )
+#     print(f"Calculated z-score (initial seed): {z_score_initial:.4f}")
