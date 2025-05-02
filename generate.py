@@ -3,8 +3,8 @@ import os
 import torch.nn.functional as F
 from watermark.old_watermark import BlacklistLogitsProcessor
 from watermark.our_watermark import OurBlacklistLogitsProcessor
-from watermark.gptwm import GPTWatermarkLogitsWarper
-from watermark.watermark_v2 import WatermarkLogitsProcessor
+# from watermark.gptwm import GPTWatermarkLogitsWarper
+# from watermark.watermark_v2 import WatermarkLogitsProcessor
 from watermark.cc_watermark import CorrelatedChannelLogitsProcessor, CombinedCCLogitsProcessor, K_CorrelatedChannelLogitsProcessor
 from watermark.inverse_transform import InverseTransformLogitsProcessor
 from watermark.linear_code import LinearCodeLogitsProcessor

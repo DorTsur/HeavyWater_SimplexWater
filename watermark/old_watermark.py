@@ -11,7 +11,15 @@ import numpy as np
 
 from torch import Tensor
 from tokenizers import Tokenizer
-from transformers import LogitsProcessor, LogitsProcessorList, set_seed
+###
+# from transformers import LogitsProcessor, LogitsProcessorList, set_seed
+from transformers import __version__ as tf_version
+from packaging import version  # pip install packaging
+if version.parse(tf_version) >= version.parse("4.48.0"):
+    from transformers.generation.logits_process import LogitsProcessor, LogitsProcessorList
+else:
+    from transformers import LogitsProcessor, LogitsProcessorList
+###
 import pdb
 
 def top_p_indices(matrix, p):

@@ -50,6 +50,21 @@ def main(args):
         # pdb.set_trace() 
         q = int(args.input_dir.rsplit("_q_", 1)[1].split("_", 1)[0])
         print(f'q is: {q}')
+    if 'agg_hash' in args.input_dir:
+        # pdb.set_trace()
+        args.dynamic_seed = 'agg_hash'
+        match = re.search(r'agg_hash_(\w+)_context_(\d+)', args.input_dir)
+        if match:
+            hashing_fn = match.group(1)  # "min"
+            context = int(match.group(2))  # 3
+            print(f"agg_hash: {hashing_fn}, context: {context}")
+        else:
+            print("context and hashing not found.")
+            context = 0
+            hashing_fn = 0
+    else:
+        context = 0
+        hashing_fn = 0
     
     
     # get all files from input_dir
@@ -159,7 +174,9 @@ def main(args):
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
-                                            q=q)
+                                            q=q,
+                                            context=context,
+                                            hashing=hashing_fn)
             chi_square_statistic_list = []
             p_vals_list = []
             z_score_list = []

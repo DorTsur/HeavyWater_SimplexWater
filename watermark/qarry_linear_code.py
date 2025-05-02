@@ -172,6 +172,7 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         ps = torch.ones(self.k, device=distribution.device) / self.k  # uniform over S
         matrix = self.int_to_log_q_matrix(token_ids=filter_indices,device=distribution.device)
         # C_orig = ((matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q)
+        # C_orig = ((matrix.to(torch.float16)) @ (self.G.to(torch.float16)) % self.q)/float(self.q-1)
         C_orig = ((matrix.to(torch.float32)) @ (self.G.to(torch.float32)) % self.q)/float(self.q-1)
         C = 1-C_orig 
         P = ot.sinkhorn(
@@ -186,15 +187,18 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         if self.tilt:
             # print(f'tilting')
             # pdb.set_trace()
-            q = float(self.q)
             thresh = 0.5
             c = C_orig[ :,side_info - 1]
-            index_up = torch.where(c >= thresh)[0]
-            index_down = torch.where(c < thresh)[0]
-            P_wm[index_up] = P_wm[index_up]*(1+self.tilting_delta)
-            P_wm[index_down] = P_wm[index_down]*(1-self.tilting_delta)
+            ##
+            # index_up = torch.where(c >= thresh)[0]
+            # index_down = torch.where(c < thresh)[0]
+            # P_wm[index_up] = P_wm[index_up]*(1+self.tilting_delta)
+            # P_wm[index_down] = P_wm[index_down]*(1-self.tilting_delta)
+            ##
+            P_wm = P_wm*torch.exp(self.tilting_delta*(c-thresh))
         P_wm = P_wm / P_wm.sum()
         out_p = torch.zeros(size=(self.vocab_size,), device=distribution.device)
+        # out_p = torch.zeros(size=(self.vocab_size,), device=distribution.device, dtype=P_wm.dtype)
         out_p[filter_indices] = P_wm
         
         return out_p
@@ -299,6 +303,8 @@ class Q_LinearCodeWatermarkDetector():
                  device: torch.device = None,
                  select_green_tokens: bool = True,
                  q = 2,
+                 context=1,
+                 hashing='min'
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -310,6 +316,8 @@ class Q_LinearCodeWatermarkDetector():
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
         self.q = q
+        self.context = context 
+        self.hashing = hashing
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -387,6 +395,11 @@ class Q_LinearCodeWatermarkDetector():
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
                 seed = self.hash_key + self.seed_increment
+            elif self.dynamic_seed == 'agg_hash':
+                # pdb.set_trace()
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(inputs[0][-self.context:])
+                inputs = torch.concatenate([inputs, tok_gend*torch.ones(size=(1,1), dtype=inputs.dtype)], axis=-1)
             
             self.rng.manual_seed(seed)
             s = torch.randint(
@@ -420,3 +433,26 @@ class Q_LinearCodeWatermarkDetector():
         #print("Qarray z score is:", z_score)
         # return z_score
         return chi_square_statistic, p_value, z_score
+    
+    def gen_seed(self, token_ids):
+        # pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg

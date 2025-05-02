@@ -63,7 +63,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.G = self.generate_generator_matrix(device=self.device).to(torch.float)
          
     def gen_seed(self, token_ids):
-        pdb.set_trace()
+        # pdb.set_trace()
         token_ids = token_ids.tolist()
         if self.hashing == 'min':
             agg = min(token_ids)

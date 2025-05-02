@@ -26,7 +26,7 @@ def str2bool(v):
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k"])
+    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b"])
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     
     # watermark args
@@ -298,10 +298,16 @@ def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
                                                   output_scores=True, return_dict_in_generate=True, 
                                                   torch_dtype=torch.float16).to(device)
             model.eval()
-    elif "llama2" or "tulu" in model_name:
+    elif "llama2" in model_name:
         # replace_llama_attn_with_flash_attn()
-        print('importing llama')
+        print('importing llama2')
         tokenizer = LlamaTokenizer.from_pretrained(path)
+        # tokenizer = AutoTokenizer.from_pretrained(path)
+        if not load_token_only:
+            model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
+    elif "llama3" in model_name:
+        # replace_llama_attn_with_flash_attn()
+        tokenizer = AutoTokenizer.from_pretrained(path)
         # tokenizer = AutoTokenizer.from_pretrained(path)
         if not load_token_only:
             model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
@@ -334,9 +340,12 @@ if __name__ == '__main__':
     
     model_name = args.model
     # define your model
-    
+    # pdb.set_trace()
     # model, tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device)
-    model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
+    if args.model == "llama2-7b-chat-4k":
+        model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
+    elif args.model == "llama3-1b":
+        model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.2-1B-Instruct", model_name, device)
     print('finished loading model and tokenzier')
     # pdb.set_trace()
     max_length = model2maxlen[model_name]
