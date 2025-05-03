@@ -4,6 +4,8 @@ import ot
 from watermark.old_watermark import BlacklistLogitsProcessor, top_p_indices
 import math
 import numpy as np
+from scipy.stats import norm
+
 
 class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
@@ -180,11 +182,15 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         P_wm = P[:, side_info - 1] # map side_info [1,...m-1] to [0,...,m-2] inclusive.
         if self.tilt:
             # pdb.set_trace()
+            #linear tilt:
             c = C_orig[ :,side_info - 1]
             index_1s = torch.where(c == 1)[0]
             index_0s = torch.where(c == 0)[0]
             P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
             P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
+            #exponential tilt:
+            ###
+            # P_wm = P_wm*torch.exp(self.tilting_delta*(c-0.5))
         # reconstruct conditional
         # P_wm = torch.zeros(m, device=distribution.device)
         # merged_col = reduced['inverse'][side_info - 1]
@@ -229,7 +235,7 @@ class LinearCodeWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 
+                 pval=2e-2
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -240,6 +246,7 @@ class LinearCodeWatermarkDetector():
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
+        self.pval = pval
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -284,6 +291,7 @@ class LinearCodeWatermarkDetector():
         prev_token = inputs[0][-1].item()
         cnt=0
         self.seed_increment = 0
+        detected = False
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -309,12 +317,22 @@ class LinearCodeWatermarkDetector():
             
             # binary generator:
             cnt += (binary_x.to(torch.float32) @ binary_s.to(torch.float32) % 2).item()
+
+            ### calculation of #tokens for pval:
+            z = self._compute_z_score(cnt, idx+1) # calculate current zscore
+            p = 1-norm.cdf(z)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
             
             
             prev_token = tok_gend
             
         # pdb.set_trace()
+        if not(detected):
+            detection_idx = idx
         z_score = self._compute_z_score(cnt, len(input_sequence))
         print("LC z score is:", z_score)
-        return z_score
+        return z_score, detection_idx
 

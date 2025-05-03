@@ -3,6 +3,8 @@ import torch.nn.functional as F
 import pdb
 from watermark.old_watermark import BlacklistLogitsProcessor
 import math
+import scipy 
+
 
 def top_p_indices(matrix, p):
     """
@@ -161,7 +163,7 @@ class ExponentialWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 
+                 pval=2e-2
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -172,6 +174,7 @@ class ExponentialWatermarkDetector():
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
+        self.pval=pval
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -206,6 +209,7 @@ class ExponentialWatermarkDetector():
         teststats=0
         gen_token_length = 0
         self.seed_increment=0
+        detected = False
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -226,10 +230,19 @@ class ExponentialWatermarkDetector():
             prev_token = tok_gend
             gen_token_length += 1
 
+            ### calculation of #tokens for pval:
+            p = scipy.stats.gamma.sf(teststats.item(), idx, scale = 1.0)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
+
             
         # pdb.set_trace()
         # teststats ~ Gamma(T,1), mean T and Var T. Hence, we can approximate it as normal with mean T and variance T.
+        if not(detected):
+            detection_idx = idx
         z_score = self._compute_z_score(teststats, len(input_sequence)) 
         # print(f"z_score={z_score}, teststats={teststats}")
         # print(f"teststats bias: {teststats - len(input_sequence)}")
-        return z_score.item(), teststats.item(),gen_token_length
+        return z_score.item(), teststats.item(),gen_token_length, detection_idx

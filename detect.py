@@ -115,6 +115,10 @@ def main(args):
                                             device=device,
                                             dynamic_seed=args.dynamic_seed)
 
+                                            device=device,
+                                            pval=args.pval
+                                            )
+        
         if "new" in args.input_dir:
             detector = NewWatermarkDetector(tokenizer=tokenizer,
                                         vocab=all_token_ids,
@@ -159,7 +163,8 @@ def main(args):
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
-                                            k=cc_k)
+                                            k=cc_k,
+                                            pval=args.pval)
             z_s_score_list = []
 
         elif "cc" in args.input_dir or "cc-combined" in args.input_dir:  
@@ -182,10 +187,12 @@ def main(args):
                                             device=device,
                                             q=q,
                                             context=context,
-                                            hashing=hashing_fn)
+                                            hashing=hashing_fn,
+                                            pval=args.pval)
             chi_square_statistic_list = []
             p_vals_list = []
-            z_score_list = []
+            z_score_list = [] 
+            detection_indices = []
         
         elif "lin_code" in args.input_dir:  
             print('performing detection fo linear code')
@@ -194,8 +201,10 @@ def main(args):
                                             gamma=gamma,
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
-                                            device=device)
+                                            device=device,
+                                            pval=args.pval)
             z_s_score_list = []
+            detection_indices = []
         
         
         elif "exponential" in args.input_dir:  
@@ -203,7 +212,8 @@ def main(args):
             detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
                                             dynamic_seed=args.dynamic_seed,
-                                            device=device)
+                                            device=device,
+                                            pval=args.pval)
             teststats_list = []
             gen_token_length_list = []
         
@@ -212,12 +222,14 @@ def main(args):
             detector = InverseTransformDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
                                             dynamic_seed=args.dynamic_seed,
-                                            device=device)
+                                            device=device,
+                                            pval=args.pval)
             teststats_list = []
             p_vals_list = []
 
         #pdb.set_trace()
         z_score_list = []
+        detection_indices = []
         i=0
         for idx, cur_text in tqdm(enumerate(texts), total=len(texts)):
             #print("cur_text is:", cur_text)
@@ -245,37 +257,46 @@ def main(args):
                 elif "synthid" in args.input_dir:
                     z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
 
+                    z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z)
+                    detection_indices.append(detect_idx)
+                
                 elif "cc" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
+                    detection_indices.append(detect_idx)
                 
                 elif "q_lin_code" in args.input_dir:
-                    chi_square_statistic, p_val, z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    chi_square_statistic, p_val, z, detection_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     chi_square_statistic_list.append(chi_square_statistic)
                     p_vals_list.append(p_val)
                     z_score_list.append(z)
+                    detection_indices.append(detection_idx)
 
                 elif "lin_code" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z, detection_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
+                    detection_indices.append(detection_idx)
 
                 
                 elif "inv_tr" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    teststats,p_val,z = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    teststats,p_val,z,detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
                     p_vals_list.append(p_val)
                     teststats_list.append(teststats)
+                    detection_indices.append(detect_idx)
 
                 
                 elif "exponential" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z_scores, teststats, gen_token_length = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_scores, teststats, gen_token_length, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z_scores)
                     teststats_list.append(teststats)
                     gen_token_length_list.append(gen_token_length)
+                    detection_indices.append(detect_idx)
 
                 
                 elif "gpt" in args.input_dir:
@@ -304,6 +325,9 @@ def main(args):
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
                 'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+                'avg_detection_idx':np.mean(detection_indices),
+                'std_detection_idx':np.std(detection_indices),
+                'median_detection_idx':np.median(detection_indices),
                 'pval_teststats': average_pval,
                 'pval_std': torch.std(torch.tensor(pval)).item(),
                 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
@@ -338,6 +362,9 @@ def main(args):
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
                 'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+                'avg_detection_idx':np.mean(detection_indices),
+                'std_detection_idx':np.std(detection_indices),
+                'median_detection_idx':np.median(detection_indices),
                 'pval_teststats': average_pval,
                 'pval_std': torch.std(torch.tensor(p_vals_list)).item(),
                 # 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
@@ -363,10 +390,13 @@ def main(args):
 
             agg_pvals_chi_test = [-np.log10(pv+1e-16) for pv in p_vals_list]
             save_dict = {
-                'avg_pval_chisq': torch.mean(torch.tensor(agg_pvals_chi_test)).item(),
-                'std_pval_chisq': torch.std(torch.tensor(agg_pvals_chi_test)).item()/np.sqrt(len(agg_pvals_chi_test)),
                 'avg_pval_ztest': torch.mean(torch.tensor(agg_pvals_ztest)).item(),
                 'std_pval_ztest': torch.std(torch.tensor(agg_pvals_ztest)).item()/np.sqrt(len(agg_pvals_ztest)),
+                'avg_detection_idx':np.mean(detection_indices),
+                'std_detection_idx':np.std(detection_indices),
+                'median_detection_idx':np.median(detection_indices),
+                'avg_pval_chisq': torch.mean(torch.tensor(agg_pvals_chi_test)).item(),
+                'std_pval_chisq': torch.std(torch.tensor(agg_pvals_chi_test)).item()/np.sqrt(len(agg_pvals_chi_test)),
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'std_z': torch.std(torch.tensor(z_score_list)).item()/np.sqrt(len(z_score_list)),
                 'z_score_list': z_score_list,
@@ -374,17 +404,56 @@ def main(args):
                 'p_vals_list': p_vals_list,
                 'wm_pred': [1 if chi_square_statistic > args.threshold else 0 for chi_square_statistic in chi_square_statistic_list],
             }
+            # save_dict['avg_detection_idx'] = np.mean(detection_indices)
+            #     save_dict['std_detection_idx'] = np.std(detection_indices)
             print('average z score is:', save_dict['avarage_z'])
             print('std z score is:', save_dict['std_z'])
             print('average p value is:', save_dict['avg_pval_chisq'])
             print('std p value is:', save_dict['std_pval_chisq'])
             print('average p value z test is:', save_dict['avg_pval_ztest'])
             print('std p value z test is:', save_dict['std_pval_ztest'])
+            print(f' avg detection idx {np.mean(detection_indices)}')
             save_file = json_file.replace('.jsonl', f'results_{args.threshold}.jsonl')
             # output_path = os.path.join(args.input_dir + "/chi_score", save_file)
             output_dir = os.path.join(args.input_dir, "chi_score")
             os.makedirs(output_dir, exist_ok=True)
             output_path = os.path.join(output_dir, save_file)
+            with open(output_path, 'w') as fout:
+                json.dump(save_dict, fout)
+
+        else:
+            #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+            p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
+            ##
+            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+            ##
+            save_dict = {
+                'agg_pvals_avg': np.mean(agg_pvals),
+                'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+                'avg_detection_idx':np.mean(detection_indices),
+                'std_detection_idx':np.std(detection_indices),
+                'median_detection_idx':np.median(detection_indices),
+                'p_val_teststats': p_vals,
+                'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
+                'std_pval': torch.std(torch.tensor(p_vals)).item(),
+                'z_score_list': z_score_list,
+                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+                'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
+                'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
+                }
+            # if 'lin_code' in args.input_dir:
+            #     save_dict['avg_detection_idx'] = np.mean(detection_indices)
+            #     save_dict['std_detection_idx'] = np.std(detection_indices)
+                
+            print('average p value is:', save_dict['agg_pvals_avg'])
+            print('std p value is:', save_dict['agg_pvals_stder'])
+            wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
+            save_dict.update({'wm_pred_average': wm_pred_average.item()})   
+            
+            print(save_dict)
+            # average_z = torch.mean(z_score_list)
+            z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
+            output_path = os.path.join(args.input_dir + "/z_score", z_file)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
 
@@ -399,6 +468,9 @@ def main(args):
             save_dict = {
             'agg_pvals_avg': np.mean(agg_pvals),
             'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+            'avg_detection_idx':np.mean(detection_indices),
+            'std_detection_idx':np.std(detection_indices),
+            'median_detection_idx':np.median(detection_indices),
             'p_val_teststats': p_vals,
             'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
             'std_pval': torch.std(torch.tensor(p_vals)).item(),
@@ -527,6 +599,16 @@ parser.add_argument(
         choices=[None, "initial", "markov_1","fresh"],
         help="The seeding procedure to use when sampling the redlist at each step.",
         )
+
+
+parser.add_argument(
+        "--pval",
+        type=float,
+        default=2e-2,
+        help="p value to meet when vcounting tokens to p value",
+        )
+
+
 args = parser.parse_args()
 
 main(args)

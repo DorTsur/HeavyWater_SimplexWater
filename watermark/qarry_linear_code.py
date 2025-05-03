@@ -8,6 +8,8 @@ import itertools
 from scipy.stats import power_divergence, chisquare
 from numpy.random import default_rng
 from tqdm import tqdm
+from scipy.stats import norm
+
 
 # Compute log with base q
 def log_base_q(x, q):
@@ -304,7 +306,8 @@ class Q_LinearCodeWatermarkDetector():
                  select_green_tokens: bool = True,
                  q = 2,
                  context=1,
-                 hashing='min'
+                 hashing='min',
+                 pval=2e-2
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -318,6 +321,7 @@ class Q_LinearCodeWatermarkDetector():
         self.q = q
         self.context = context 
         self.hashing = hashing
+        self.pval = pval
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -387,6 +391,7 @@ class Q_LinearCodeWatermarkDetector():
         cnt_zscore = 0
         # f_sum_indep = np.zeros(len(input_sequence))
         self.seed_increment = 0
+        detected = False
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -418,10 +423,21 @@ class Q_LinearCodeWatermarkDetector():
             cnt[temp_f] += 1
             cnt_zscore += temp_f
             # f_sum_indep[idx] = temp_f 
+
+            ### calculation of #tokens for pval:
+            z_ = self._compute_z_score(cnt_zscore, idx+1) # calculate current zscore
+            p = 1-norm.cdf(z_)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
+
             prev_token = tok_gend
             
         # pdb.set_trace()
         print(cnt)
+        if not(detected):
+            detection_idx = idx
         chi_square_statistic, p_value = self.g_test(cnt)
         #print(f"Chi-square statistic: {chi_square_statistic}, p-value: {p_value}")
         
@@ -432,7 +448,7 @@ class Q_LinearCodeWatermarkDetector():
         # print('centered z-score stats mean, variance:', v.mean(), v.std())
         #print("Qarray z score is:", z_score)
         # return z_score
-        return chi_square_statistic, p_value, z_score
+        return chi_square_statistic, p_value, z_score, detection_idx
     
     def gen_seed(self, token_ids):
         # pdb.set_trace()

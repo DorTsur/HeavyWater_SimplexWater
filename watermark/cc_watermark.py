@@ -13,6 +13,8 @@ from torch import Tensor
 from tokenizers import Tokenizer
 from transformers import LogitsProcessor, LogitsProcessorList, set_seed
 import pdb
+from scipy.stats import norm
+
 
 def top_p_indices(matrix, p):
     """
@@ -1352,7 +1354,8 @@ class K_CCWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 k: int = 2
+                 k: int = 2,
+                 pval=2e-2
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -1364,6 +1367,7 @@ class K_CCWatermarkDetector():
         self.select_green_tokens = select_green_tokens
         self.k = k
         self.seed_increment = 0
+        self.pval = pval
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -1408,6 +1412,7 @@ class K_CCWatermarkDetector():
         # pdb.set_trace()
         cnt_s = 0
         self.seed_increment=0
+        detected = False
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -1435,11 +1440,22 @@ class K_CCWatermarkDetector():
             for partition_idx, partition in enumerate(partitions):
                 if tok_gend in partition:
                     cnt_s += float(partition_idx == s.item())
+            
+            ### calculation of #tokens for pval:
+            z_ = self._compute_z_score(cnt_s, idx+1) # calculate current zscore
+            p = 1-norm.cdf(z_)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
+
             prev_token = tok_gend
             
         # pdb.set_trace()
+        if not(detected):
+            detection_idx = idx
         print("CC Z:")
         z_score_s = self._compute_z_score(cnt_s, len(input_sequence))
         print("z_s_score is:", z_score_s)
-        return z_score_s
+        return z_score_s, detection_idx
 

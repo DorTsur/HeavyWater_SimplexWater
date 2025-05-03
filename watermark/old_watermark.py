@@ -8,6 +8,7 @@ import random
 import math
 import torch
 import numpy as np
+from scipy.stats import norm
 
 from torch import Tensor
 from tokenizers import Tokenizer
@@ -920,7 +921,7 @@ class OldWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 
+                 pval=2e-2
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -931,6 +932,7 @@ class OldWatermarkDetector():
         self.tokenizer = tokenizer
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
+        self.pval = pval
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -976,6 +978,8 @@ class OldWatermarkDetector():
         # print("prev_token0 is: ", prev_token)
         self.seed_increment=0
         # prev_token = input_sequence[1]
+        detected=False
+
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 self.rng.manual_seed(self.hash_key*self.initial_seed)
@@ -1021,10 +1025,20 @@ class OldWatermarkDetector():
                 print(f"Token generated: '{decoded_token}' was in the redlist {tok_in_ph_gl}")
                 print("prev token decode is: ", decoded_token)
             
+            ### calculation of #tokens for pval:
+            z_ = self._compute_z_score(green_token_count, idx+1) # calculate current zscore
+            p = 1-norm.cdf(z_)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
+
             prev_token = tok_gend
             
         
+        if not(detected):
+            detection_idx = idx
         # z_score = self._compute_z_score(len(input_sequence)-green_token_count, len(input_sequence))
         z_score = self._compute_z_score(green_token_count, len(input_sequence))
         # print("z_score is:", z_score)
-        return z_score
+        return z_score, detection_idx

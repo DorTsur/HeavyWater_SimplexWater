@@ -138,13 +138,16 @@ class InverseTransformDetector():
                  initial_seed: int=None,
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
-                 select_green_tokens: bool = True):
+                 select_green_tokens: bool = True,
+                 pval=2e-2
+                 ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
         self.hash_key = hash_key
         self.device = device
         self.tokenizer = tokenizer
         self.seed_increment = 0
+        self.pval = pval
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -177,6 +180,7 @@ class InverseTransformDetector():
 
         detect_scores = []
         self.seed_increment=0
+        detected=False
         for idx, tok_gend in enumerate(input_sequence):
             if self.dynamic_seed == "initial":
                 seed = self.hash_key*self.initial_seed
@@ -198,14 +202,23 @@ class InverseTransformDetector():
             score = abs(u - rank / (self.vocab_size - 1))
             detect_scores.append(score.item())
 
+            ### calculation of #tokens for pval:
+            _, p = ttest_1samp(detect_scores, popmean=1/3)
+            if p <= self.pval and not(detected):
+                detection_idx = idx
+                detected = True
+            ###
+
             prev_token = tok_gend
         
+        if not(detected):
+            detection_idx = idx
         # pdb.set_trace()
         # sum_score = sum(detect_scores)
         t_stat, p_value = ttest_1samp(detect_scores, popmean=1/3)
         z_score = [0]
     
-        return t_stat, p_value, z_score
+        return t_stat, p_value, z_score, detection_idx
 
 
 
