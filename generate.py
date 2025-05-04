@@ -12,6 +12,8 @@ from watermark.gaussian_lincode import GaussianLinearCodeLogitsProcessor
 from watermark.exponential import ExponentialLogitsProcessor
 from watermark.qarry_linear_code import Q_LinearCodeLogitsProcessor
 from watermark.synthid import SynthIDLogitsProcessor
+from watermark.heavy_tail_randscore import HeavyTailLogitsProcessor
+
 from transformers import  LogitsProcessorList
 import pdb
 import random
@@ -169,7 +171,29 @@ class Generator():
                                             hashing=args.hashing_fn
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
+
         
+        if args.mode == 'heavy_tail':
+            watermark_processor = HeavyTailLogitsProcessor(
+                                            bad_words_ids=None, 
+                                            eos_token_id=tokenizer.eos_token_id, 
+                                            vocab=self.all_token_ids, 
+                                            vocab_size=self.vocab_size, 
+                                            bl_proportion=1-self.gamma,
+                                            bl_logit_bias=self.delta,
+                                            bl_type=self.bl_type, 
+                                            initial_seed=self.init_seed, 
+                                            dynamic_seed=self.dyna_seed,
+                                            tilt=args.tilt,
+                                            tilting_delta=args.tilting_delta,
+                                            top_p=args.top_p,
+                                            context=args.context,
+                                            hashing=args.hashing_fn,
+                                            S_size=1024,
+                                            ) 
+            self.logit_processor_lst = LogitsProcessorList([watermark_processor])
+        
+
         if args.mode == 'q_lin_code':
             watermark_processor = Q_LinearCodeLogitsProcessor(
                                             bad_words_ids=None, 
@@ -266,122 +290,142 @@ class Generator():
         else:    
             self.logit_processor_lst[0].seed_increment = 0
 
-            if self.mode == 'no':
+            outputs = self.model.generate(
+                input_ids, max_new_tokens=max_new_tokens,
+                logits_processor = self.logit_processor_lst,
+                do_sample=True,
+                top_k=0,
+                temperature=self.sampling_temp,
+                top_p= 1 # top-p implemented in the logit processor
+            )
+
+            # if self.mode == 'no':
                 
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    temperature = self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         temperature = self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
 
-            elif self.mode == 'old':
-                # pdb.set_trace()
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'old':
+            #     # pdb.set_trace()
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
 
-            elif self.mode == 'synthid':
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
-            elif self.mode == 'gpt':
+            # elif self.mode == 'synthid':
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
+            # elif self.mode == 'gpt':
                 
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    top_p=0.9
-                )
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         top_p=0.9
+            #     )
 
-            elif self.mode == 'v2':
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp
-                )
+            # elif self.mode == 'v2':
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp
+            #     )
 
-            elif self.mode == 'cc' or self.mode == 'cc-combined' or self.mode == 'cc-k':
-                # pdb.set_trace()
-                #set seeds:
-                seed_everything(self.args.initial_seed_llm)
-                #
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'cc' or self.mode == 'cc-combined' or self.mode == 'cc-k':
+            #     # pdb.set_trace()
+            #     #set seeds:
+            #     seed_everything(self.args.initial_seed_llm)
+            #     #
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
             
-            elif self.mode == 'inv_tr':
+            # elif self.mode == 'inv_tr':
                 
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
 
-            elif self.mode == 'lin_code':
-                seed_everything(self.args.initial_seed_llm)
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp
-                    ,top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'lin_code':
+            #     seed_everything(self.args.initial_seed_llm)
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp
+            #         ,top_p= 1 # top-p implemented in the logit processor
+            #     )
 
-            elif self.mode == 'q_lin_code':
-                seed_everything(self.args.initial_seed_llm)
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'q_lin_code':
+            #     seed_everything(self.args.initial_seed_llm)
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
             
-            elif self.mode == 'gauss_lin_code':
-                # pdb.set_trace()
-                seed_everything(self.args.initial_seed_llm)
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp
-                    ,top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'heavy_tail':
+            #     seed_everything(self.args.initial_seed_llm)
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
 
-            elif self.mode == 'exponential':
-                seed_everything(self.args.initial_seed_llm)
-                outputs = self.model.generate(
-                    input_ids, max_new_tokens=max_new_tokens,
-                    logits_processor = self.logit_processor_lst,
-                    do_sample=True,
-                    top_k=0,
-                    temperature=self.sampling_temp,
-                    top_p= 1 # top-p implemented in the logit processor
-                )
+            # elif self.mode == 'gauss_lin_code':
+            #     # pdb.set_trace()
+            #     seed_everything(self.args.initial_seed_llm)
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp
+            #         ,top_p= 1 # top-p implemented in the logit processor
+            #     )
+
+            # elif self.mode == 'exponential':
+            #     seed_everything(self.args.initial_seed_llm)
+            #     outputs = self.model.generate(
+            #         input_ids, max_new_tokens=max_new_tokens,
+            #         logits_processor = self.logit_processor_lst,
+            #         do_sample=True,
+            #         top_k=0,
+            #         temperature=self.sampling_temp,
+            #         top_p= 1 # top-p implemented in the logit processor
+            #     )
             # remove the attached input from output for some model
             # pdb.set_trace()
             scores = outputs.scores

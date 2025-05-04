@@ -8,6 +8,7 @@ from watermark.inverse_transform import InverseTransformDetector
 from watermark.qarry_linear_code import Q_LinearCodeWatermarkDetector
 from watermark.synthid import SynthIDDetector
 from watermark.exponential import ExponentialWatermarkDetector
+from watermark.heavy_tail_randscore import HeavyTailWatermarkDetector
 from tqdm import tqdm
 from pred import load_model_and_tokenizer, seed_everything, str2bool
 import argparse
@@ -113,9 +114,7 @@ def main(args):
         if "synthid" in args.input_dir:
             detector = SynthIDDetector(vocab_size = vocab_size,
                                             device=device,
-                                            dynamic_seed=args.dynamic_seed)
-
-                                            device=device,
+                                            dynamic_seed=args.dynamic_seed,
                                             pval=args.pval
                                             )
         
@@ -206,7 +205,18 @@ def main(args):
             z_s_score_list = []
             detection_indices = []
         
-        
+        elif "heavy_tail" in args.input_dir:  
+            print('performing detection for heavy_tail')
+            detector = HeavyTailWatermarkDetector(tokenizer=tokenizer,
+                                            vocab=all_token_ids,
+                                            gamma=gamma,
+                                            delta=delta,
+                                            dynamic_seed=args.dynamic_seed,
+                                            device=device,
+                                            pval=args.pval)
+            z_score_list = []
+            detection_indices = []
+
         elif "exponential" in args.input_dir:  
             print('performing detection for exponential')
             detector = ExponentialWatermarkDetector(tokenizer=tokenizer,
@@ -279,6 +289,12 @@ def main(args):
                     z, detection_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
                     detection_indices.append(detection_idx)
+
+                elif "heavy_tail" in args.input_dir:
+                    # print("gen_tokens is:", gen_tokens)
+                    z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z)
+                    detection_indices.append(detect_idx)
 
                 
                 elif "inv_tr" in args.input_dir:
@@ -420,43 +436,6 @@ def main(args):
             output_path = os.path.join(output_dir, save_file)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
-
-        else:
-            #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
-            p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
-            ##
-            agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
-            ##
-            save_dict = {
-                'agg_pvals_avg': np.mean(agg_pvals),
-                'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
-                'avg_detection_idx':np.mean(detection_indices),
-                'std_detection_idx':np.std(detection_indices),
-                'median_detection_idx':np.median(detection_indices),
-                'p_val_teststats': p_vals,
-                'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
-                'std_pval': torch.std(torch.tensor(p_vals)).item(),
-                'z_score_list': z_score_list,
-                'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
-                'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
-                'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
-                }
-            # if 'lin_code' in args.input_dir:
-            #     save_dict['avg_detection_idx'] = np.mean(detection_indices)
-            #     save_dict['std_detection_idx'] = np.std(detection_indices)
-                
-            print('average p value is:', save_dict['agg_pvals_avg'])
-            print('std p value is:', save_dict['agg_pvals_stder'])
-            wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
-            save_dict.update({'wm_pred_average': wm_pred_average.item()})   
-            
-            print(save_dict)
-            # average_z = torch.mean(z_score_list)
-            z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
-            output_path = os.path.join(args.input_dir + "/z_score", z_file)
-            with open(output_path, 'w') as fout:
-                json.dump(save_dict, fout)
-
             
         if "cc" in args.input_dir:
             p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
@@ -502,6 +481,9 @@ def main(args):
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
                 'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+                'avg_detection_idx':np.mean(detection_indices),
+                'std_detection_idx':np.std(detection_indices),
+                'median_detection_idx':np.median(detection_indices),
                 'p_val_teststats': p_vals,
                 'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
                 'std_pval': torch.std(torch.tensor(p_vals)).item(),
@@ -510,20 +492,54 @@ def main(args):
                 'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
                 'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
                 }
-            print('average z score is:', save_dict['avarage_z'])
-            print('std z score is:', save_dict['std_z'])
-
+            # if 'lin_code' in args.input_dir:
+            #     save_dict['avg_detection_idx'] = np.mean(detection_indices)
+            #     save_dict['std_detection_idx'] = np.std(detection_indices)
+                
             print('average p value is:', save_dict['agg_pvals_avg'])
             print('std p value is:', save_dict['agg_pvals_stder'])
             wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
             save_dict.update({'wm_pred_average': wm_pred_average.item()})   
             
-            #print(save_dict)
+            print(save_dict)
             # average_z = torch.mean(z_score_list)
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
             output_path = os.path.join(args.input_dir + "/z_score", z_file)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
+
+
+        # else:
+        #     #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
+        #     p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
+        #     ##
+        #     agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+        #     ##
+        #     save_dict = {
+        #         'agg_pvals_avg': np.mean(agg_pvals),
+        #         'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
+        #         'p_val_teststats': p_vals,
+        #         'avg_pval': torch.mean(torch.tensor(p_vals)).item(),
+        #         'std_pval': torch.std(torch.tensor(p_vals)).item(),
+        #         'z_score_list': z_score_list,
+        #         'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
+        #         'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
+        #         'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
+        #         }
+        #     print('average z score is:', save_dict['avarage_z'])
+        #     print('std z score is:', save_dict['std_z'])
+
+        #     print('average p value is:', save_dict['agg_pvals_avg'])
+        #     print('std p value is:', save_dict['agg_pvals_stder'])
+        #     wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
+        #     save_dict.update({'wm_pred_average': wm_pred_average.item()})   
+            
+        #     #print(save_dict)
+        #     # average_z = torch.mean(z_score_list)
+        #     z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
+        #     output_path = os.path.join(args.input_dir + "/z_score", z_file)
+        #     with open(output_path, 'w') as fout:
+        #         json.dump(save_dict, fout)
 
 
             
