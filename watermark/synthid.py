@@ -234,7 +234,8 @@ class SynthIDDetector:
                  device: torch.device = None,
                  dynamic_seed: str = "markov_1", # "initial", None
                  initial_seed: int = None,
-                 expected_g1_proportion: float = 0.5):
+                 expected_g1_proportion: float = 0.5,
+                 pval=2e-2):
 
         self.vocab_size = vocab_size
         self.hash_key = hash_key
@@ -243,6 +244,7 @@ class SynthIDDetector:
         self.initial_seed = initial_seed
         self.expected_g1_proportion = expected_g1_proportion
         self.seed_increment = 0 # For fresh randomness if needed
+        self.pval = pval
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."

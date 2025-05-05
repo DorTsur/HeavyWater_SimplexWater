@@ -262,7 +262,10 @@ def main(args):
                     
                 elif "old" in args.input_dir or "no" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
-                    z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
+                    z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    z_score_list.append(z)
+                    detection_indices.append(detect_idx)
+                    #z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
                 
                 elif "synthid" in args.input_dir:
                     z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
