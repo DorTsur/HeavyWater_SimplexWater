@@ -7,11 +7,11 @@ def loop_json(method, dataset, fresh=True):
     if method == "rg":
         bool_base_folder_0 = False
         deltas = [1, 2, 3, 4]
-        base_folder_template = "pred/llama2-7b-chat-4k_old_g0.5_d{:.1f}_temp1.0"
+        base_folder_template = "pred/llama2-7b-chat-4k_old_g0.5_d{:.1f}_temp1.0_fresh__top_p_0.999"
         pval_name = "p_val_teststats"
         file_name = f"/z_score/{dataset}_0.5_" + "{:.1f}_3.05_z.jsonl"
-        if fresh:
-            base_folder_template += "_fresh_top_p_0.999"
+        # if fresh:
+        #     base_folder_template += "_fresh_top_p_0.999"
     elif method == "lc":
         deltas = [0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
         base_folder_template = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0_d_tile_{}"
@@ -19,22 +19,22 @@ def loop_json(method, dataset, fresh=True):
         pval_name = "p_val_teststats"
         file_name = f"/z_score/{dataset}_0.0_0.0_3.05_z.jsonl"
         # base_folder_0 = "pred/llama2-7b-chat-4k_lin_code_g0.5_d5.0_temp1.0"
-        if fresh:
-            base_folder_template += "_fresh_top_p_0.999"
+        # if fresh:
+        #     base_folder_template += "_fresh_top_p_0.999"
     elif method == "cc":
         bool_base_folder_0 = True
         base_folder_0 = "pred/llama2-7b-chat-4k_cc-k_g0.5_d5.0_temp1.0_k_2_d_tile_1.0"
         deltas = []
-        if fresh:
-            base_folder_0 += "_fresh_top_p_0.999"
+        # if fresh:
+        #     base_folder_0 += "_fresh_top_p_0.999"
     elif method == "baseline":
         bool_base_folder_0 = True
         base_folder_0 = "pred/llama2-7b-chat-4k_old_g0.5_d0.0_temp1.0"
         deltas = []
         pval_name = "p_val_teststats"
         file_name = f"/z_score/{dataset}_0.5_0.0_3.05_z.jsonl"
-        if fresh:
-            base_folder_0 += "_fresh_top_p_0.999"
+        # if fresh:
+        #     base_folder_0 += "_fresh_top_p_0.999"
     # Dictionary to hold the results
     finance_qa_scores = {}
     finance_qa_std = {}
