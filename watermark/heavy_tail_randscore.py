@@ -189,14 +189,14 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         P_wm = P[:, side_info - 1] # map side_info [1,...m-1] to [0,...,m-2] inclusive.
         if self.tilt:
             #linear tilt:
-            # c = self.cost_matrix[ filter_indices,side_info - 1]
-            # index_1s = torch.where(c == 1)[0]
-            # index_0s = torch.where(c == 0)[0]
-            # P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
-            # P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
-            # exponential tilt:
             c = self.cost_matrix[ filter_indices,side_info - 1]
-            P_wm = P_wm*torch.exp(self.tilting_delta*c) # null mean is 0
+            index_1s = torch.where(c >=0)[0]
+            index_0s = torch.where(c <0)[0]
+            P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
+            P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
+            # exponential tilt:
+            # c = self.cost_matrix[ filter_indices,side_info - 1]
+            # P_wm = P_wm*torch.exp(self.tilting_delta*c) # null mean is 0
         # reconstruct conditional
         # P_wm = torch.zeros(m, device=distribution.device)
         # merged_col = reduced['inverse'][side_info - 1]
