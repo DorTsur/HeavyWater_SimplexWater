@@ -24,6 +24,46 @@ def int_to_base_q_vec(i: int, n: int, q: int, device=None):
     powers = q ** torch.arange(n - 1, -1, -1, device=device)   # q^{n-1},…,q^0
     return ((i.unsqueeze(-1) // powers) % q)
 
+
+
+def top_k_indices(matrix: torch.Tensor, k: int):
+    """
+    Given:
+    - a 1D tensor of shape (num_cols,) representing a single score/probability distribution, OR
+    - a 2D tensor of shape (batch_size, num_cols) representing multiple distributions,
+
+    return:
+    - if 1D input: a 1D tensor containing the indices of the top k entries (largest values).
+    - if 2D input: a list of length batch_size, each element is a 1D tensor of the top k column indices
+      for that row.
+
+    :param matrix: Scores/probabilities with shape either (num_cols,) or (batch_size, num_cols).
+    :param k: Number of top entries to keep.
+    :return: A 1D tensor of indices (for 1D input) or a list of 1D tensors (for 2D input).
+    """
+    if matrix.dim() not in (1, 2):
+        raise ValueError("Input must be either a 1D or 2D tensor.")
+
+    # If single distribution, unify to 2D for processing
+    single = False
+    if matrix.dim() == 1:
+        matrix = matrix.unsqueeze(0)
+        single = True
+
+    batch_size, num_cols = matrix.shape
+    # clamp k so we never ask for more than available columns
+    k = min(k, num_cols)
+
+    # Use torch.topk for efficiency
+    # values: (batch_size, k), indices: (batch_size, k)
+    _, topk_idxs = torch.topk(matrix, k=k, dim=-1, largest=True, sorted=False)
+
+    # split into list of per-row index tensors
+    results = [topk_idxs[i] for i in range(batch_size)]
+
+    return results[0] if single else results
+
+
 class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
                 bad_words_ids, 
@@ -169,6 +209,9 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         if len(filter_indices) == 1:
             # then there's nothing to watermark.
             return distribution
+        if len(filter_indices) > 250 and self.q > 7:
+            # pdb.set_trace()
+            filter_indices = top_k_indices(distribution, 250)
         distribution = distribution[filter_indices]
         distribution = distribution / distribution.sum()
         ps = torch.ones(self.k, device=distribution.device) / self.k  # uniform over S
