@@ -1,6 +1,8 @@
 {
     "llama2-7b-chat-4k": "./data/models/llama-2-7b-chat-hf",
     "llama3-1b": "./data/models/Llama-3.2-1B-Instruct",
+    "llama3-3b": "./data/models/Llama-3.2-3B-Instruct",
+    "llama3-8b": "./data/models/Llama-3.1-8B-Instruct",
     "longchat-v1.5-7b-32k": "lmsys/longchat-7b-v1.5-32k",
     "xgen-7b-8k": "Salesforce/xgen-7b-8k-inst",
     "internlm-7b-8k": "/data2/cookie_huggingface_models/internlm-chat-7b-8k",
