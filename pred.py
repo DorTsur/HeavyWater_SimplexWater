@@ -26,7 +26,7 @@ def str2bool(v):
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b"])
+    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b", "llama3-8b", "llama3-3b"])
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     
     # watermark args
@@ -346,6 +346,10 @@ if __name__ == '__main__':
         model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
     elif args.model == "llama3-1b":
         model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.2-1B-Instruct", model_name, device)
+    elif args.model == "llama3-8b":
+        model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.1-8B-Instruct", model_name, device)
+    elif args.model == "llama3-3b":
+        model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.2-3B-Instruct", model_name, device)
     print('finished loading model and tokenzier')
     # pdb.set_trace()
     max_length = model2maxlen[model_name]

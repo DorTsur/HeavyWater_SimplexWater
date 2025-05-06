@@ -123,6 +123,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
                 #TD - create vrious sliding window hashes.
                 seed = self.gen_seed(input_ids[b_idx][-self.context:])
 
+            # pdb.set_trace()
             # set seed and generate s
             self.g_cuda.manual_seed(seed)
             s = torch.randint(
