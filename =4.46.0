@@ -1,0 +1,152 @@
+Transaction
+
+  Prefix: /n/home01/clong/.conda/envs/carol_llama3
+
+  Updating specs:
+
+   - datasets
+   - transformers
+   - ca-certificates
+   - openssl
+
+
+  Package                                  Version  Build                 Channel           Size
+──────────────────────────────────────────────────────────────────────────────────────────────────
+  Install:
+──────────────────────────────────────────────────────────────────────────────────────────────────
+
+  + filelock                                3.18.0  pyhd8ed1ab_0          conda-forge     Cached
+  + packaging                                 25.0  pyh29332c3_1          conda-forge     Cached
+  + colorama                                 0.4.6  pyhd8ed1ab_1          conda-forge     Cached
+  + certifi                              2025.4.26  pyhd8ed1ab_0          conda-forge      157kB
+  + idna                                      3.10  pyhd8ed1ab_1          conda-forge     Cached
+  + charset-normalizer                       3.4.2  pyhd8ed1ab_0          conda-forge     Cached
+  + typing_extensions                       4.13.2  pyh29332c3_0          conda-forge     Cached
+  + fsspec                               2024.12.0  pyhd8ed1ab_0          conda-forge     Cached
+  + dill                                     0.3.8  pyhd8ed1ab_0          conda-forge     Cached
+  + python_abi                                3.10  7_cp310               conda-forge        7kB
+  + pytz                                    2025.2  pyhd8ed1ab_0          conda-forge     Cached
+  + python-tzdata                           2025.2  pyhd8ed1ab_0          conda-forge     Cached
+  + async-timeout                            5.0.1  pyhd8ed1ab_1          conda-forge       12kB
+  + attrs                                   25.3.0  pyh71513ae_0          conda-forge     Cached
+  + aiohappyeyeballs                         2.6.1  pyhd8ed1ab_0          conda-forge     Cached
+  + hpack                                    4.1.0  pyhd8ed1ab_0          conda-forge     Cached
+  + hyperframe                               6.1.0  pyhd8ed1ab_0          conda-forge     Cached
+  + pysocks                                  1.7.1  pyha55dd90_7          conda-forge     Cached
+  + six                                     1.17.0  pyhd8ed1ab_0          conda-forge     Cached
+  + pycparser                                 2.22  pyh29332c3_1          conda-forge     Cached
+  + tqdm                                    4.67.1  pyhd8ed1ab_1          conda-forge     Cached
+  + typing-extensions                       4.13.2  h0e9735f_0            conda-forge     Cached
+  + h2                                       4.2.0  pyhd8ed1ab_0          conda-forge     Cached
+  + python-dateutil                    2.9.0.post0  pyhff2d567_1          conda-forge     Cached
+  + libstdcxx                               14.2.0  h8f9b012_2            conda-forge     Cached
+  + yaml                                     0.2.5  h7f98852_2            conda-forge     Cached
+  + libgfortran5                            14.2.0  hf1ad2bd_2            conda-forge     Cached
+  + xxhash                                   0.8.3  hb47aa4a_0            conda-forge     Cached
+  + libutf8proc                             2.10.0  h4c51ac1_0            conda-forge     Cached
+  + libbrotlicommon                          1.1.0  hb9d3cd8_2            conda-forge     Cached
+  + libopentelemetry-cpp-headers            1.20.0  ha770c72_0            conda-forge     Cached
+  + zlib                                     1.3.1  hb9d3cd8_2            conda-forge     Cached
+  + keyutils                                 1.6.1  h166bdaf_0            conda-forge     Cached
+  + libevent                                2.1.12  hf998b51_1            conda-forge     Cached
+  + nlohmann_json                           3.12.0  h3f2d84a_0            conda-forge     Cached
+  + c-ares                                  1.34.5  hb9d3cd8_0            conda-forge     Cached
+  + libev                                     4.33  hd590300_2            conda-forge     Cached
+  + libssh2                                 1.11.1  hcf80075_0            conda-forge     Cached
+  + aws-c-common                            0.12.2  hb9d3cd8_0            conda-forge     Cached
+  + s2n                                     1.5.17  hba75a32_0            conda-forge     Cached
+  + libedit                           3.1.20250104  pl5321h7949ede_0      conda-forge     Cached
+  + libiconv                                  1.18  h4ce23a2_1            conda-forge     Cached
+  + propcache                                0.3.1  py310h89163eb_0       conda-forge       54kB
+  + frozenlist                               1.5.0  py310h89163eb_1       conda-forge       60kB
+  + multiprocess                           0.70.16  py310ha75aee5_1       conda-forge      242kB
+  + safetensors                              0.5.3  py310h505e2c1_0       conda-forge      426kB
+  + regex                                2024.11.6  py310ha75aee5_0       conda-forge      353kB
+  + cffi                                    1.17.1  py310h8deb56e_0       conda-forge      244kB
+  + multidict                                6.4.3  py310h89163eb_0       conda-forge       80kB
+  + gflags                                   2.2.2  h5888daf_1005         conda-forge     Cached
+  + libstdcxx-ng                            14.2.0  h4852527_2            conda-forge     Cached
+  + zstd                                     1.5.7  hb8e6e7a_2            conda-forge     Cached
+  + snappy                                   1.2.1  h8bd8927_1            conda-forge     Cached
+  + lz4-c                                   1.10.0  h5888daf_1            conda-forge     Cached
+  + libabseil                           20250127.1  cxx17_hbbce691_0      conda-forge     Cached
+  + brotli-python                            1.1.0  py310hf71b8c6_2       conda-forge      350kB
+  + pyyaml                                   6.0.2  py310h89163eb_2       conda-forge      183kB
+  + libgfortran                             14.2.0  h69a702a_2            conda-forge     Cached
+  + python-xxhash                            3.5.0  py310ha75aee5_2       conda-forge       23kB
+  + libbrotlienc                             1.1.0  hb9d3cd8_2            conda-forge     Cached
+  + libbrotlidec                             1.1.0  hb9d3cd8_2            conda-forge     Cached
+  + libthrift                               0.21.0  h0e7cc3e_0            conda-forge     Cached
+  + libnghttp2                              1.64.0  h161d5f1_0            conda-forge     Cached
+  + aws-checksums                            0.2.7  hc2d532b_0            conda-forge     Cached
+  + aws-c-compression                        0.3.1  hc2d532b_4            conda-forge     Cached
+  + aws-c-sdkutils                           0.2.3  hc2d532b_4            conda-forge     Cached
+  + aws-c-cal                                0.9.0  hada3f3f_0            conda-forge     Cached
+  + libxml2                                 2.13.7  h81593ed_1            conda-forge     Cached
+  + zstandard                               0.23.0  py310ha75aee5_2       conda-forge      722kB
+  + yarl                                    1.20.0  py310h89163eb_0       conda-forge      145kB
+  + libcrc32c                                1.1.2  h9c3ff4c_0            conda-forge     Cached
+  + krb5                                    1.21.3  h659f571_0            conda-forge     Cached
+  + glog                                     0.7.1  hbabe93e_0            conda-forge     Cached
+  + libprotobuf                             5.29.3  h501fc15_1            conda-forge     Cached
+  + libre2-11                           2024.07.02  hba17884_3            conda-forge     Cached
+  + libopenblas                             0.3.29  pthreads_h94d23a6_0   conda-forge     Cached
+  + aws-c-io                                0.18.1  h1a9f769_2            conda-forge     Cached
+  + libcurl                                 8.13.0  h332b0f4_0            conda-forge     Cached
+  + orc                                      2.1.1  h17f744e_1            conda-forge     Cached
+  + re2                                 2024.07.02  h9925aae_3            conda-forge     Cached
+  + libblas                                  3.9.0  31_h59b9bed_openblas  conda-forge     Cached
+  + aws-c-event-stream                       0.5.4  hc5e5e9e_7            conda-forge     Cached
+  + aws-c-http                              0.10.0  h6884c39_0            conda-forge     Cached
+  + prometheus-cpp                           1.3.0  ha5d0236_0            conda-forge     Cached
+  + azure-core-cpp                          1.14.0  h5cfcd09_0            conda-forge     Cached
+  + libgrpc                                 1.71.0  h8e591d7_1            conda-forge     Cached
+  + libcblas                                 3.9.0  31_he106b2a_openblas  conda-forge     Cached
+  + liblapack                                3.9.0  31_h7ac8fdf_openblas  conda-forge     Cached
+  + aws-c-auth                               0.9.0  h9a6e2ae_4            conda-forge     Cached
+  + aws-c-mqtt                              0.12.3  hef6a231_4            conda-forge     Cached
+  + azure-storage-common-cpp                12.8.0  h736e048_1            conda-forge     Cached
+  + azure-identity-cpp                      1.10.0  h113e628_0            conda-forge     Cached
+  + libgoogle-cloud                         2.36.0  hc4361e1_1            conda-forge     Cached
+  + libopentelemetry-cpp                    1.20.0  hd1b1c89_0            conda-forge     Cached
+  + numpy                                    2.2.5  py310hefbff90_0       conda-forge        8MB
+  + aws-c-s3                                0.7.16  h7dfd680_1            conda-forge     Cached
+  + azure-storage-blobs-cpp                12.13.0  h3cf044e_1            conda-forge     Cached
+  + libgoogle-cloud-storage                 2.36.0  h0121fbd_1            conda-forge     Cached
+  + pandas                                   2.2.3  py310h5eaa309_3       conda-forge       13MB
+  + aws-crt-cpp                             0.32.4  h0cee55f_2            conda-forge     Cached
+  + azure-storage-files-datalake-cpp       12.12.0  ha633028_1            conda-forge     Cached
+  + aws-sdk-cpp                           1.11.510  h5b777a2_6            conda-forge     Cached
+  + libarrow                                20.0.0  h27f8bab_0_cpu        conda-forge     Cached
+  + pyarrow-core                            20.0.0  py310hac404ae_0_cpu   conda-forge        5MB
+  + libparquet                              20.0.0  h081d1f1_0_cpu        conda-forge     Cached
+  + libarrow-acero                          20.0.0  hcb10f89_0_cpu        conda-forge     Cached
+  + libarrow-dataset                        20.0.0  hcb10f89_0_cpu        conda-forge     Cached
+  + libarrow-substrait                      20.0.0  h1bed206_0_cpu        conda-forge     Cached
+  + pyarrow                                 20.0.0  py310hff52083_0       conda-forge       26kB
+  + aiosignal                                1.3.2  pyhd8ed1ab_0          conda-forge     Cached
+  + urllib3                                  2.4.0  pyhd8ed1ab_0          conda-forge     Cached
+  + requests                                2.32.3  pyhd8ed1ab_1          conda-forge     Cached
+  + huggingface_hub                         0.30.2  pyhd8ed1ab_0          conda-forge     Cached
+  + aiohttp                                3.11.18  py310h89163eb_0       conda-forge      808kB
+  + tokenizers                              0.21.1  py310hb1c6e2c_0       conda-forge        2MB
+  + datasets                                 3.5.0  pyhd8ed1ab_0          conda-forge     Cached
+  + transformers                            4.51.3  pyhd8ed1ab_0          conda-forge        4MB
+
+  Summary:
+
+  Install: 117 packages
+
+  Total download: 35MB
+
+──────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+Confirm changes: [Y/n] 
+Looking for: ['datasets', 'transformers']
+
+
+Pinned packages:
+  - python 3.10.*
+
+
