@@ -7,13 +7,24 @@ import numpy as np
 from scipy.stats import norm
 
 
-def generate_normalized_lognormal_cost_matrix(n_tokens, S_size=1024, mean=0.0, sigma=1.0, seed = 15485863, device = None):
+def generate_normalized_lognormal_cost_matrix(n_tokens, S_size=1024, mean=0.0, sigma=1.0, seed = 15485863, device = None, dist='lognormal'):
     if seed is not None:
         np.random.seed(seed)
 
     # Draw samples from a lognormal distribution
-    # raw_C = np.random.lognormal(mean=mean, sigma=sigma, size=(n_tokens, S_size))
-    raw_C = np.random.gamma(shape=0.2, scale=1.0, size=(n_tokens, S_size))
+    if dist == 'gamma':
+        print(f'chose gamma')
+        k=0.2
+        scale = 1.0
+        raw_C = np.random.gamma(shape=k, scale=scale, size=(n_tokens, S_size))
+    elif dist =='pareto':
+        alpha = 2.5
+        x_m   = 1.0
+        raw_C = (np.random.pareto(alpha, size=(n_tokens, S_size)) + 1) * x_m
+    else:
+        #lognormal
+        raw_C = np.random.lognormal(mean=mean, sigma=sigma, size=(n_tokens, S_size))
+    
     
     # Normalize each row to have zero mean and unit variance
     row_means = np.mean(raw_C, axis=1, keepdims=True)
@@ -43,6 +54,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
                 hashing='min',
                 hash_key=15485863, # large prime
                 S_size=1024, # size of the side info space
+                dist = 'lognormal'
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -67,7 +79,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         self.hash_key = hash_key
         self.k = S_size
         self.cost_matrix = generate_normalized_lognormal_cost_matrix(n_tokens = vocab_size, \
-            S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device=self.device)
+            S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device=self.device, dist=dist)
     
 
     def gen_seed(self, token_ids):
@@ -224,6 +236,7 @@ class HeavyTailWatermarkDetector():
                  select_green_tokens: bool = True,
                  pval=2e-2,
                  k=1024, # size of the side info space
+                 dist='lognormal'
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -237,7 +250,7 @@ class HeavyTailWatermarkDetector():
         self.pval = pval
         self.k = k  # size of the side info space
         self.cost_matrix = generate_normalized_lognormal_cost_matrix(n_tokens = self.vocab_size, \
-            S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device =self.device)
+            S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device =self.device, dist=dist)
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -259,7 +272,8 @@ class HeavyTailWatermarkDetector():
                inputs: list[int]=None,
                tokenized_text: list[int]=None,
                debug: bool=True,
-               return_scores: bool = True,):
+               return_scores: bool = True
+               ):
         assert tokenized_text is not None, "Must pass tokenized string"
         
         assert inputs is not None,  "Must pass inputs"

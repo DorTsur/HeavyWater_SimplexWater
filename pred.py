@@ -206,6 +206,14 @@ def parse_args(args=None):
         )
     
     parser.add_argument(
+        "--ht_dist",
+        type=str,
+        default="lognormal",
+        choices=["lognormal","gamma","pareto"],
+        help="heavy tail watermark score distribution.",
+        )
+    
+    parser.add_argument(
     "--q",
     type=int,
     default=2)
@@ -367,6 +375,8 @@ if __name__ == '__main__':
     if not os.path.exists("pred"):
         os.makedirs("pred")
     save_dir = f"pred/{model_name}_{args.mode}_g{args.gamma}_d{args.delta}_temp{args.sampling_temp}"
+    if args.mode == 'heavy_tail':
+        save_dir = f"pred/{model_name}_{args.mode}_{args.ht_dist}_g{args.gamma}_d{args.delta}_temp{args.sampling_temp}"
     if args.mode == "old":
         print("old RG watermark")
     if args.bl_type == "hard":
@@ -377,6 +387,7 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
+    
     # if args.dynamic_seed == 'fresh':
     #     save_dir += f"_fresh_"
     save_dir += f"_{args.dynamic_seed}"

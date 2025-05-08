@@ -77,6 +77,8 @@ def main(args):
     else:
         context = 0
         hashing_fn = 0
+    if 'heavy_tail' in args.input_dir:
+        dist = re.search(r'_(?P<dist>[^_]+)(?=_g\d)', args.input_dir)
     
     # pdb.set_trace()
     if atk_flag:
@@ -226,7 +228,8 @@ def main(args):
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
-                                            pval=args.pval)
+                                            pval=args.pval,
+                                            dist=dist)
             z_score_list = []
             detection_indices = []
 
