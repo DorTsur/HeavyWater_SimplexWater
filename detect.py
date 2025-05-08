@@ -1,8 +1,8 @@
 from watermark.old_watermark import OldWatermarkDetector
 from watermark.cc_watermark import CCWatermarkDetector, K_CCWatermarkDetector
 from watermark.our_watermark import NewWatermarkDetector
-from watermark.gptwm import GPTWatermarkDetector
-from watermark.watermark_v2 import WatermarkDetector
+# from watermark.gptwm import GPTWatermarkDetector
+# from watermark.watermark_v2 import WatermarkDetector
 from watermark.linear_code import LinearCodeWatermarkDetector
 from watermark.inverse_transform import InverseTransformDetector
 from watermark.qarry_linear_code import Q_LinearCodeWatermarkDetector
@@ -26,10 +26,20 @@ def main(args):
     model2path = json.load(open("config/model2path.json", "r"))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # get model name
-    model_name = args.input_dir.split("/")[-1].split("_")[0]
+    # model_name = args.input_dir.split("/")[-1].split("_")[0]
     # define your model
     # tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device, load_token_only=True)
-    tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device, load_token_only=True)
+    # pdb.set_trace()
+    if 'llama2' in args.input_dir:
+        model_name = 'llama2'
+        tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device, load_token_only=True)
+    if 'llama3' in args.input_dir:
+        model_name = 'llama3'
+        tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.1-8B-Instruct", model_name, device, load_token_only=True)
+    atk_flag = False
+    if 'attacked' in args.input_dir:
+        atk_flag = True
+        args.input_dir = args.input_dir.removesuffix("/attacked")
     all_token_ids = list(tokenizer.get_vocab().values())
     vocab_size = len(all_token_ids)
     # get gamma and delta
@@ -68,7 +78,10 @@ def main(args):
         context = 0
         hashing_fn = 0
     
-    
+    # pdb.set_trace()
+    if atk_flag:
+        atk_flag = True
+        args.input_dir = os.path.join(args.input_dir,'attacked')
     # get all files from input_dir
     files = os.listdir(args.input_dir)
     # get all json files
@@ -99,7 +112,7 @@ def main(args):
             prompts = [json.loads(line)["prompt"] for line in lines]
             texts = [json.loads(line)["pred"] for line in lines]
             # print(f"texts[0] is: {texts[0]}")
-            tokens = [json.loads(line)["completions_tokens"] for line in lines]
+            # tokens = [json.loads(line)["completions_tokens"] for line in lines]
             
             
         

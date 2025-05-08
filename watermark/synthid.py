@@ -12,6 +12,7 @@ from torch import Tensor
 from transformers import LogitsProcessor
 from watermark.old_watermark import top_p_indices
 import pdb  # For debugging purposes, can be removed in production
+from scipy.stats import norm
 
 class SynthIDLogitsProcessor(LogitsProcessor):
     """
@@ -366,7 +367,7 @@ class SynthIDDetector:
 
         g1_count = 0
         total_tokens = len(input_sequence)
-
+        detected = False
         for i, token_id in enumerate(input_sequence):
             # Get seed based on the *previous* token
             current_seed = self._get_seed_for_token(prev_token_id)
@@ -375,15 +376,26 @@ class SynthIDDetector:
             #print("g1_values:", g1_values)
             if g1_value == 1:
                 g1_count += 1
+            
+            ### calculation of #tokens for pval:
+            z = self._compute_z_score(g1_count, i+1) # calculate current zscore
+            p = 1-norm.cdf(z)
+            if p <= self.pval and not(detected):
+                detection_idx = i
+                detected = True
+            ###
 
             # Update previous token for the next iteration
             prev_token_id = token_id
+        
+        if not(detected):
+            detection_idx = i
 
         if return_raw_score:
              return float(g1_count)
         else:
              z_score = self._compute_z_score(g1_count, total_tokens)
-             return z_score
+             return z_score, detection_idx
 
 
 # # Example Usage (Conceptual - requires tokenizer, model context)

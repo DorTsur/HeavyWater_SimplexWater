@@ -12,7 +12,8 @@ def generate_normalized_lognormal_cost_matrix(n_tokens, S_size=1024, mean=0.0, s
         np.random.seed(seed)
 
     # Draw samples from a lognormal distribution
-    raw_C = np.random.lognormal(mean=mean, sigma=sigma, size=(n_tokens, S_size))
+    # raw_C = np.random.lognormal(mean=mean, sigma=sigma, size=(n_tokens, S_size))
+    raw_C = np.random.gamma(shape=0.2, scale=1.0, size=(n_tokens, S_size))
     
     # Normalize each row to have zero mean and unit variance
     row_means = np.mean(raw_C, axis=1, keepdims=True)

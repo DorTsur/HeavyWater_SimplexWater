@@ -6,6 +6,28 @@ import math
 import numpy as np
 from scipy.stats import norm
 
+def modify_last_decimal_digit(x):
+    s = str(x)
+    if '.' not in s:
+        return x  # it's an integer
+    
+    int_part, dec_part = s.split('.')
+    
+    if len(dec_part) == 0:
+        return x  # no decimal digits to modify
+    
+    last = dec_part[-1]
+    
+    if last == '9':
+        new_dec = dec_part[:-1] + '5'
+    elif last == '5':
+        new_dec = dec_part[:-1]
+    else:
+        return x  # unchanged
+    
+    if new_dec == '':
+        return float(int_part)
+    return float(f"{int_part}.{new_dec}")
 
 class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
     def __init__(self, 
@@ -146,10 +168,34 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # top-p filtering:
         # pdb.set_trace()
         # apply top_p filtering to the scores
+        top_p = self.top_p
         filter_indices = top_p_indices(distribution, top_p)
         if len(filter_indices) == 1:
             # then there's nothing to watermark.
             return distribution
+        # if len(filter_indices) > 100000:
+        #     print(f'filter_indices size {filter_indices.shape}')
+        while len(filter_indices) > 21000:
+            top_p = modify_last_decimal_digit(top_p)
+            filter_indices = top_p_indices(distribution, top_p)
+        # if len(filter_indices) > 20000:
+        #     # print(f'filtering top-p')
+        #     # print(f'dist max = {distribution.max()}')
+        #     top_p = modify_last_decimal_digit(top_p)
+        #     filter_indices = top_p_indices(distribution, top_p)
+        #     # print(f'new top-p {top_p}')
+        #     # print(f'new filter_indices size {filter_indices.shape}')
+        #     if len(filter_indices) > 20000:
+        #         # print(f'filtering top-p AGAIN')
+        #         top_p = modify_last_decimal_digit(top_p)
+        #         filter_indices = top_p_indices(distribution, top_p)
+        #         # print(f'new top-p {top_p}')
+        #         print(f'new top-p size is {filter_indices.shape}')
+
+
+            # filter_indices = top_p_indices(distribution, top_p)
+            
+            # pdb.set_trace()
         distribution = distribution[filter_indices]
         ## normalize
         distribution = distribution / distribution.sum()
@@ -162,7 +208,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         # compute cost matrix modulo z
         # pdb.set_trace()
         C_orig = matrix @ self.G % 2
-        C = 1-C_orig 
+        matrix=0
+        # C = 1-C_orig 
         # reduce cost matrix
         # reduced = reduce_cost_matrix(distribution, ps, C, top_k=top_k, top_p=top_p)
         # reduced = {
@@ -174,7 +221,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         P = ot.sinkhorn(
             a=distribution,
             b=ps,
-            M=C,
+            M=1-C_orig,
             reg=reg_const,
             numItermax=num_iter,
             stopThr=1e-5

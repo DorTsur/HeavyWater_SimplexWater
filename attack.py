@@ -324,7 +324,7 @@ def process_file(input_path: str, output_dir: str, attack_args: argparse.Namespa
     # Determine output file name
     base = os.path.basename(input_path)
     name, ext = os.path.splitext(base)
-    out_name = f"{name}_attacked{ext}"
+    out_name = f"{name}_attacked_{attack_args.attack}{ext}"
     output_path = os.path.join(output_dir, out_name)
 
     # Read input JSON (either list or line-delimited)
@@ -341,6 +341,7 @@ def process_file(input_path: str, output_dir: str, attack_args: argparse.Namespa
             # Whole-file JSON
             records = json.load(f)
 
+    pdb.set_trace()
     # Initialize attack once (if needed)
     attacker = init_helm_attacks()
     attk = attacker[attack_args.attack]
@@ -364,7 +365,7 @@ def process_file(input_path: str, output_dir: str, attack_args: argparse.Namespa
 def main():
     parser = argparse.ArgumentParser(description="Attack watermarked JSON files in a directory")
     parser.add_argument("--input_dir", type=str, required=True, help="Directory containing JSON or JSONL files to attack")
-    parser.add_argument("--attack", type=str, required=True, help="Attack type, e.g., LowercaseAttack, TypoAttack_p=0.1, etc.")
+    parser.add_argument("--attack", type=str, required=True, default='LowercaseAttack', help="Attack type", choices=['MisspellingAttack_(0.25,)','MisspellingAttack_(0.5,)', 'TypoAttack_(0.05,)','TypoAttack_(0.1,)', 'LowercaseAttack'])
     args = parser.parse_args()
 
     # Parse attack args if needed; here we pass the Namespace directly
