@@ -130,6 +130,7 @@ class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
             #####
 
         # set seed and generate random number
+        # pdb.set_trace()
         self.g_cuda.manual_seed(seed)
         random_values = torch.rand(size=(self.vocab_size,), \
             generator=self.g_cuda, device=self.device)
@@ -203,7 +204,7 @@ class ExponentialWatermarkDetector():
         assert tokenized_text is not None, "Must pass tokenized string"
         assert inputs is not None,  "Must pass inputs"
 
-
+        # pdb.set_trace()
         input_sequence = tokenized_text.tolist()[0]
         prev_token = inputs[0][-1].item()
         teststats=0
@@ -226,12 +227,13 @@ class ExponentialWatermarkDetector():
             #print(f'random values={random_values},token={tok_gend}, prev_token={prev_token}')
 
             # compute test statistic
-            teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-5))
+            teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-10))
+            # teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-5))
             prev_token = tok_gend
             gen_token_length += 1
 
             ### calculation of #tokens for pval:
-            p = scipy.stats.gamma.sf(teststats.item(), idx, scale = 1.0)
+            p = scipy.stats.gamma.sf(teststats.item(), idx+1, scale = 1.0)
             if p <= self.pval and not(detected):
                 detection_idx = idx
                 detected = True

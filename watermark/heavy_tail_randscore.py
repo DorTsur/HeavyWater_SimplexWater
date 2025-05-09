@@ -160,12 +160,12 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
             scores_new = torch.stack(scores_new,axis=0)
         return scores_new
     
-    def tilt_q_HT(self, distribution, side_info, reg_const=0.05, num_iter=2000, top_k=100, top_p=0.999):
+    def tilt_q_HT(self, distribution, side_info, reg_const=0.05, num_iter=2000, top_k=100):
         # reg_const = 0.5
         # num_iter=20
         # top-p filtering:
         # apply top_p filtering to the scores
-        filter_indices = top_p_indices(distribution, top_p)
+        filter_indices = top_p_indices(distribution, self.top_p)
         if len(filter_indices) == 1:
             # then there's nothing to watermark.
             return distribution
@@ -186,6 +186,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
             M= C,
             reg=reg_const,
             numItermax=num_iter,
+            # stopThr=1e-7
             stopThr=1e-5
         )
         #pdb.set_trace()

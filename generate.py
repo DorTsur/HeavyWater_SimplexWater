@@ -289,9 +289,10 @@ class Generator():
             return completions_text, completions_tokens
         else:    
             self.logit_processor_lst[0].seed_increment = 0
-
+            
             outputs = self.model.generate(
-                input_ids, max_new_tokens=max_new_tokens,
+                input_ids,
+                max_new_tokens=max_new_tokens,
                 logits_processor = self.logit_processor_lst,
                 do_sample=True,
                 top_k=0,
@@ -431,6 +432,7 @@ class Generator():
             scores = outputs.scores
             output_ids = outputs.sequences[0, -len(scores):]
             # access unwatermarked distributions
+            # pdb.set_trace()
             if self.mode == 'no':
                 original_distributions = scores
             else:
@@ -445,7 +447,8 @@ class Generator():
             #pdb.set_trace()
             # process original distributions for temperature
             for i in range(len(original_distributions)):
-                score = torch.log(original_distributions[i]) / self.sampling_temp
+                # score = torch.log(original_distributions[i]) / self.sampling_temp
+                score = torch.log(original_distributions[i]) 
                 original_distributions[i] = torch.softmax(score, dim=-1)
             for no_watermark_prob, score, token in zip(original_distributions, scores, output_ids, strict=True):
                 logprobs = F.log_softmax(score[0], dim=-1)
