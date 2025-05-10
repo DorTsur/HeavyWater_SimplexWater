@@ -92,6 +92,8 @@ class InverseTransformLogitsProcessor(BlacklistLogitsProcessor):
                 seed = self.large_prime + self.seed_increment
             
             #####
+            # apply temperature
+            scores[b_idx] = scores[b_idx] / self.temperature
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)

@@ -269,6 +269,8 @@ class CorrelatedChannelLogitsProcessor(LogitsProcessor):
             # print(f"now tok is {input_ids[b_idx][-1].item()}")
             # self.g_cuda.manual_seed(seed)
             ####
+            # apply temperature
+            scores[b_idx] = scores[b_idx] / self.temperature
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)

@@ -133,6 +133,8 @@ class SynthIDLogitsProcessor(LogitsProcessor):
                 self.g_values_history = [[] for _ in range(batch_size)]
 
         for b_idx in range(batch_size):
+            # apply temperature
+            scores[b_idx] = scores[b_idx] / self.temperature
             # Calculate current probabilities from logits
             probs = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(probs.detach().cpu().clone())

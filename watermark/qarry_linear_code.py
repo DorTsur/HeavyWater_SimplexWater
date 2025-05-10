@@ -194,6 +194,8 @@ class Q_LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             # we choose to watermark
             scores_new = [None for _ in range(input_ids.shape[0])]
             for b_idx in range(input_ids.shape[0]):
+                # apply temperature
+                scores[b_idx] = scores[b_idx] / self.temperature
                 p = torch.softmax(scores[b_idx], dim=-1)
                 # Save a clone so future changes don't affect it
                 self.saved_distributions.append(p.detach().cpu().clone())
