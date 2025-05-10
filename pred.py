@@ -10,6 +10,8 @@ import argparse
 # from llama_flash_attn_monkey_patch import replace_llama_attn_with_flash_attn
 from generate import Generator
 import pdb
+import time
+
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
@@ -26,7 +28,7 @@ def str2bool(v):
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b", "llama3-8b", "llama3-3b"])
+    parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b", "llama3-8b", "llama3-3b","gemma2-7b","mistral-7b"])
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     
     # watermark args
@@ -112,7 +114,13 @@ def parse_args(args=None):
     parser.add_argument(
     "--sinkhorn_reg",
     type=float,
-    default=1,
+    default=0.05,
+    )
+
+    parser.add_argument(
+    "--sinkhorn_thresh",
+    type=float,
+    default=1e-5,
     )
     
     
@@ -251,6 +259,7 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     generator = Generator(watermark_args, tokenizer, model)
     torch.cuda.empty_cache()
     CE_ave_per_prompt = []
+    times = []
     for json_obj in tqdm(data[watermark_args.start_point:]):
     # for json_obj in tqdm(data[2]):
     # json_obj = data[695
@@ -274,7 +283,10 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     #     temperature=1.0,
     # )[0]
         # pdb.set_trace()
+        start_time = time.perf_counter()
         completions_text, completions_tokens, CE_prompt  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
+        end_time = time.perf_counter()
+        times.append(end_time-start_time)
         CE_ave_per_prompt.append(CE_prompt)
     # gc.collect()
     # torch.cuda.empty_cache()
@@ -286,7 +298,10 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
         pred = completions_text
         pred = post_process(pred, model_name)
         preds.append({"prompt":prompt, "pred": pred, "completions_tokens":completions_tokens, "answers": json_obj["outputs"], "all_classes": json_obj["all_classes"], "length":json_obj["length"]})
-        
+
+    print('------')    
+    print(f'average run time {np.mean(np.array(times))}')
+    print('------')
     return preds,CE_ave_per_prompt
 
 def seed_everything(seed):
@@ -299,7 +314,8 @@ def seed_everything(seed):
     torch.cuda.manual_seed_all(seed)
 
 def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
-    if "chatglm" in model_name or "internlm" in model_name or "xgen" in model_name:
+    # pdb.set_trace()
+    if "chatglm" in model_name or "internlm" in model_name or "xgen" in model_name or 'mistral-7b' in model_name or "gemma2-7b" in model_name:
         tokenizer = AutoTokenizer.from_pretrained(path, trust_remote_code=True)
         if not load_token_only:
             model = AutoModelForCausalLM.from_pretrained(path, trust_remote_code=True,
@@ -323,6 +339,7 @@ def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
             #model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
             model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16, device_map = 'auto') 
             # model = AutoModelForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
+
     print('FINISHED importing model')
     if load_token_only:
         return tokenizer
@@ -361,6 +378,10 @@ if __name__ == '__main__':
         model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.1-8B-Instruct", model_name, device)
     elif args.model == "llama3-3b":
         model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-3.2-3B-Instruct", model_name, device)
+    elif args.model == "gemma2-7b":
+        model, tokenizer = load_model_and_tokenizer("google/gemma-7b", model_name, device)
+    elif args.model == "mistral-7b":
+        model, tokenizer = load_model_and_tokenizer("mistralai/Mistral-7B-Instruct-v0.3", model_name, device)
     print('finished loading model and tokenzier')
     # pdb.set_trace()
     max_length = model2maxlen[model_name]
@@ -390,7 +411,11 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
-    
+    pdb.set_trace()
+    if args.sinkhorn_reg != 0.05:
+        save_dir += f"_reg_{args.sinkhorn_reg}"
+    if args.sinkhorn_thresh != 1e-5:
+        save_dir += f"_reg_{args.sinkhorn_thresh}"
     # if args.dynamic_seed == 'fresh':
     #     save_dir += f"_fresh_"
     save_dir += f"_{args.dynamic_seed}"

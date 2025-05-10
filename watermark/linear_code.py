@@ -49,6 +49,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 context=1,
                 hashing='min',
                 temperature=1.0,
+                sinkhorn_reg = 0.05,
+                sinkhorn_thresh = 1e-5
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -72,6 +74,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
         self.context = context
         self.hashing = hashing
         self.temperature = temperature
+        self.sinkhorn_reg = sinkhorn_reg
+        self.sinkhorn_thresh = sinkhorn_thresh
         # self.gen_cost(device=device)
     
     def gen_params(self):
@@ -226,9 +230,9 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
             a=distribution,
             b=ps,
             M=1-C_orig,
-            reg=reg_const,
+            reg=self.sinkhorn_reg,
             numItermax=num_iter,
-            stopThr=1e-5
+            stopThr=self.sinkhorn_thresh
         )
         P_wm = P[:, side_info - 1] # map side_info [1,...m-1] to [0,...,m-2] inclusive.
         if self.tilt:

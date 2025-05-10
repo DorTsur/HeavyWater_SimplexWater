@@ -167,7 +167,8 @@ class ExponentialWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 pval=2e-2
+                 pval=2e-2,
+                 collect_scores = False
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -179,6 +180,8 @@ class ExponentialWatermarkDetector():
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
         self.pval=pval
+        self.f_scores = []
+        self.collect_scores = collect_scores
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -231,6 +234,10 @@ class ExponentialWatermarkDetector():
 
             # compute test statistic
             teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-10))
+
+            if self.collect_scores:
+                self.f_scores.append(-torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-10)).item())
+            
             # teststats += -torch.log(torch.clamp(1 - random_values[tok_gend], min=1e-5))
             prev_token = tok_gend
             gen_token_length += 1

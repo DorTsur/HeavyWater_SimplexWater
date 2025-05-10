@@ -10,5 +10,7 @@
     "chatglm2-6b-32k": "./data/models/chatglm2-6b-32k",
     "vicuna-v1.5-7b-16k": "lmsys/vicuna-7b-v1.5-16k",
     "tulu-7b": "/data2/cookie_huggingface_models/tulu-7b-full",
-    "vicuna-13b": "/data2/cookie_huggingface_models/vicuna-13b"
+    "vicuna-13b": "/data2/cookie_huggingface_models/vicuna-13b",
+    "mistral-7b": "mistralai/Mistral-7B-Instruct-v0.3",
+    "gemma2-7b": "google/gemma-7b"
 }

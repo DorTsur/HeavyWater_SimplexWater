@@ -52,7 +52,9 @@ def main(args):
         if 'poem' in args.input_dir and 'fresh' not in args.input_dir:
             delta = float(args.input_dir.split("_d")[1].split("/")[0])
         else:
-            delta = float(args.input_dir.split("_d")[1].split("_")[0])
+            m = re.search(r"d(\d+(?:\.\d+)?)", args.input_dir)
+            delta = float(m.group(1))
+            # delta = float(args.input_dir.split("_d")[1].split("_")[0])
         gamma = float(args.input_dir.split("_g")[1].split("_")[0])
     else:
         gamma = delta = 0.0
@@ -127,7 +129,8 @@ def main(args):
                                             gamma=gamma,
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
-                                            device=device)
+                                            device=device,
+                                            pval=args.pval)
         
         if "synthid" in args.input_dir:
             detector = SynthIDDetector(vocab_size = vocab_size,
@@ -232,7 +235,8 @@ def main(args):
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
                                             pval=args.pval,
-                                            dist=dist)
+                                            dist=dist,
+                                            collect_scores=args.collect_scores)
             z_score_list = []
             detection_indices = []
 
@@ -242,7 +246,9 @@ def main(args):
                                             vocab=all_token_ids,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
-                                            pval=args.pval)
+                                            pval=args.pval,
+                                            collect_scores=args.collect_scores
+                                            )
             teststats_list = []
             gen_token_length_list = []
         
@@ -348,6 +354,13 @@ def main(args):
             
             i += 1
 
+        
+        if ('exponential' in args.input_dir or 'heavy_tail' in args.input_dir) and args.collect_scores:
+            # pdb.set_trace()
+            f_scores = detector.f_scores
+            path = os.path.join(args.input_dir, json_file[:-5]+'agg_score.npy')
+            np.save(path, np.array(f_scores))
+        
         if 'exponential' in args.input_dir:
             #pdb.set_trace()
             # p_value for each 
@@ -529,7 +542,9 @@ def main(args):
             output_path = os.path.join(args.input_dir + "/z_score", z_file)
             with open(output_path, 'w') as fout:
                 json.dump(save_dict, fout)
-
+        
+        
+        
 
         # else:
         #     #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
@@ -619,6 +634,13 @@ parser.add_argument( # for v2 watermark
 )
 
 parser.add_argument( 
+    "--collect_scores",
+    type=str2bool,
+    default=False,
+    help="For score visualization in detection",
+)
+
+parser.add_argument( 
     "--mission",
     type=str,
     default="all",
@@ -642,7 +664,7 @@ parser.add_argument(
 parser.add_argument(
         "--pval",
         type=float,
-        default=2e-2,
+        default=1e-3,
         help="p value to meet when vcounting tokens to p value",
         )
 

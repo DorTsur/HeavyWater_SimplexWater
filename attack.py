@@ -341,7 +341,7 @@ def process_file(input_path: str, output_dir: str, attack_args: argparse.Namespa
             # Whole-file JSON
             records = json.load(f)
 
-    pdb.set_trace()
+    # pdb.set_trace()
     # Initialize attack once (if needed)
     attacker = init_helm_attacks()
     attk = attacker[attack_args.attack]

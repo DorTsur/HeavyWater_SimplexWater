@@ -11,5 +11,7 @@
     "chatglm2-6b-32k": 31500,
     "vicuna-v1.5-7b-16k": 15500,
     "tulu-7b": 2048,
-    "vicuna-13b": 2048
+    "vicuna-13b": 2048,
+    "mistral-7b": 3500,
+    "gemma2-7b": 3500
 }

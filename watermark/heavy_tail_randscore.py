@@ -18,6 +18,7 @@ def generate_normalized_lognormal_cost_matrix(n_tokens, S_size=1024, mean=0.0, s
         scale = 1.0
         raw_C = np.random.gamma(shape=k, scale=scale, size=(n_tokens, S_size))
     elif dist =='pareto':
+        print(f'applying pareto')
         alpha = 2.5
         x_m   = 1.0
         raw_C = (np.random.pareto(alpha, size=(n_tokens, S_size)) + 1) * x_m
@@ -56,6 +57,8 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
                 S_size=1024, # size of the side info space
                 dist = 'lognormal',
                 temperature=1.0,
+                sinkhorn_reg = 0.05,
+                sinkhorn_thresh = 1e-5
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -80,6 +83,8 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         self.hash_key = hash_key
         self.k = S_size
         self.temperature = temperature
+        self.sinkhorn_reg = sinkhorn_reg
+        self.sinkhorn_thresh = sinkhorn_thresh
         self.cost_matrix = generate_normalized_lognormal_cost_matrix(n_tokens = vocab_size, \
             S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device=self.device, dist=dist)
     
@@ -188,10 +193,10 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
             a=distribution,
             b=ps,
             M= C,
-            reg=reg_const,
+            reg=self.sinkhorn_reg,
             numItermax=num_iter,
             # stopThr=1e-7
-            stopThr=1e-5
+            stopThr=self.sinkhorn_thresh
         )
         #pdb.set_trace()
         # numpy version
@@ -207,13 +212,13 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         if self.tilt:
             #linear tilt:
             c = self.cost_matrix[ filter_indices,side_info - 1]
-            index_1s = torch.where(c >=0)[0]
-            index_0s = torch.where(c <0)[0]
-            P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
-            P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
+            # index_1s = torch.where(c >=0)[0]
+            # index_0s = torch.where(c <0)[0]
+            # P_wm[index_1s] = P_wm[index_1s]*(1+self.tilting_delta)
+            # P_wm[index_0s] = P_wm[index_0s]*(1-self.tilting_delta)
             # exponential tilt:
             # c = self.cost_matrix[ filter_indices,side_info - 1]
-            # P_wm = P_wm*torch.exp(self.tilting_delta*c) # null mean is 0
+            P_wm = P_wm*torch.exp(self.tilting_delta*c) # null mean is 0
         # reconstruct conditional
         # P_wm = torch.zeros(m, device=distribution.device)
         # merged_col = reduced['inverse'][side_info - 1]
@@ -241,7 +246,8 @@ class HeavyTailWatermarkDetector():
                  select_green_tokens: bool = True,
                  pval=2e-2,
                  k=1024, # size of the side info space
-                 dist='lognormal'
+                 dist='lognormal',
+                 collect_scores = False,
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -256,7 +262,9 @@ class HeavyTailWatermarkDetector():
         self.k = k  # size of the side info space
         self.cost_matrix = generate_normalized_lognormal_cost_matrix(n_tokens = self.vocab_size, \
             S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device =self.device, dist=dist)
-        
+        self.f_scores = []
+        self.collect_scores = collect_scores
+
         if initial_seed is None: 
             self.initial_seed = None
             assert dynamic_seed != "initial"
@@ -309,6 +317,8 @@ class HeavyTailWatermarkDetector():
             # add cost to sum_score
             sum_score += self.cost_matrix[tok_gend, s - 1].item()  # s is in [1, k], tok_gend is in [0, vocab_size-1]
 
+            if self.collect_scores:
+                self.f_scores.append(self.cost_matrix[tok_gend, s - 1].item())
             ### calculation of #tokens for pval:
             z = self._compute_z_score(sum_score, idx+1) # calculate current zscore
             p = 1-norm.cdf(z)

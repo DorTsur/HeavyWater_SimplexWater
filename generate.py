@@ -171,6 +171,8 @@ class Generator():
                                             context=args.context,
                                             hashing=args.hashing_fn,
                                             temperature = args.sampling_temp,
+                                            sinkhorn_reg = args.sinkhorn_reg,
+                                            sinkhorn_thresh=args.sinkhorn_thresh
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 
@@ -193,6 +195,8 @@ class Generator():
                                             hashing=args.hashing_fn,
                                             S_size=1024,
                                             temperature = args.sampling_temp,
+                                            sinkhorn_reg = args.sinkhorn_reg,
+                                            sinkhorn_thresh=args.sinkhorn_thresh
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
