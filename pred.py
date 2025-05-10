@@ -320,7 +320,8 @@ def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
         tokenizer.pad_token_id = tokenizer.eos_token_id
         # tokenizer = AutoTokenizer.from_pretrained(path)
         if not load_token_only:
-            model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
+            #model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
+            model = LlamaForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16, device_map = 'auto') 
             # model = AutoModelForCausalLM.from_pretrained(path, output_scores=True, return_dict_in_generate=True, torch_dtype=torch.float16).to(device) 
     print('FINISHED importing model')
     if load_token_only:

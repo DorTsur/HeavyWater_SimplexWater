@@ -132,6 +132,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 store_spike_ents: bool = False,
                 noop_blacklist: bool = False,
                 top_p: float = 0.999,
+                temperature: float = 1.0,
                 ):
         
         self.vocab = vocab
@@ -142,6 +143,7 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         self.seed_increment = 0
         self.saved_distributions = []
         self.top_p = top_p
+        self.temperature = temperature
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -248,6 +250,8 @@ class BlacklistLogitsProcessor(LogitsProcessor):
             
             #
             # pdb.set_trace()
+            # apply temperature
+            scores[b_idx] = scores[b_idx] / self.temperature
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)

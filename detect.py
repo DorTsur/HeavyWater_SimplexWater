@@ -88,6 +88,9 @@ def main(args):
     files = os.listdir(args.input_dir)
     # get all json files
     json_files = [f for f in files if f.endswith(".jsonl")]
+    # add argument for dataset
+    if args.dataset != "all":
+        json_files = [args.dataset + ".jsonl"]
     os.makedirs(args.input_dir + "/z_score", exist_ok=True)
     if args.mission != "all":
         json_files = [f for f in files if args.mission in f]
@@ -643,6 +646,13 @@ parser.add_argument(
         help="p value to meet when vcounting tokens to p value",
         )
 
+# add dataset
+parser.add_argument(
+    "--dataset",
+    type=str,
+    default="all",
+    help="Dataset to evaluate.",
+)
 
 args = parser.parse_args()
 

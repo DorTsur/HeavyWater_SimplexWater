@@ -53,7 +53,8 @@ class Generator():
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed,
-                                            top_p=self.args.top_p)
+                                            top_p=self.args.top_p,
+                                            temperature=self.sampling_temp)
         self.logit_processor_lst = LogitsProcessorList([self.bl_processor])
         if args.mode == 'synthid':
             self.bl_processor = SynthIDLogitsProcessor(
@@ -168,7 +169,8 @@ class Generator():
                                             tilting_delta=args.tilting_delta,
                                             top_p=args.top_p,
                                             context=args.context,
-                                            hashing=args.hashing_fn
+                                            hashing=args.hashing_fn,
+                                            temperature = args.sampling_temp,
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
 
@@ -190,6 +192,7 @@ class Generator():
                                             context=args.context,
                                             hashing=args.hashing_fn,
                                             S_size=1024,
+                                            temperature = args.sampling_temp,
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
         
@@ -244,7 +247,8 @@ class Generator():
                                             bl_type=self.bl_type, 
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed,
-                                            top_p=args.top_p
+                                            top_p=args.top_p,
+                                            temperature = args.sampling_temp,
                                             ) 
             self.logit_processor_lst = LogitsProcessorList([watermark_processor])
     
@@ -261,8 +265,9 @@ class Generator():
                 logits_processor = self.logit_processor_lst,
                 do_sample=True,
                 top_k=0,
-                temperature=self.sampling_temp,
-                top_p= 1 # top-p implemented in the logit processor
+                temperature = 1, # temperature applied prior to and implemented in the logit processor
+                #temperature=self.sampling_temp,
+                top_p= 1 # top-p applied prior to and implemented in the logit processor
             )
 
             example.update({"bl_vocabularys":self.logit_processor_lst[0].get_and_clear_vocabularys()})
@@ -296,8 +301,9 @@ class Generator():
                 logits_processor = self.logit_processor_lst,
                 do_sample=True,
                 top_k=0,
-                temperature=self.sampling_temp,
-                top_p= 1 # top-p implemented in the logit processor
+                temperature = 1, # temperature applied prior to and implemented in the logit processor
+                #temperature=self.sampling_temp,
+                top_p= 1 # top-p applied prior to and implemented in the logit processor
             )
 
             # if self.mode == 'no':

@@ -72,6 +72,7 @@ class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
                 store_spike_ents= False,
                 noop_blacklist= False,
                 top_p=0.9,
+                temperature=1.0,
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -88,7 +89,7 @@ class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
                 top_p=top_p,
                 )
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+        self.temperature = temperature
 
     def __call__(self, input_ids, scores):
         """
@@ -118,6 +119,8 @@ class ExponentialLogitsProcessor(BlacklistLogitsProcessor):
                 seed = self.large_prime + self.seed_increment
 
             #####
+            # apply temperature
+            scores[b_idx] = scores[b_idx] / self.temperature
             p = torch.softmax(scores[b_idx], dim=-1)
             self.saved_distributions.append(p.detach().cpu().clone())
             filter_indices = top_p_indices(p, self.top_p)

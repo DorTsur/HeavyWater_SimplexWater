@@ -54,7 +54,8 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
                 hashing='min',
                 hash_key=15485863, # large prime
                 S_size=1024, # size of the side info space
-                dist = 'lognormal'
+                dist = 'lognormal',
+                temperature=1.0,
                 ):
         super().__init__(bad_words_ids, 
                 eos_token_id,
@@ -78,6 +79,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         self.hashing = hashing
         self.hash_key = hash_key
         self.k = S_size
+        self.temperature = temperature
         self.cost_matrix = generate_normalized_lognormal_cost_matrix(n_tokens = vocab_size, \
             S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device=self.device, dist=dist)
     
@@ -152,6 +154,8 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
             # we choose to watermark
             scores_new = [None for _ in range(input_ids.shape[0])]
             for b_idx in range(input_ids.shape[0]):
+                # apply temperature
+                scores[b_idx] = scores[b_idx] / self.temperature
                 p = torch.softmax(scores[b_idx], dim=-1)
                 # Save a clone so future changes don't affect it
                 self.saved_distributions.append(p.detach().cpu().clone())
