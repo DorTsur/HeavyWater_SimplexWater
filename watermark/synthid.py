@@ -44,7 +44,8 @@ class SynthIDLogitsProcessor(LogitsProcessor):
                  dynamic_seed: str = "markov_1", # "initial", None
                  initial_seed: int = None,
                  store_g_values: bool = False,
-                 top_p: float = 0.999
+                 top_p: float = 0.999,
+                 temperature=1.0
                  ):
 
         self.vocab_size = vocab_size
@@ -57,6 +58,8 @@ class SynthIDLogitsProcessor(LogitsProcessor):
         self.top_p = top_p
         self.seed_increment = 0 # For fresh randomness if needed
         self.saved_distributions = []
+        self.temperature = temperature
+        self.ts_K = 15
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."
@@ -125,6 +128,7 @@ class SynthIDLogitsProcessor(LogitsProcessor):
         Returns:
             `torch.FloatTensor`: The modified logits. Shape (batch_size, vocab_size).
         """
+        # pdb.set_trace()
         batch_size = scores.shape[0]
         new_scores = torch.zeros_like(scores)
 
@@ -146,62 +150,100 @@ class SynthIDLogitsProcessor(LogitsProcessor):
             p_new = p_new / p_new.sum()
             ####
 
-            # 1. Get the seed for the current step
+            ###
+            # add a wrapper for several layers - K layers.
+            # wrap ardound this with new seed? increase by 1 - wrap the function
+            #####
+            # p = TS_tilt(seed)
+            # TS_tilt 
+            #####
+
+
             current_seed = self._get_seed_for_token(input_ids, b_idx)
-
-            # 2. Generate binary g-values (0 or 1) for the vocabulary
-            g1_values = self._get_binary_g_values(current_seed) # Shape [vocab_size]
-            #print("g1_values:", g1_values)
-            if self.store_g_values:
-                 # Store g-values for this step and batch index (optional)
-                 # Store the full g-value vector or just for the sampled token later
-                 self.g_values_history[b_idx].append(g1_values.clone().cpu())
-
-
-            # 3. Calculate p(V | g1=1) = sum of probabilities of tokens with g1=1
-            # Ensure g1_values is boolean or compatible type for indexing/masking
-            mask_g1_1 = (g1_values == 1)
-            p_g1_1 = torch.sum(p_new[b_idx][mask_g1_1])
-
-            # Avoid division by zero or log(0) if p_g1_1 is 0 or 1
-            # Clamp p_g1_1 to avoid numerical instability
-            epsilon = 1e-10
-            p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
-
-            # 4. Calculate factors for modifying probabilities based on Corollary 14
-            # Factor for g1=1 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 1 - p_g1_1 = 2 - p_g1_1
-            factor_g1_1 = 2.0 - p_g1_1
-            # Factor for g1=0 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 0 - p_g1_1 = 1 - p_g1_1
-            factor_g1_0 = 1.0 - p_g1_1
-
-            # 5. Calculate watermarked probabilities p_wm
-            # Initialize p_wm with original probabilities
-            p_wm = p_new[b_idx].clone()
-
-            # Apply factors based on g-values
-            # Ensure mask_g1_1 is boolean
-            p_wm[mask_g1_1] *= factor_g1_1
-            p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
-
-            # 6. Renormalize probabilities to ensure they sum to 1
-            # This step is crucial as the formula in Corollary 14 might not
-            # perfectly preserve the sum due to floating point inaccuracies
-            # or the nature of the transformation.
-            p_wm_sum = torch.sum(p_wm)
-            if p_wm_sum > epsilon: # Avoid division by zero
-                 p_wm /= p_wm_sum
-            else:
-                 # Handle case where all probabilities become near zero (should be rare)
-                 # Fallback to uniform distribution or original probs
-                 p_wm = torch.ones_like(p_wm) / self.vocab_size
+            # pdb.set_trace()
+            p_wm = p_new
+            for _ in range(self.ts_K):
+                p_wm = self.TS_tilt(current_seed, p_wm)
+                current_seed += 1    
+            
+            # OUTSIDE THE FUNCTION:
+            # g1_values = self._get_binary_g_values(current_seed) # Shape [vocab_size]
+            # mask_g1_1 = (g1_values == 1)
+            # p_g1_1 = torch.sum(p_new[mask_g1_1])
 
 
-            # 7. Convert watermarked probabilities back to logits
-            # Add epsilon to avoid log(0)
-            new_scores[b_idx] = torch.log(p_wm + epsilon)
+            # if self.store_g_values:
+            #      self.g_values_history[b_idx].append(g1_values.clone().cpu())
+
+
+            # mask_g1_1 = (g1_values == 1)
+            # p_g1_1 = torch.sum(p_new[mask_g1_1])
+            # epsilon = 1e-10
+            # p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
+            # factor_g1_1 = 2.0 - p_g1_1
+            # factor_g1_0 = 1.0 - p_g1_1
+
+            # p_wm = p_new.clone()
+
+            # p_wm[mask_g1_1] *= factor_g1_1
+            # p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
+
+            
+            # p_wm_sum = torch.sum(p_wm)
+            # if p_wm_sum > epsilon: # Avoid division by zero
+            #      p_wm /= p_wm_sum
+            # else:
+            #      p_wm = torch.ones_like(p_wm) / self.vocab_size
+
+            new_scores[b_idx] = torch.log(p_wm + 1e-10)
 
         return new_scores
 
+        
+
+    def TS_tilt(self,seed,p):
+        g1_values = self._get_binary_g_values(seed) # Shape [vocab_size]
+        mask_g1_1 = (g1_values == 1)
+        p_g1_1 = torch.sum(p[mask_g1_1])
+
+        # 3. Calculate p(V | g1=1) = sum of probabilities of tokens with g1=1
+        # Ensure g1_values is boolean or compatible type for indexing/masking
+        mask_g1_1 = (g1_values == 1)
+        p_g1_1 = torch.sum(p[mask_g1_1])
+
+        # Avoid division by zero or log(0) if p_g1_1 is 0 or 1
+        # Clamp p_g1_1 to avoid numerical instability
+        epsilon = 1e-10
+        p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
+
+        # 4. Calculate factors for modifying probabilities based on Corollary 14
+        # Factor for g1=1 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 1 - p_g1_1 = 2 - p_g1_1
+        factor_g1_1 = 2.0 - p_g1_1
+        # Factor for g1=0 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 0 - p_g1_1 = 1 - p_g1_1
+        factor_g1_0 = 1.0 - p_g1_1
+
+        # 5. Calculate watermarked probabilities p_wm
+        # Initialize p_wm with original probabilities
+        p_wm = p.clone()
+
+        # Apply factors based on g-values
+        # Ensure mask_g1_1 is boolean
+        p_wm[mask_g1_1] *= factor_g1_1
+        p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
+
+        # 6. Renormalize probabilities to ensure they sum to 1
+        # This step is crucial as the formula in Corollary 14 might not
+        # perfectly preserve the sum due to floating point inaccuracies
+        # or the nature of the transformation.
+        p_wm_sum = torch.sum(p_wm)
+        if p_wm_sum > epsilon: # Avoid division by zero
+            p_wm /= p_wm_sum
+        else:
+            # Handle case where all probabilities become near zero (should be rare)
+            # Fallback to uniform distribution or original probs
+            p_wm = torch.ones_like(p_wm) / self.vocab_size
+        return p_wm
+    
     def get_and_clear_g_values_history(self):
         """Returns the stored g-value history and clears it."""
         history = self.g_values_history
@@ -248,6 +290,7 @@ class SynthIDDetector:
         self.expected_g1_proportion = expected_g1_proportion
         self.seed_increment = 0 # For fresh randomness if needed
         self.pval = pval
+        self.K = 15
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."
@@ -373,14 +416,24 @@ class SynthIDDetector:
         for i, token_id in enumerate(input_sequence):
             # Get seed based on the *previous* token
             current_seed = self._get_seed_for_token(prev_token_id)
+            #######
+            #######
+            #######
+            for _ in range(self.K):
+                # SCORE IS ACTUALLY - SUM OF SCORES ALONG ALL LAYER / T*K
+                g1_count += self._get_binary_g_value_for_token(token_id, current_seed)
+                current_seed += 1
+           
+            #######
+            #######
             # Get the g-value for the *current* token using that seed
-            g1_value = self._get_binary_g_value_for_token(token_id, current_seed)
-            #print("g1_values:", g1_values)
-            if g1_value == 1:
-                g1_count += 1
+            # g1_value = self._get_binary_g_value_for_token(token_id, current_seed)
+            # #print("g1_values:", g1_values)
+            # if g1_value == 1:
+            #     g1_count += 1
             
             ### calculation of #tokens for pval:
-            z = self._compute_z_score(g1_count, i+1) # calculate current zscore
+            z = self._compute_z_score(g1_count, self.K*(i+1)) # calculate current zscore
             p = 1-norm.cdf(z)
             if p <= self.pval and not(detected):
                 detection_idx = i
@@ -396,92 +449,7 @@ class SynthIDDetector:
         if return_raw_score:
              return float(g1_count)
         else:
-             z_score = self._compute_z_score(g1_count, total_tokens)
+             z_score = self._compute_z_score(g1_count, self.K*total_tokens)
+            #  pdb.set_trace()
              return z_score, detection_idx
 
-
-# # Example Usage (Conceptual - requires tokenizer, model context)
-# if __name__ == '__main__':
-#     # Dummy values for demonstration
-#     vocab_size = 50257 # Example: GPT-2 vocab size
-#     hash_key = 12345
-#     initial_seed = 42
-#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-#     # --- Processor Example ---
-#     print("--- Logits Processor Example ---")
-#     processor = SynthIDLogitsProcessor(
-#         vocab_size=vocab_size,
-#         hash_key=hash_key,
-#         device=device,
-#         dynamic_seed="markov_1", # Use previous token for seed
-#         initial_seed=initial_seed # Needed for the very first token if input_ids len is 1
-#     )
-
-#     # Dummy input logits and input_ids
-#     batch_size = 2
-#     seq_len = 10
-#     dummy_scores = torch.randn(batch_size, vocab_size, device=device)
-#     dummy_input_ids = torch.randint(0, vocab_size, (batch_size, seq_len), device=device)
-
-#     print(f"Original logits shape: {dummy_scores.shape}")
-#     print(f"Input IDs shape: {dummy_input_ids.shape}")
-
-#     # Apply the watermark
-#     watermarked_scores = processor(dummy_input_ids, dummy_scores)
-#     print(f"Watermarked logits shape: {watermarked_scores.shape}")
-
-#     # Verify probabilities sum roughly to 1 (after softmax)
-#     watermarked_probs = torch.softmax(watermarked_scores, dim=-1)
-#     print(f"Sum of watermarked probabilities (batch 0): {watermarked_probs[0].sum()}")
-#     print(f"Sum of watermarked probabilities (batch 1): {watermarked_probs[1].sum()}")
-#     print("-" * 20)
-
-
-#     # --- Detector Example ---
-#     print("\n--- Detector Example ---")
-#     detector = SynthIDDetector(
-#         vocab_size=vocab_size,
-#         hash_key=hash_key, # Must match processor
-#         device=device,
-#         dynamic_seed="markov_1", # Must match processor
-#         initial_seed=initial_seed # Must match processor if needed
-#     )
-
-#     # Dummy generated text (token IDs) and prompt
-#     dummy_prompt_tokens = [101, 500, 600] # Example token IDs
-#     dummy_generated_tokens = [1000, 2000, 3000, 1500, 2500, 3500, 4000, 1200, 2200, 3200] * 2 # Longer sequence
-
-#     print(f"Prompt tokens: {dummy_prompt_tokens}")
-#     print(f"Generated tokens length: {len(dummy_generated_tokens)}")
-
-#     # Detect the watermark
-#     z_score = detector.detect(
-#         tokenized_text=dummy_generated_tokens,
-#         prompt_tokens=dummy_prompt_tokens
-#     )
-#     print(f"Calculated z-score: {z_score:.4f}")
-
-#     # Example with raw score
-#     raw_score = detector.detect(
-#         tokenized_text=dummy_generated_tokens,
-#         prompt_tokens=dummy_prompt_tokens,
-#         return_raw_score=True
-#     )
-#     print(f"Raw g1=1 count: {raw_score}")
-#     print("-" * 20)
-
-#     # Example with initial seed dynamic seeding
-#     print("\n--- Detector Example (Initial Seed) ---")
-#     detector_initial = SynthIDDetector(
-#         vocab_size=vocab_size,
-#         hash_key=hash_key,
-#         device=device,
-#         dynamic_seed="initial", # Use fixed initial seed
-#         initial_seed=initial_seed # Must provide seed
-#     )
-#     z_score_initial = detector_initial.detect(
-#         tokenized_text=dummy_generated_tokens,
-#         prompt_tokens=dummy_prompt_tokens # Prompt still needed for context, but not for seeding after first token
-#     )
-#     print(f"Calculated z-score (initial seed): {z_score_initial:.4f}")

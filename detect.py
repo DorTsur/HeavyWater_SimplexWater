@@ -293,9 +293,8 @@ def main(args):
                     #z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
                 
                 elif "synthid" in args.input_dir:
-                    z_score_list.append(detector.detect(tokenized_text=gen_tokens, inputs=input_prompt))
-
                     z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
+                    # pdb.set_trace()
                     z_score_list.append(z)
                     detection_indices.append(detect_idx)
                 
@@ -508,6 +507,7 @@ def main(args):
                 json.dump(save_dict, fout)
 
         else:
+            # pdb.set_trace()
             #p_val = 1 - norm.cdf(torch.mean(torch.tensor(z_score_list)).item())
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
             ##

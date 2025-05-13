@@ -411,7 +411,7 @@ if __name__ == '__main__':
         save_dir += f"_d_tile_{args.tilting_delta}"
     if args.mode == 'cc-k' and args.tilt:
         save_dir += f"_d_tile_{args.tilting_delta}"
-    pdb.set_trace()
+    # pdb.set_trace()
     if args.sinkhorn_reg != 0.05:
         save_dir += f"_reg_{args.sinkhorn_reg}"
     if args.sinkhorn_thresh != 1e-5:
@@ -439,6 +439,7 @@ if __name__ == '__main__':
             out_path = os.path.join(save_dir, f"{dataset}.jsonl")
             prompt_format = dataset2prompt[dataset]
             max_gen = dataset2maxlen[dataset]
+            # for token accumulation:
             preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
             
             outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")
@@ -467,6 +468,8 @@ if __name__ == '__main__':
         out_path = os.path.join(save_dir, f"{dataset}.jsonl")
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
+        if args.sampling_temp == 1.00012:
+                max_gen = 550
         preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
         
         outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")

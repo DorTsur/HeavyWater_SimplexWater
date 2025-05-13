@@ -23,7 +23,7 @@
     "konwledge_memorization": 32,
     "konwledge_understanding": 16,
     "longform_qa": 300,
-    "finance_qa": 300,
+    "finance_qa": 300, 
     "short_finance_qa": 300,
     "alpacafarm": 300,
     "poem": 300,

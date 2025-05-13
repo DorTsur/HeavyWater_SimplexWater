@@ -61,7 +61,10 @@ class Generator():
                                         vocab_size= self.vocab_size,
                                         dynamic_seed= self.dyna_seed, 
                                         initial_seed= self.init_seed, 
-                                        top_p= self.args.top_p)
+                                        top_p= self.args.top_p,
+                                        temperature=self.sampling_temp)
+            self.logit_processor_lst = LogitsProcessorList([self.bl_processor])
+
         if args.mode == 'new': 
             self.bl_processor = OurBlacklistLogitsProcessor(tokenizer=tokenizer,
                                         bad_words_ids=None, 
