@@ -1,4 +1,4 @@
-# Code For: HeavyWater and SimplexWater: Watermarking Low-Entropy Text Distributions
+# HeavyWater and SimplexWater: Watermarking Low-Entropy Text Distributions
 
 <img src="images/readme_image.png" width="300" style="vertical-align: top right;"/>
 
