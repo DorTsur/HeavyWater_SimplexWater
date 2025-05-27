@@ -156,7 +156,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 generator=self.g_cuda,
                 device=input_ids.device
             ).item()  
-            print(f'context {input_ids[b_idx][-self.context:]}, s={s},seed={seed}')     
+            # print(f'context {input_ids[b_idx][-self.context:]}, s={s},seed={seed}')     
 
         if not self.noop_blacklist:
             # we choose to watermark

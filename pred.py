@@ -29,14 +29,13 @@ def str2bool(v):
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default="llama2-7b-chat-4k", choices=["llama2-7b-chat-4k", "chatglm2-6b-32k", "tulu-7b", "internlm-7b-8k", "llama3-1b", "llama3-8b", "llama3-3b","gemma2-7b","mistral-7b"])
-    parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     
     # watermark args
     parser.add_argument(
         "--mode",
         type=str,
-        default="cc",
-        choices=["no","heavy_tail", "synthid", "old", "new", "v2", "gpt", "cc","cc-combined", "cc-k","inv_tr","lin_code", "exponential","gauss_lin_code","q_lin_code"],
+        default="heavy_tail",
+        choices=["heavy_tail", "synthid", "old", "cc", "cc-k","inv_tr","lin_code", "exponential","q_lin_code"],
         help="Which version of the watermark to generate",
     )
     parser.add_argument(
@@ -72,22 +71,13 @@ def parse_args(args=None):
         choices=["soft", "hard"],
         help="The type of redlisting being performed.",
         )
-    parser.add_argument(
-        "--num_beams",
-        type=int,
-        default=1,
-        help="The number of beams to use where '1' is no beam search.",
-        )
+    
     parser.add_argument(
         "--sampling_temp",
         type=float,
         default=1.0,
         help="The temperature to use when generating using multinom sampling",
         )
-    parser.add_argument( # for gpt watermark
-        "--wm_key", 
-        type=int, 
-        default=0)
 
     parser.add_argument(
         "--threshold",
@@ -123,36 +113,6 @@ def parse_args(args=None):
     default=1e-5,
     )
     
-    
-
-    parser.add_argument( # for v2 watermark
-        "--seeding_scheme",
-        type=str,
-        default="simple_1",
-        help="Seeding scheme to use to generate the greenlists at each generation and verification step.",
-    )
-
-    parser.add_argument( # for v2 watermark
-        "--normalizers",
-        type=str,
-        default="",
-        help="Single or comma separated list of the preprocessors/normalizer names to use when performing watermark detection.",
-    )
-
-    parser.add_argument( # for v2 watermark
-        "--ignore_repeated_bigrams",
-        type=str2bool,
-        default=False,
-        help="Whether to use the detection method that only counts each unqiue bigram once as either a green or red hit.",
-    )
-
-    parser.add_argument( # for v2 watermark
-        "--select_green_tokens",
-        type=str2bool,
-        default=True,
-        help="How to treat the permuation when selecting the greenlist tokens at each step. Legacy is (False) to pick the complement/reds first.",
-    )
-    
     parser.add_argument( # for dataset
         "--dataset",
         type=str,
@@ -182,20 +142,12 @@ def parse_args(args=None):
         default=0.5,
         help="tilting value for distortionless distributions",
     )
-    
 
     parser.add_argument(
         "--num_seeds",
         type=int,
         default=2,
         help="tilting value for distortionless distributions",
-    )
-
-    parser.add_argument(
-        "--heavywater_k",
-        type=int,
-        default=1024,
-        help="size of heavywater side information alphabet size k",
     )
 
     parser.add_argument(
@@ -234,25 +186,23 @@ def parse_args(args=None):
     type=int,
     default=2)
 
-    parser.add_argument('--print_args', action='store_true', help="Print the parsed arguments.")
+    parser.add_argument(
+        '--print_args', action='store_true', help="Print the parsed arguments.")
+
+    parser.add_argument(
+    "--heavywater_k",
+    type=int,
+    default=1024)
+    
     return parser.parse_args(args)
+
+    
+
+    
 
 # This is the customized building prompt for chat models
 def build_chat(tokenizer, prompt, model_name):
-    if "chatglm" in model_name:
-        prompt = tokenizer.build_prompt(prompt)      
-    elif "llama2" in model_name:
-        prompt = f"[INST]{prompt}[/INST]"
-    elif "xgen" in model_name:
-        header = (
-            "A chat between a curious human and an artificial intelligence assistant. "
-            "The assistant gives helpful, detailed, and polite answers to the human's questions.\n\n"
-        )
-        prompt = header + f" ### Human: {prompt}\n###"
-    elif "internlm" in model_name:
-        prompt = f"<|User|>:{prompt}<eoh>\n<|Bot|>:"
-    elif "tulu" in model_name:
-        prompt = f"<|user|>:{prompt}\n<|assistant|>:"
+    prompt = f"[INST]{prompt}[/INST]"
     return prompt
 
 def post_process(response, model_name):
@@ -269,13 +219,7 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
     CE_ave_per_prompt = []
     times = []
     for json_obj in tqdm(data[watermark_args.start_point:]):
-    # for json_obj in tqdm(data[2]):
-    # json_obj = data[695
-        #for debug:
-        
-        #
         prompt = prompt_format.format(**json_obj)
-        # truncate to fit max_length (we suggest truncate in the middle, since the left and right side may contain crucial instructions)
         tokenized_prompt = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids[0]
         if len(tokenized_prompt) > max_length:
             half = int(max_length/2)
@@ -283,23 +227,12 @@ def get_pred(watermark_args, model, tokenizer, data, max_length, max_gen, prompt
         if dataset not in ["trec", "triviaqa", "samsum", "lsht", "lcc", "repobench-p"]: # chat models are better off without build prompts on these tasks
             prompt = build_chat(tokenizer, prompt, model_name)
         input = tokenizer(prompt, truncation=False, return_tensors="pt").to(device)
-    # output = model.generate(
-    #     **input,
-    #     max_new_tokens=max_gen,
-    #     num_beams=1,
-    #     do_sample=False,
-    #     temperature=1.0,
-    # )[0]
-        # pdb.set_trace()
         start_time = time.perf_counter()
         completions_text, completions_tokens, CE_prompt  = generator.generate(input_ids=input.input_ids, max_new_tokens=max_gen)
         end_time = time.perf_counter()
         times.append(end_time-start_time)
         CE_ave_per_prompt.append(CE_prompt)
-    # gc.collect()
-    # torch.cuda.empty_cache()
-    
-        
+  
         if debug:
             print("####################")
             
@@ -323,7 +256,7 @@ def seed_everything(seed):
 
 def load_model_and_tokenizer(path, model_name, device,  load_token_only=False):
     # pdb.set_trace()
-    if "chatglm" in model_name or "internlm" in model_name or "xgen" in model_name or 'mistral-7b' in model_name or "gemma2-7b" in model_name:
+    if "chatglm" in model_name or 'mistral-7b' in model_name or "gemma2-7b" in model_name:
         tokenizer = AutoTokenizer.from_pretrained(path, trust_remote_code=True)
         if not load_token_only:
             model = AutoModelForCausalLM.from_pretrained(path, trust_remote_code=True,
@@ -366,18 +299,12 @@ if __name__ == '__main__':
     model2maxlen = json.load(open("config/model2maxlen.json", "r"))
     
     print(f'finished parsing model, model path {model2path[args.model]}')
-    # gpu_list=[1,3,4,5,6,7]
-    # gpu_list_str = ','.join(map(str, gpu_list))
-    # os.environ.setdefault("CUDA_VISIBLE_DEVICES", gpu_list_str)
-    # device_ids = list(range(torch.cuda.device_count()))
-    # print("device_ids0 is", device_ids)
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device= {device}")
     
     model_name = args.model
-    # define your model
-    # pdb.set_trace()
-    # model, tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device)
+    
     if args.model == "llama2-7b-chat-4k":
         model, tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device)
     elif args.model == "llama3-1b":
@@ -393,17 +320,14 @@ if __name__ == '__main__':
     print('finished loading model and tokenzier')
     # pdb.set_trace()
     max_length = model2maxlen[model_name]
-    if args.e:
-        datasets = ["qasper", "multifieldqa_en", "hotpotqa", "2wikimqa", "gov_report", "multi_news", \
-            "trec", "triviaqa", "samsum", "passage_count", "passage_retrieval_en", "lcc", "repobench-p"]
-    else:
-        datasets = ["konwledge_memorization","konwledge_understanding","longform_qa",
+    datasets = ["konwledge_memorization","konwledge_understanding","longform_qa",
                         "finance_qa","hotpotqa","lcc", "multi_news", "qmsum","alpacafarm"]
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
     dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r"))
     dataset2level = json.load(open("config/dataset2level.json", "r"))
-    # make dir for saving predictions
+    
+    # make dir for saving predictions with parameters in its path:
     if not os.path.exists("pred"):
         os.makedirs("pred")
     save_dir = f"pred/{model_name}_{args.mode}_g{args.gamma}_d{args.delta}_temp{args.sampling_temp}"
@@ -433,8 +357,6 @@ if __name__ == '__main__':
         save_dir += f"_top_p_{args.top_p}"
     if args.mode == "q_lin_code":
         save_dir += f"_q_{args.q}"
-    if args.mode == 'heavy_tail' and args.heavywater_k != 1024:
-        save_dir += f"_k_{args.heavywater_k}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset
@@ -478,8 +400,6 @@ if __name__ == '__main__':
         out_path = os.path.join(save_dir, f"{dataset}.jsonl")
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
-        if args.sampling_temp == 1.000121:
-                max_gen = 1024
         preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
         
         outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")

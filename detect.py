@@ -1,8 +1,5 @@
 from watermark.old_watermark import OldWatermarkDetector
 from watermark.cc_watermark import CCWatermarkDetector, K_CCWatermarkDetector
-from watermark.our_watermark import NewWatermarkDetector
-# from watermark.gptwm import GPTWatermarkDetector
-# from watermark.watermark_v2 import WatermarkDetector
 from watermark.linear_code import LinearCodeWatermarkDetector
 from watermark.inverse_transform import InverseTransformDetector
 from watermark.qarry_linear_code import Q_LinearCodeWatermarkDetector
@@ -40,11 +37,6 @@ def main(args):
     seed_everything(args.initial_seed_llm)
     model2path = json.load(open("config/model2path.json", "r"))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # get model name
-    # model_name = args.input_dir.split("/")[-1].split("_")[0]
-    # define your model
-    # tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device, load_token_only=True)
-    # pdb.set_trace()
     if 'llama2' in args.input_dir:
         model_name = 'llama2'
         tokenizer = load_model_and_tokenizer("meta-llama/Llama-2-7b-chat-hf", model_name, device, load_token_only=True)
@@ -62,7 +54,7 @@ def main(args):
     if "fresh" in args.input_dir:
         print(f'fresh seed generation')
         args.dynamic_seed = "fresh"
-    if "gpt" in args.input_dir or 'old' in args.input_dir or 'no' in args.input_dir or 'v2' in args.input_dir:
+    if 'old' in args.input_dir:
         # pdb.set_trace()
         if 'poem' in args.input_dir and 'fresh' not in args.input_dir:
             delta = float(args.input_dir.split("_d")[1].split("/")[0])
@@ -114,12 +106,6 @@ def main(args):
     for json_file in json_files:
         print(f"{json_file} has began.........")
         
-        # for debugging on a single dataset prediction:
-        # if json_file != "short_finance_qa.jsonl":
-        #     continue
-        
-        # read jsons
-        # pdb.set_trace()
         with open(os.path.join(args.input_dir, json_file), "r") as f:
             # lines
             lines = f.readlines()
@@ -138,7 +124,7 @@ def main(args):
             
             
         
-        if "old" in args.input_dir or "no" in args.input_dir:
+        if "old" in args.input_dir:
             detector = OldWatermarkDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
                                             gamma=gamma,
@@ -155,34 +141,6 @@ def main(args):
                                             dynamic_seed=args.dynamic_seed,
                                             pval=args.pval
                                             )
-        
-        if "new" in args.input_dir:
-            detector = NewWatermarkDetector(tokenizer=tokenizer,
-                                        vocab=all_token_ids,
-                                        gamma=gamma,
-                                        delta=delta,
-                                        dynamic_seed=args.dynamic_seed,
-                                        device=device,
-                                        # vocabularys=vocabularys,
-                                        )
-            
-        if "v2" in args.input_dir:
-            detector = WatermarkDetector(
-                vocab=all_token_ids,
-                gamma=gamma,
-                z_threshold=args.threshold,tokenizer=tokenizer,
-                seeding_scheme=args.seeding_scheme,
-                device=device,
-                normalizers=args.normalizers,
-                ignore_repeated_bigrams=args.ignore_repeated_bigrams,
-                select_green_tokens=args.select_green_tokens)
-            
-        if "gpt" in args.input_dir:
-            detector = GPTWatermarkDetector(
-                fraction=gamma,
-                strength=delta,
-                vocab_size=vocab_size,
-                watermark_key=args.wm_key)
 
         if "cc-k" in args.input_dir:  
             # pdb.set_trace()
@@ -311,10 +269,8 @@ def main(args):
             
             if len(gen_tokens[0]) >= args.test_min_tokens:
 
-                if "v2" in args.input_dir:
-                    z_score_list.append(detector.detect(cur_text)["z_score"])
                     
-                elif "old" in args.input_dir or "no" in args.input_dir:
+                if "old" in args.input_dir or "no" in args.input_dir:
                     # print("gen_tokens is:", gen_tokens)
                     z, detect_idx = detector.detect(tokenized_text=gen_tokens, inputs=input_prompt)
                     z_score_list.append(z)
@@ -368,15 +324,7 @@ def main(args):
                     z_score_list.append(z_scores)
                     teststats_list.append(teststats)
                     gen_token_length_list.append(gen_token_length)
-                    detection_indices.append(detect_idx)
-
-                
-                elif "gpt" in args.input_dir:
-                      z_score_list.append(detector.detect(gen_tokens[0]))
-                elif "new" in args.input_dir:
-                      z_score_list.append(detector.detect(tokenized_text=gen_tokens, tokens=tokens[idx], inputs=input_prompt))
-            
-            
+                    detection_indices.append(detect_idx)            
             else:   
                 print(f"Warning: sequence {idx} is too short to test.")
             

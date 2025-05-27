@@ -15,27 +15,7 @@ import pdb  # For debugging purposes, can be removed in production
 from scipy.stats import norm
 
 class SynthIDLogitsProcessor(LogitsProcessor):
-    """
-    LogitsProcessor for applying the SynthID watermark using the
-    vectorized binary approach (N=2) described in Corollary 14.
 
-    Args:
-        vocab_size (`int`):
-            The size of the vocabulary.
-        hash_key (`int`):
-            Key used for seeding the hash function.
-        device (`torch.device`):
-            The device to run the calculations on (e.g., 'cuda' or 'cpu').
-        dynamic_seed (`str`, *optional*, defaults to `"markov_1"`):
-            How to seed the random number generator.
-            "markov_1": Seed based on the previous token.
-            "initial": Seed based on a fixed initial seed (requires `initial_seed`).
-            None: Use a fixed seed (requires `initial_seed`). Not recommended for security.
-        initial_seed (`int`, *optional*, defaults to `None`):
-            Initial seed value, required if `dynamic_seed` is "initial" or None.
-        store_g_values (`bool`, *optional*, defaults to `False`):
-            Whether to store the generated g-values for debugging/analysis.
-    """
 
     def __init__(self,
                  vocab_size: int,
@@ -60,6 +40,7 @@ class SynthIDLogitsProcessor(LogitsProcessor):
         self.saved_distributions = []
         self.temperature = temperature
         self.ts_K = 15
+
 
         if dynamic_seed == "initial" or dynamic_seed is None:
             assert initial_seed is not None, "initial_seed must be provided if dynamic_seed is 'initial' or None."
@@ -159,6 +140,15 @@ class SynthIDLogitsProcessor(LogitsProcessor):
             #####
 
 
+            ###
+            # add a wrapper for several layers - K layers.
+            # wrap ardound this with new seed? increase by 1 - wrap the function
+            #####
+            # p = TS_tilt(seed)
+            # TS_tilt 
+            #####
+
+
             current_seed = self._get_seed_for_token(input_ids, b_idx)
             # pdb.set_trace()
             p_wm = p_new
@@ -166,41 +156,12 @@ class SynthIDLogitsProcessor(LogitsProcessor):
                 p_wm = self.TS_tilt(current_seed, p_wm)
                 current_seed += 1    
             
-            # OUTSIDE THE FUNCTION:
-            # g1_values = self._get_binary_g_values(current_seed) # Shape [vocab_size]
-            # mask_g1_1 = (g1_values == 1)
-            # p_g1_1 = torch.sum(p_new[mask_g1_1])
-
-
-            # if self.store_g_values:
-            #      self.g_values_history[b_idx].append(g1_values.clone().cpu())
-
-
-            # mask_g1_1 = (g1_values == 1)
-            # p_g1_1 = torch.sum(p_new[mask_g1_1])
-            # epsilon = 1e-10
-            # p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
-            # factor_g1_1 = 2.0 - p_g1_1
-            # factor_g1_0 = 1.0 - p_g1_1
-
-            # p_wm = p_new.clone()
-
-            # p_wm[mask_g1_1] *= factor_g1_1
-            # p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
-
-            
-            # p_wm_sum = torch.sum(p_wm)
-            # if p_wm_sum > epsilon: # Avoid division by zero
-            #      p_wm /= p_wm_sum
-            # else:
-            #      p_wm = torch.ones_like(p_wm) / self.vocab_size
 
             new_scores[b_idx] = torch.log(p_wm + 1e-10)
 
         return new_scores
 
         
-
     def TS_tilt(self,seed,p):
         g1_values = self._get_binary_g_values(seed) # Shape [vocab_size]
         mask_g1_1 = (g1_values == 1)
@@ -244,6 +205,85 @@ class SynthIDLogitsProcessor(LogitsProcessor):
             p_wm = torch.ones_like(p_wm) / self.vocab_size
         return p_wm
     
+
+        
+
+    def TS_tilt(self,seed,p):
+        g1_values = self._get_binary_g_values(seed) # Shape [vocab_size]
+        mask_g1_1 = (g1_values == 1)
+        p_g1_1 = torch.sum(p[mask_g1_1])
+
+        # 3. Calculate p(V | g1=1) = sum of probabilities of tokens with g1=1
+        # Ensure g1_values is boolean or compatible type for indexing/masking
+        mask_g1_1 = (g1_values == 1)
+        p_g1_1 = torch.sum(p[mask_g1_1])
+        # 3. Calculate p(V | g1=1) = sum of probabilities of tokens with g1=1
+        # Ensure g1_values is boolean or compatible type for indexing/masking
+        mask_g1_1 = (g1_values == 1)
+        p_g1_1 = torch.sum(p[mask_g1_1])
+
+        # Avoid division by zero or log(0) if p_g1_1 is 0 or 1
+        # Clamp p_g1_1 to avoid numerical instability
+        epsilon = 1e-10
+        p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
+        # Avoid division by zero or log(0) if p_g1_1 is 0 or 1
+        # Clamp p_g1_1 to avoid numerical instability
+        epsilon = 1e-10
+        p_g1_1 = torch.clamp(p_g1_1, epsilon, 1.0 - epsilon)
+
+        # 4. Calculate factors for modifying probabilities based on Corollary 14
+        # Factor for g1=1 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 1 - p_g1_1 = 2 - p_g1_1
+        factor_g1_1 = 2.0 - p_g1_1
+        # Factor for g1=0 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 0 - p_g1_1 = 1 - p_g1_1
+        factor_g1_0 = 1.0 - p_g1_1
+        # 4. Calculate factors for modifying probabilities based on Corollary 14
+        # Factor for g1=1 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 1 - p_g1_1 = 2 - p_g1_1
+        factor_g1_1 = 2.0 - p_g1_1
+        # Factor for g1=0 tokens: (1 + g1(xt,r) - p(V|g1=1)) = 1 + 0 - p_g1_1 = 1 - p_g1_1
+        factor_g1_0 = 1.0 - p_g1_1
+
+        # 5. Calculate watermarked probabilities p_wm
+        # Initialize p_wm with original probabilities
+        p_wm = p.clone()
+        # 5. Calculate watermarked probabilities p_wm
+        # Initialize p_wm with original probabilities
+        p_wm = p.clone()
+
+        # Apply factors based on g-values
+        # Ensure mask_g1_1 is boolean
+        p_wm[mask_g1_1] *= factor_g1_1
+        p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
+        # Apply factors based on g-values
+        # Ensure mask_g1_1 is boolean
+        p_wm[mask_g1_1] *= factor_g1_1
+        p_wm[~mask_g1_1] *= factor_g1_0 # Apply factor to g1=0 tokens
+
+        # 6. Renormalize probabilities to ensure they sum to 1
+        # This step is crucial as the formula in Corollary 14 might not
+        # perfectly preserve the sum due to floating point inaccuracies
+        # or the nature of the transformation.
+        p_wm_sum = torch.sum(p_wm)
+        if p_wm_sum > epsilon: # Avoid division by zero
+            p_wm /= p_wm_sum
+        else:
+            # Handle case where all probabilities become near zero (should be rare)
+            # Fallback to uniform distribution or original probs
+            p_wm = torch.ones_like(p_wm) / self.vocab_size
+        return p_wm
+    
+        # 6. Renormalize probabilities to ensure they sum to 1
+        # This step is crucial as the formula in Corollary 14 might not
+        # perfectly preserve the sum due to floating point inaccuracies
+        # or the nature of the transformation.
+        p_wm_sum = torch.sum(p_wm)
+        if p_wm_sum > epsilon: # Avoid division by zero
+            p_wm /= p_wm_sum
+        else:
+            # Handle case where all probabilities become near zero (should be rare)
+            # Fallback to uniform distribution or original probs
+            p_wm = torch.ones_like(p_wm) / self.vocab_size
+        return p_wm
+    
     def get_and_clear_g_values_history(self):
         """Returns the stored g-value history and clears it."""
         history = self.g_values_history
@@ -252,27 +292,6 @@ class SynthIDLogitsProcessor(LogitsProcessor):
 
 
 class SynthIDDetector:
-    """
-    Detector for the SynthID watermark (Vectorized Binary N=2).
-
-    Args:
-        vocab_size (`int`):
-            The size of the vocabulary.
-        hash_key (`int`):
-            Key used for seeding the hash function (must match the processor).
-        device (`torch.device`):
-            The device to run the calculations on (e.g., 'cuda' or 'cpu').
-        dynamic_seed (`str`, *optional*, defaults to `"markov_1"`):
-            How to seed the random number generator (must match the processor).
-            "markov_1": Seed based on the previous token.
-            "initial": Seed based on a fixed initial seed (requires `initial_seed`).
-             None: Use a fixed seed (requires `initial_seed`). Not recommended for security.
-        initial_seed (`int`, *optional*, defaults to `None`):
-            Initial seed value, required if `dynamic_seed` is "initial" or None.
-        expected_g1_proportion (`float`, *optional*, defaults to `0.5`):
-            The expected proportion of tokens with g-value 1 under the null hypothesis
-            (unwatermarked text). Should match the hashing scheme used.
-    """
     def __init__(self,
                  vocab_size: int,
                  hash_key: int = 15485863,
@@ -290,6 +309,7 @@ class SynthIDDetector:
         self.expected_g1_proportion = expected_g1_proportion
         self.seed_increment = 0 # For fresh randomness if needed
         self.pval = pval
+        self.K = 15
         self.K = 15
 
         if dynamic_seed == "initial" or dynamic_seed is None:
@@ -327,16 +347,6 @@ class SynthIDDetector:
         if self.dynamic_seed is not None:
              self.rng.manual_seed(seed)
 
-        # Replicate the hashing logic from the processor for a single token
-        # We need to generate the value for the specific token_id
-        # A simple way is to generate for all and pick, but that's inefficient.
-        # Let's refine the hashing to be per-token if possible.
-        # If using torch.randint as in processor, we might need to generate
-        # up to token_id+1 values, which is still inefficient.
-        # A direct hash function is better for detection:
-        # simple_hash = (token_id * self.hash_key + seed) % (self.vocab_size * 10)
-        # g_value = simple_hash % 2
-        # For consistency with the processor's current RNG method:
         hashed_values = torch.randint(low = 0, high = self.vocab_size * 10,size = (self.vocab_size,), generator=self.rng, device=self.device)
         g_value = hashed_values[token_id] % 2
         return g_value.item()
@@ -363,84 +373,31 @@ class SynthIDDetector:
                inputs: list[int] = None,
                tokenizer = None,
                return_raw_score: bool = False) -> float:
-        """
-        Detects the SynthID watermark in the given text.
-
-        Args:
-            text (`str`, *optional*): The text sequence to analyze.
-            tokenized_text (`list[int]`, *optional*): Pre-tokenized text sequence.
-            inputs (`list[int]`, *optional*): The tokenized prompt used to generate the text.
-                                                     Needed for 'markov_1' seeding.
-            tokenizer: The tokenizer used for the model. Required if `text` is provided.
-            return_raw_score (`bool`, *optional*, defaults to `False`):
-                 If True, returns the raw count of g1=1 tokens instead of the z-score.
-
-
-        Returns:
-            `float`: The z-score indicating the likelihood of the text being watermarked.
-                     Higher scores suggest a higher likelihood. If return_raw_score is True,
-                     returns the integer count of g1=1 tokens.
-        """
+        
         assert tokenized_text is not None, "Must pass tokenized string"
         
         assert inputs is not None,  "Must pass inputs"
 
-        # assert (text is not None and tokenizer is not None) or (tokenized_text is not None), \
-        #        "Either text and tokenizer or tokenized_text must be provided."
-        # assert self.dynamic_seed != "markov_1" or inputs is not None, \
-        #        "inputs must be provided for dynamic_seed='markov_1'."
-
-        # if tokenized_text is None:
-        #     tokenized_text = tokenizer.encode(text, add_special_tokens=False)
-
         input_sequence = tokenized_text.tolist()[0]
         prev_token_id = inputs[0][-1].item()
 
-        # Determine the starting token for seeding
-        # if self.dynamic_seed == "markov_1":
-        #     if not inputs:
-        #          # Maybe raise error or use a default if prompt is empty/not given
-        #          # For now, assume a default start token ID like 0 if prompt is empty
-        #          prev_token_id = 0
-        #     else:
-        #          prev_token_id = inputs[-1]
-        # else:
-        #      # For 'initial' or None seed, the first token's seed is fixed
-        #      prev_token_id = -1 # Placeholder, not used directly for seeding in these cases
-        # implement fresh randomness
+
         self.seed_increment=0
 
         g1_count = 0
         total_tokens = len(input_sequence)
         detected = False
         for i, token_id in enumerate(input_sequence):
-            # Get seed based on the *previous* token
             current_seed = self._get_seed_for_token(prev_token_id)
-            #######
-            #######
-            #######
             for _ in range(self.K):
                 # SCORE IS ACTUALLY - SUM OF SCORES ALONG ALL LAYER / T*K
                 g1_count += self._get_binary_g_value_for_token(token_id, current_seed)
                 current_seed += 1
-           
-            #######
-            #######
-            # Get the g-value for the *current* token using that seed
-            # g1_value = self._get_binary_g_value_for_token(token_id, current_seed)
-            # #print("g1_values:", g1_values)
-            # if g1_value == 1:
-            #     g1_count += 1
-            
-            ### calculation of #tokens for pval:
             z = self._compute_z_score(g1_count, self.K*(i+1)) # calculate current zscore
             p = 1-norm.cdf(z)
             if p <= self.pval and not(detected):
                 detection_idx = i
                 detected = True
-            ###
-
-            # Update previous token for the next iteration
             prev_token_id = token_id
         
         if not(detected):
@@ -450,6 +407,5 @@ class SynthIDDetector:
              return float(g1_count)
         else:
              z_score = self._compute_z_score(g1_count, self.K*total_tokens)
-            #  pdb.set_trace()
              return z_score, detection_idx
 
