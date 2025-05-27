@@ -54,7 +54,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
                 context=1,
                 hashing='min',
                 hash_key=15485863, # large prime
-                S_size=1024, # size of the side info space
+                k=1024, # size of the side info space
                 dist = 'lognormal',
                 temperature=1.0,
                 sinkhorn_reg = 0.05,
@@ -81,7 +81,7 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
         self.context = context
         self.hashing = hashing
         self.hash_key = hash_key
-        self.k = S_size
+        self.k = k
         self.temperature = temperature
         self.sinkhorn_reg = sinkhorn_reg
         self.sinkhorn_thresh = sinkhorn_thresh
@@ -186,7 +186,11 @@ class HeavyTailLogitsProcessor(BlacklistLogitsProcessor):
 
         # convert to cost minimization problem
         C = - self.cost_matrix[filter_indices, :]
-        C = (C - C.min())/10  # make sure all values are non-negative and small enough for Sinkhorn
+        #prev:
+        # C = (C - C.min())/10  # make sure all values are non-negative and small enough for Sinkhorn
+        # new normalization:
+        C = (C - C.min())  # make sure all values are non-negative and small enough for Sinkhorn
+        C = C/C.max()
 
         # sinkhorn on reduced cost
         P = ot.sinkhorn(
@@ -248,6 +252,8 @@ class HeavyTailWatermarkDetector():
                  k=1024, # size of the side info space
                  dist='lognormal',
                  collect_scores = False,
+                 context=1,
+                 hashing='min',
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -264,6 +270,8 @@ class HeavyTailWatermarkDetector():
             S_size=self.k, mean=0.0, sigma=1.0, seed = self.hash_key, device =self.device, dist=dist)
         self.f_scores = []
         self.collect_scores = collect_scores
+        self.context = context 
+        self.hashing = hashing
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -275,7 +283,29 @@ class HeavyTailWatermarkDetector():
         self.dynamic_seed = dynamic_seed
         self.rng = torch.Generator(device=self.device)
 
-
+    def gen_seed(self, token_ids):
+        # pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg
+    
     def _compute_z_score(self, sum_score, T):
         # T is total number of sampled tokens
         z = sum_score / math.sqrt(T)
@@ -305,6 +335,11 @@ class HeavyTailWatermarkDetector():
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
                 seed = self.hash_key + self.seed_increment
+            elif self.dynamic_seed == 'agg_hash':
+                # pdb.set_trace()
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(inputs[0][-self.context:])
+                inputs = torch.concatenate([inputs, tok_gend*torch.ones(size=(1,1), dtype=inputs.dtype)], axis=-1)
             
             self.rng.manual_seed(seed)
             s = torch.randint(

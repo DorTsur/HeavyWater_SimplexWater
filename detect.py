@@ -21,6 +21,21 @@ import re
 import scipy 
 import numpy as np
 
+
+def bootstrap_pd(pvals, threshold, *, alpha=0.75, n_boot=200, seed=None):
+    rng = np.random.default_rng(seed)
+    pvals  = np.asarray(pvals)
+    n      = pvals.size
+    m      = int(round(alpha * n))
+    pd_hat = np.empty(n_boot)
+
+    for i in range(n_boot):
+        sample = rng.choice(pvals, size=m, replace=True)
+        pd_hat[i] = np.mean(sample <= threshold)
+
+    return pd_hat.mean(), pd_hat.std(ddof=1)
+
+
 def main(args):
     seed_everything(args.initial_seed_llm)
     model2path = json.load(open("config/model2path.json", "r"))
@@ -130,6 +145,8 @@ def main(args):
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
+                                            context=context,
+                                            hashing=hashing_fn,
                                             pval=args.pval)
         
         if "synthid" in args.input_dir:
@@ -222,12 +239,21 @@ def main(args):
                                             delta=delta,
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
+                                            context=context,
+                                            hashing=hashing_fn,
                                             pval=args.pval)
             z_s_score_list = []
             detection_indices = []
         
         elif "heavy_tail" in args.input_dir:  
             print('performing detection for heavy_tail')
+            match = re.search(r"_k_(\d+)", args.input_dir)
+            if match:
+                h_k = int(match.group(1))  # Extracted number as an integer
+                print(f"Extracted k value: {h_k}")
+            else:
+                print("No '_k_' followed by a number found in input_dir.")
+                h_k=1024
             detector = HeavyTailWatermarkDetector(tokenizer=tokenizer,
                                             vocab=all_token_ids,
                                             gamma=gamma,
@@ -235,8 +261,11 @@ def main(args):
                                             dynamic_seed=args.dynamic_seed,
                                             device=device,
                                             pval=args.pval,
+                                            context=context,
+                                            hashing=hashing_fn,
                                             dist=dist,
-                                            collect_scores=args.collect_scores)
+                                            collect_scores=args.collect_scores,
+                                            k=h_k)
             z_score_list = []
             detection_indices = []
 
@@ -371,6 +400,7 @@ def main(args):
             threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
             ##
             agg_pvals = [-np.log10(pv+1e-16) for pv in pval]
+            pd_av, pd_stderr = bootstrap_pd(pval, args.threshold_p)
             ##
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
@@ -381,11 +411,14 @@ def main(args):
                 'pval_teststats': average_pval,
                 'pval_std': torch.std(torch.tensor(pval)).item(),
                 'wm_pred': [1 if z > threshold else 0 for z,threshold in zip(teststats_list, threshold_list)],
+                'p_wm_pred': sum([1 if p <= args.threshold_p else 0 for p in pval])/len(pval),
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'z_score_list': z_score_list,
                 'z_std': torch.std(torch.tensor(z_score_list)).item(),
                 'teststats_list': teststats_list,
-                'gen_token_length_list': gen_token_length_list
+                'gen_token_length_list': gen_token_length_list,
+                'pd_av': pd_av,
+                'pd_stderr': pd_stderr
             }
             print('average p value is:', save_dict['agg_pvals_avg'])
             print('std p value is:', save_dict['agg_pvals_stder'])
@@ -408,6 +441,7 @@ def main(args):
             # threshold_list = [scipy.stats.gamma.isf(pvalue, a = T, scale = 1.0) for T in gen_token_length_list]
             ##
             agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals_list]
+            pd_av, pd_stderr = bootstrap_pd(p_vals_list, args.threshold_p)
             ##
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
@@ -421,7 +455,10 @@ def main(args):
                 # 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 # 'z_score_list': z_score_list,
                 # 'std_z': torch.std(torch.tensor(z_s_score_list)).item(),
+                'p_wm_pred': sum([1 if p <= args.threshold_p else 0 for p in p_vals_list])/len(p_vals_list),
                 'teststats_list': teststats_list,
+                'pd_av': pd_av,
+                'pd_stderr': pd_stderr
                 # 'gen_token_length_list': gen_token_length_list
             }
             z_file = json_file.replace('.jsonl', f'_{gamma}_{delta}_{args.threshold}_z.jsonl')
@@ -477,6 +514,7 @@ def main(args):
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
             ##
             agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+            pd_av, pd_stderr = bootstrap_pd(p_vals,args.threshold_p)
             ##
             save_dict = {
             'agg_pvals_avg': np.mean(agg_pvals),
@@ -490,7 +528,10 @@ def main(args):
             'z_score_list': z_s_score_list,
             'avarage_z': torch.mean(torch.tensor(z_s_score_list)).item(),
             'std_z': torch.std(torch.tensor(z_s_score_list)).item()/ np.sqrt(len(z_s_score_list)),
-            'wm_pred': [1 if z > args.threshold else 0 for z in z_s_score_list]
+            'wm_pred': [1 if z > args.threshold else 0 for z in z_s_score_list],
+            'p_wm_pred': sum([1 if p <= args.threshold_p else 0 for p in p_vals])/len(p_vals),
+            'pd_av': pd_av,
+            'pd_stderr': pd_stderr
             }
             
             wm_pred_average = torch.mean(torch.tensor(save_dict['wm_pred'], dtype=torch.float))
@@ -512,7 +553,9 @@ def main(args):
             p_vals = [1-norm.cdf(z_) for z_ in z_score_list]
             ##
             agg_pvals = [-np.log10(pv+1e-16) for pv in p_vals]
+            pd_av, pd_stderr = bootstrap_pd(p_vals, args.threshold_p)
             ##
+            #pdb.set_trace()
             save_dict = {
                 'agg_pvals_avg': np.mean(agg_pvals),
                 'agg_pvals_stder': np.std(agg_pvals)/np.sqrt(len(agg_pvals)),
@@ -525,7 +568,10 @@ def main(args):
                 'z_score_list': z_score_list,
                 'avarage_z': torch.mean(torch.tensor(z_score_list)).item(),
                 'std_z': torch.std(torch.tensor(z_score_list)).item()/ np.sqrt(len(z_score_list)),
-                'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list]
+                'wm_pred': [1 if z > args.threshold else 0 for z in z_score_list],
+                'p_wm_pred': sum([1 if p <= args.threshold_p else 0 for p in p_vals])/len(p_vals),
+                'pd_av': pd_av,
+                'pd_stderr': pd_stderr
                 }
             # if 'lin_code' in args.input_dir:
             #     save_dict['avg_detection_idx'] = np.mean(detection_indices)
@@ -666,6 +712,15 @@ parser.add_argument(
         type=float,
         default=1e-3,
         help="p value to meet when vcounting tokens to p value",
+        )
+
+
+
+parser.add_argument(
+        "--threshold_p",
+        type=float,
+        default=1e-4,
+        help="p value for PD@PFA",
         )
 
 # add dataset

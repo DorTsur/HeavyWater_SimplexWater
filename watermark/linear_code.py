@@ -142,6 +142,8 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 self.seed_increment += 1
                 seed = self.large_prime + self.seed_increment
             elif self.dynamic_seed == 'agg_hash':
+                print('agg')
+                # pdb.set_trace()
                 #TD - create vrious sliding window hashes.
                 seed = self.gen_seed(input_ids[b_idx][-self.context:])
 
@@ -154,7 +156,7 @@ class LinearCodeLogitsProcessor(BlacklistLogitsProcessor):
                 generator=self.g_cuda,
                 device=input_ids.device
             ).item()  
-            # print(f's={s},seed={seed}')     
+            print(f'context {input_ids[b_idx][-self.context:]}, s={s},seed={seed}')     
 
         if not self.noop_blacklist:
             # we choose to watermark
@@ -290,7 +292,9 @@ class LinearCodeWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 pval=2e-2
+                 pval=2e-2,
+                 context=1,
+                 hashing='min',
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -302,6 +306,9 @@ class LinearCodeWatermarkDetector():
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
         self.pval = pval
+
+        self.context = context 
+        self.hashing = hashing
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -326,7 +333,7 @@ class LinearCodeWatermarkDetector():
     def _compute_z_score(self, observed_count, T):
         # count refers to number of green tokens, T is total number of tokens
         expected_count =  0.5
-        print(f"detected {observed_count} tokens out of {T}")
+        # print(f"detected {observed_count} tokens out of {T}")
         numer = observed_count - expected_count * T
         denom = math.sqrt(T * expected_count * (1 - expected_count))
         z = numer / denom
@@ -355,6 +362,11 @@ class LinearCodeWatermarkDetector():
             elif self.dynamic_seed == 'fresh':
                 self.seed_increment += 1
                 seed = self.hash_key + self.seed_increment
+            elif self.dynamic_seed == 'agg_hash':
+                # pdb.set_trace()
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(inputs[0][-self.context:])
+                inputs = torch.concatenate([inputs, tok_gend*torch.ones(size=(1,1), dtype=inputs.dtype)], axis=-1)
             
             self.rng.manual_seed(seed)
             s = torch.randint(
@@ -365,7 +377,7 @@ class LinearCodeWatermarkDetector():
                 device=self.device
             ).item()
 
-            # print(f's={s},token={tok_gend}, prev_token={prev_token}')
+            # print(f'context {inputs[0][-self.context:]}, s={s},token={tok_gend}, prev_token={prev_token}')
 
             binary_x = torch.tensor([int(bit) for bit in format(tok_gend, f'0{self.n}b')], device=self.device)
             binary_s = torch.tensor([int(bit) for bit in format(s, f'0{self.n}b')], device=self.device)
@@ -390,4 +402,27 @@ class LinearCodeWatermarkDetector():
         z_score = self._compute_z_score(cnt, len(input_sequence))
         print("LC z score is:", z_score)
         return z_score, detection_idx
+    
+    def gen_seed(self, token_ids):
+        # pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg
 

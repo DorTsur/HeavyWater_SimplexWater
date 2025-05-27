@@ -54,7 +54,9 @@ class Generator():
                                             initial_seed=self.init_seed, 
                                             dynamic_seed=self.dyna_seed,
                                             top_p=self.args.top_p,
-                                            temperature=self.sampling_temp)
+                                            temperature=self.sampling_temp,
+                                            context=args.context,
+                                            hashing=args.hashing_fn,)
         self.logit_processor_lst = LogitsProcessorList([self.bl_processor])
         if args.mode == 'synthid':
             self.bl_processor = SynthIDLogitsProcessor(
@@ -196,7 +198,7 @@ class Generator():
                                             top_p=args.top_p,
                                             context=args.context,
                                             hashing=args.hashing_fn,
-                                            S_size=1024,
+                                            k=args.heavywater_k,
                                             temperature = args.sampling_temp,
                                             sinkhorn_reg = args.sinkhorn_reg,
                                             sinkhorn_thresh=args.sinkhorn_thresh
@@ -302,24 +304,26 @@ class Generator():
         else:    
             self.logit_processor_lst[0].seed_increment = 0
             
-            outputs = self.model.generate(
-                input_ids,
-                max_new_tokens=max_new_tokens,
-                logits_processor = self.logit_processor_lst,
-                do_sample=True,
-                top_k=0,
-                temperature = 1, # temperature applied prior to and implemented in the logit processor
-                #temperature=self.sampling_temp,
-                top_p= 1 # top-p applied prior to and implemented in the logit processor
-            )
-
-            # if self.mode == 'no':
+            if self.mode == 'no':
                 
-            #     outputs = self.model.generate(
-            #         input_ids, max_new_tokens=max_new_tokens,
-            #         temperature = self.sampling_temp,
-            #         top_p= 1 # top-p implemented in the logit processor
-            #     )
+                outputs = self.model.generate(
+                    input_ids, max_new_tokens=max_new_tokens,
+                    temperature = self.sampling_temp,
+                    top_p= 1 # top-p implemented in the logit processor
+                )
+            else:    
+                outputs = self.model.generate(
+                    input_ids,
+                    max_new_tokens=max_new_tokens,
+                    logits_processor = self.logit_processor_lst,
+                    do_sample=True,
+                    top_k=0,
+                    temperature = 1, # temperature applied prior to and implemented in the logit processor
+                    #temperature=self.sampling_temp,
+                    top_p= 1 # top-p applied prior to and implemented in the logit processor
+                )
+
+            
 
             # elif self.mode == 'old':
             #     # pdb.set_trace()
@@ -450,6 +454,16 @@ class Generator():
                 original_distributions = scores
             else:
                 original_distributions = self.logit_processor_lst[0].saved_distributions  # list of tensors (shape: [vocab_size])
+
+            if self.mode == 'no':
+                completions_tokens = []
+                for no_watermark_prob, score, token in zip(original_distributions, scores, output_ids, strict=True):
+                    completions_tokens.append({
+                        'text': self.tokenizer.decode(token),
+                        #'CElogprob': CElogprob.item(), #just average this for CE
+                    })
+                completions_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+                return completions_text, completions_tokens, 0
 
             # print(output_ids)
             # compute logprob for each token

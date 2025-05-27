@@ -36,7 +36,7 @@ def parse_args(args=None):
         "--mode",
         type=str,
         default="cc",
-        choices=["heavy_tail", "synthid", "old", "new", "v2", "gpt", "cc","cc-combined", "cc-k","inv_tr","lin_code", "exponential","gauss_lin_code","q_lin_code"],
+        choices=["no","heavy_tail", "synthid", "old", "new", "v2", "gpt", "cc","cc-combined", "cc-k","inv_tr","lin_code", "exponential","gauss_lin_code","q_lin_code"],
         help="Which version of the watermark to generate",
     )
     parser.add_argument(
@@ -182,12 +182,20 @@ def parse_args(args=None):
         default=0.5,
         help="tilting value for distortionless distributions",
     )
+    
 
     parser.add_argument(
         "--num_seeds",
         type=int,
         default=2,
         help="tilting value for distortionless distributions",
+    )
+
+    parser.add_argument(
+        "--heavywater_k",
+        type=int,
+        default=1024,
+        help="size of heavywater side information alphabet size k",
     )
 
     parser.add_argument(
@@ -425,6 +433,8 @@ if __name__ == '__main__':
         save_dir += f"_top_p_{args.top_p}"
     if args.mode == "q_lin_code":
         save_dir += f"_q_{args.q}"
+    if args.mode == 'heavy_tail' and args.heavywater_k != 1024:
+        save_dir += f"_k_{args.heavywater_k}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     # predict on each dataset
@@ -468,8 +478,8 @@ if __name__ == '__main__':
         out_path = os.path.join(save_dir, f"{dataset}.jsonl")
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
-        if args.sampling_temp == 1.00012:
-                max_gen = 550
+        if args.sampling_temp == 1.000121:
+                max_gen = 1024
         preds, CE_ave_per_prompt = get_pred(args, model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
         
         outpath_ce = os.path.join(save_dir, f"eval/{dataset}_CE.jsonl")

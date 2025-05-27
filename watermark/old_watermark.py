@@ -133,6 +133,8 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 noop_blacklist: bool = False,
                 top_p: float = 0.999,
                 temperature: float = 1.0,
+                context=1,
+                hashing='min',
                 ):
         
         self.vocab = vocab
@@ -144,6 +146,8 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         self.saved_distributions = []
         self.top_p = top_p
         self.temperature = temperature
+        self.context = context
+        self.hashing = hashing
 
         if initial_seed is None: 
             self.initial_seed = None
@@ -227,6 +231,29 @@ class BlacklistLogitsProcessor(LogitsProcessor):
         sum_renormed_probs = renormed_probs.sum()
         return sum_renormed_probs
 
+    def gen_seed(self, token_ids):
+        # pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg
+    
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
         # pdb.set_trace()
         self.bad_words_id_length_1 = [None for _ in range(input_ids.shape[0])]
@@ -247,7 +274,10 @@ class BlacklistLogitsProcessor(LogitsProcessor):
                 seed = self.large_prime + self.seed_increment
                 self.g_cuda.manual_seed(seed)
                 # print(f'seed {seed}, prev_token {input_ids[b_idx][-1].item()}')
-            
+            elif self.dynamic_seed == 'agg_hash':
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(input_ids[b_idx][-self.context:])
+                self.g_cuda.manual_seed(seed)
             #
             # pdb.set_trace()
             # apply temperature
@@ -925,7 +955,9 @@ class OldWatermarkDetector():
                  dynamic_seed: str=None, # "initial", "markov_1", None
                  device: torch.device = None,
                  select_green_tokens: bool = True,
-                 pval=2e-2
+                 pval=2e-2,
+                 context=1,
+                 hashing='min',
                  ):
         self.vocab = vocab
         self.vocab_size = len(vocab)
@@ -937,6 +969,9 @@ class OldWatermarkDetector():
         self.select_green_tokens = select_green_tokens
         self.seed_increment = 0
         self.pval = pval
+        self.context = context 
+        self.hashing = hashing
+        print(f'hashing {hashing} and context {context}')
         
         if initial_seed is None: 
             self.initial_seed = None
@@ -957,6 +992,29 @@ class OldWatermarkDetector():
         denom = math.sqrt(T * expected_count * (1 - expected_count))
         z = numer / denom
         return z
+    
+    def gen_seed(self, token_ids):
+        # pdb.set_trace()
+        token_ids = token_ids.tolist()
+        if self.hashing == 'min':
+            agg = min(token_ids)
+        elif self.hashing == 'sum':
+            agg = sum(token_ids)
+        elif self.hashing == 'prod':
+            agg = 1
+            for i in token_ids:
+                agg *= i
+        elif self.hashing == 'repeat':
+            token_ids = tuple(token_ids)
+            if token_ids in self.hash_dict:
+                pass
+            else:
+                self.hash_dict[token_ids] = self.seed_increment
+                self.seed_increment += 1
+                agg = 1
+                for i in token_ids:
+                    agg *= i
+        return agg
     
     def detect(self,
                inputs: list[int]=None,
@@ -999,6 +1057,13 @@ class OldWatermarkDetector():
                 seed = self.hash_key + self.seed_increment
                 self.rng.manual_seed(seed)
                 #print(f'seed {seed}, prev_token {prev_token}')
+            
+            elif self.dynamic_seed == 'agg_hash':
+                # pdb.set_trace()
+                #TD - create vrious sliding window hashes.
+                seed = self.gen_seed(inputs[0][-self.context:])
+                inputs = torch.concatenate([inputs, tok_gend*torch.ones(size=(1,1), dtype=inputs.dtype)], axis=-1)
+                self.rng.manual_seed(seed)
 
             
             
