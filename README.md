@@ -82,6 +82,17 @@ Require speciyfying which attack is to be performed.
 
 Example code:
 
+Watermark:
+```bash
+python pred.py --mode 'lin_code' --dataset 'finance_qa' --num_seeds 0 --sampling_temp 1.0 --tilt True --tilting_delta 0.0 --dynamic_seed 'fresh' --top_p 0.999
+```
+
+Detect:
+```bash
+python detect.py --input_dir <path-to-input-dir>
+```
+
+Attack:
 ```bash
 python attack.py --input_dir <path-to-input-dir> --attack 'LowercaseAttack'
 ```
@@ -111,7 +122,7 @@ python attack.py --input_dir <path-to-input-dir> --attack 'LowercaseAttack'
 
 ## Citation
 
-TBD.
+Tsur, D., Long, C.X., Verdun, C.M., Hsu, H., Chen, C.F., Permuter, H., Vithana, S. and Calmon, F.P., 2025. HeavyWater and SimplexWater: Watermarking Low-Entropy Text Distributions. arXiv preprint arXiv:2506.06409.
 
 
 ---
